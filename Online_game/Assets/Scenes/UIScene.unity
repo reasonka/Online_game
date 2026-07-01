@@ -159,7 +159,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -74, y: -19.2}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &390437624
 MonoBehaviour:
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -232,7 +232,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -265, y: -19.2}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &519658481
 MonoBehaviour:
@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -342,6 +342,89 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 588380905}
   m_CullTransparentMesh: 1
+--- !u!1 &699670173
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 699670175}
+  - component: {fileID: 699670174}
+  m_Layer: 0
+  m_Name: RecipeMenuManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &699670174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699670173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca7268d6815a4bcf8fd8b88f70a6128, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recipes:
+  - foodName: Nile Cheese Burger
+    ingredientTextures:
+    - {fileID: 2800000, guid: 2a71301c7da1f41aeaec6b28a8012b94, type: 3}
+    - {fileID: 2800000, guid: e8989cdac207d4a529be6f2c9c87c0ca, type: 3}
+    - {fileID: 2800000, guid: 84d434e52bf9948d59d7b6f270385f33, type: 3}
+    - {fileID: 2800000, guid: 343612c40ad9d46a087394c4c9033f0b, type: 3}
+    - {fileID: 2800000, guid: 4cf62a8051b3d467985b3f378c611fa5, type: 3}
+    - {fileID: 2800000, guid: d27dc9dd2671b449888ad796c10d7a9b, type: 3}
+    finalFoodTexture: {fileID: 2800000, guid: deced5f1358454caa93646cec58cc223, type: 3}
+  - foodName: Pharaoh Egg Burger
+    ingredientTextures:
+    - {fileID: 2800000, guid: 2a71301c7da1f41aeaec6b28a8012b94, type: 3}
+    - {fileID: 2800000, guid: 84d434e52bf9948d59d7b6f270385f33, type: 3}
+    - {fileID: 2800000, guid: e8989cdac207d4a529be6f2c9c87c0ca, type: 3}
+    - {fileID: 2800000, guid: e8369785ffe6c4ca599a8377fe6c3795, type: 3}
+    - {fileID: 2800000, guid: 274db534868ac4cdfb5573ed41ac6575, type: 3}
+    - {fileID: 2800000, guid: d27dc9dd2671b449888ad796c10d7a9b, type: 3}
+    finalFoodTexture: {fileID: 2800000, guid: fbdade13d6f774462871b135ad650c3d, type: 3}
+  - foodName: Pyramid Onion Burger
+    ingredientTextures:
+    - {fileID: 2800000, guid: 2a71301c7da1f41aeaec6b28a8012b94, type: 3}
+    - {fileID: 2800000, guid: e8989cdac207d4a529be6f2c9c87c0ca, type: 3}
+    - {fileID: 2800000, guid: 84d434e52bf9948d59d7b6f270385f33, type: 3}
+    - {fileID: 2800000, guid: 343612c40ad9d46a087394c4c9033f0b, type: 3}
+    - {fileID: 2800000, guid: db0d7ed1b561d47449d0b5f3c65aee00, type: 3}
+    - {fileID: 2800000, guid: d27dc9dd2671b449888ad796c10d7a9b, type: 3}
+    finalFoodTexture: {fileID: 2800000, guid: 8c3163232ce0b4d1b93ef6031e9af92b, type: 3}
+  foodNameText: {fileID: 1404536899}
+  ingredientSlots:
+  - {fileID: 782009995}
+  - {fileID: 906142935}
+  - {fileID: 519658481}
+  - {fileID: 390437624}
+  - {fileID: 987799619}
+  - {fileID: 1202581468}
+  finalFoodSlot: {fileID: 1086891108}
+  nextButton: {fileID: 0}
+  previousButton: {fileID: 0}
+--- !u!4 &699670175
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699670173}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 706.93304, y: 626.4131, z: -591.8143}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &782009993
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,7 +461,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -661.6, y: -19.2}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &782009995
 MonoBehaviour:
@@ -393,7 +476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -451,7 +534,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -458.5, y: -19.2}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &906142935
 MonoBehaviour:
@@ -466,7 +549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -524,7 +607,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 119.3, y: -19.2}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &987799619
 MonoBehaviour:
@@ -539,7 +622,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -707,7 +790,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 633, y: 23}
-  m_SizeDelta: {x: 220, y: 220}
+  m_SizeDelta: {x: 300, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1086891108
 MonoBehaviour:
@@ -722,7 +805,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -864,7 +947,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 313, y: -19.2}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1202581468
 MonoBehaviour:
@@ -879,7 +962,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.990566, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

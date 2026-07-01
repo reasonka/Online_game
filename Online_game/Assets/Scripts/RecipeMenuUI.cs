@@ -6,8 +6,8 @@ using TMPro;
 public class FoodRecipe
 {
     public string foodName;
-    public Sprite[] ingredientSprites = new Sprite[6];
-    public Sprite finalFoodSprite;
+    public Texture[] ingredientTextures = new Texture[6];
+    public Texture finalFoodTexture;
 }
 
 public class RecipeMenuUI : MonoBehaviour
@@ -17,10 +17,8 @@ public class RecipeMenuUI : MonoBehaviour
 
     [Header("UI References")]
     public TMP_Text foodNameText;
-    public TMP_Text yummyText;
-
-    public Image[] ingredientSlots = new Image[6];
-    public Image finalFoodSlot;
+    public RawImage[] ingredientSlots = new RawImage[6];
+    public RawImage finalFoodSlot;
 
     public Button nextButton;
     public Button previousButton;
@@ -29,10 +27,11 @@ public class RecipeMenuUI : MonoBehaviour
 
     private void Start()
     {
-        yummyText.text = "YUMMY!";
+        if (nextButton != null)
+            nextButton.onClick.AddListener(ShowNextRecipe);
 
-        nextButton.onClick.AddListener(ShowNextRecipe);
-        previousButton.onClick.AddListener(ShowPreviousRecipe);
+        if (previousButton != null)
+            previousButton.onClick.AddListener(ShowPreviousRecipe);
 
         ShowRecipe(currentRecipeIndex);
     }
@@ -47,24 +46,65 @@ public class RecipeMenuUI : MonoBehaviour
 
         FoodRecipe recipe = recipes[index];
 
-        foodNameText.text = recipe.foodName;
+        if (foodNameText != null)
+            foodNameText.text = recipe.foodName;
 
         for (int i = 0; i < ingredientSlots.Length; i++)
         {
-            if (i < recipe.ingredientSprites.Length && recipe.ingredientSprites[i] != null)
+            if (ingredientSlots[i] == null)
+                continue;
+
+            if (i < recipe.ingredientTextures.Length && recipe.ingredientTextures[i] != null)
             {
-                ingredientSlots[i].sprite = recipe.ingredientSprites[i];
-                ingredientSlots[i].enabled = true;
+                SetRawImageTexture(ingredientSlots[i], recipe.ingredientTextures[i]);
             }
             else
             {
-                ingredientSlots[i].sprite = null;
+                ingredientSlots[i].texture = null;
                 ingredientSlots[i].enabled = false;
             }
         }
 
-        finalFoodSlot.sprite = recipe.finalFoodSprite;
-        finalFoodSlot.enabled = recipe.finalFoodSprite != null;
+        if (finalFoodSlot != null)
+        {
+            if (recipe.finalFoodTexture != null)
+            {
+                SetRawImageTexture(finalFoodSlot, recipe.finalFoodTexture);
+            }
+            else
+            {
+                finalFoodSlot.texture = null;
+                finalFoodSlot.enabled = false;
+            }
+        }
+    }
+
+    private void SetRawImageTexture(RawImage rawImage, Texture texture)
+    {
+        rawImage.texture = texture;
+        rawImage.enabled = true;
+
+        RectTransform rectTransform = rawImage.rectTransform;
+
+        float slotWidth = rectTransform.rect.width;
+        float slotHeight = rectTransform.rect.height;
+
+        float textureWidth = texture.width;
+        float textureHeight = texture.height;
+
+        float slotAspect = slotWidth / slotHeight;
+        float textureAspect = textureWidth / textureHeight;
+
+        if (textureAspect > slotAspect)
+        {
+            float height = slotWidth / textureAspect;
+            rectTransform.sizeDelta = new Vector2(slotWidth, height);
+        }
+        else
+        {
+            float width = slotHeight * textureAspect;
+            rectTransform.sizeDelta = new Vector2(width, slotHeight);
+        }
     }
 
     private void ShowNextRecipe()
@@ -72,9 +112,7 @@ public class RecipeMenuUI : MonoBehaviour
         currentRecipeIndex++;
 
         if (currentRecipeIndex >= recipes.Length)
-        {
             currentRecipeIndex = 0;
-        }
 
         ShowRecipe(currentRecipeIndex);
     }
@@ -84,9 +122,7 @@ public class RecipeMenuUI : MonoBehaviour
         currentRecipeIndex--;
 
         if (currentRecipeIndex < 0)
-        {
             currentRecipeIndex = recipes.Length - 1;
-        }
 
         ShowRecipe(currentRecipeIndex);
     }
