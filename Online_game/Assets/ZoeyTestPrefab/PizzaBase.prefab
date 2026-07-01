@@ -176,7 +176,7 @@ Transform:
   - {fileID: 2654700176894516127}
   - {fileID: 8772707523773316560}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619671773923842602
 GameObject:
@@ -929,6 +929,10 @@ MonoBehaviour:
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
   destroyCookingStationAfterFail: 1
+  destroyTargetObject: {fileID: 548783413241283944}
+  detachFinalProductSpawnPointBeforeDestroy: 1
+  detachFailedProductSpawnPointBeforeDestroy: 1
+  detachIngredientVisualSpawnPointsBeforeDestroy: 0
 --- !u!1 &4547966214352502560
 GameObject:
   m_ObjectHideFlags: 0
