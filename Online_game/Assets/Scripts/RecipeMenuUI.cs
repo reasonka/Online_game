@@ -20,29 +20,69 @@ public class RecipeMenuUI : MonoBehaviour
     public RawImage[] ingredientSlots = new RawImage[6];
     public RawImage finalFoodSlot;
 
-    public Button nextButton;
-    public Button previousButton;
+    [Header("Recipe Buttons")]
+    public Button burgerButton1;
+    public Button burgerButton2;
+    public Button burgerButton3;
+    public Button burgerButton4;
 
-    private int currentRecipeIndex = 0;
+    [Header("Close Button")]
+    public Button closeButton;
+    public GameObject recipePanel;
+
+    private Vector2[] originalIngredientSizes;
+    private Vector2 originalFinalFoodSize;
+
+    private void Awake()
+    {
+        originalIngredientSizes = new Vector2[ingredientSlots.Length];
+
+        for (int i = 0; i < ingredientSlots.Length; i++)
+        {
+            if (ingredientSlots[i] != null)
+                originalIngredientSizes[i] = ingredientSlots[i].rectTransform.sizeDelta;
+        }
+
+        if (finalFoodSlot != null)
+            originalFinalFoodSize = finalFoodSlot.rectTransform.sizeDelta;
+    }
 
     private void Start()
     {
-        if (nextButton != null)
-            nextButton.onClick.AddListener(ShowNextRecipe);
+        if (burgerButton1 != null)
+            burgerButton1.onClick.AddListener(() => ShowRecipe(0));
 
-        if (previousButton != null)
-            previousButton.onClick.AddListener(ShowPreviousRecipe);
+        if (burgerButton2 != null)
+            burgerButton2.onClick.AddListener(() => ShowRecipe(1));
 
-        ShowRecipe(currentRecipeIndex);
+        if (burgerButton3 != null)
+            burgerButton3.onClick.AddListener(() => ShowRecipe(2));
+
+        if (burgerButton4 != null)
+            burgerButton4.onClick.AddListener(() => ShowRecipe(3));
+
+        if (closeButton != null)
+            closeButton.onClick.AddListener(CloseRecipePanel);
+
+        ShowRecipe(0);
     }
 
-    private void ShowRecipe(int index)
+    public void ShowRecipe(int index)
     {
         if (recipes == null || recipes.Length == 0)
         {
             Debug.LogWarning("No recipes assigned.");
             return;
         }
+
+        if (index < 0 || index >= recipes.Length)
+        {
+            Debug.LogWarning("Recipe index is out of range: " + index);
+            return;
+        }
+
+        if (recipePanel != null)
+            recipePanel.SetActive(true);
 
         FoodRecipe recipe = recipes[index];
 
@@ -56,7 +96,7 @@ public class RecipeMenuUI : MonoBehaviour
 
             if (i < recipe.ingredientTextures.Length && recipe.ingredientTextures[i] != null)
             {
-                SetRawImageTexture(ingredientSlots[i], recipe.ingredientTextures[i]);
+                SetRawImageTexture(ingredientSlots[i], recipe.ingredientTextures[i], originalIngredientSizes[i]);
             }
             else
             {
@@ -69,7 +109,7 @@ public class RecipeMenuUI : MonoBehaviour
         {
             if (recipe.finalFoodTexture != null)
             {
-                SetRawImageTexture(finalFoodSlot, recipe.finalFoodTexture);
+                SetRawImageTexture(finalFoodSlot, recipe.finalFoodTexture, originalFinalFoodSize);
             }
             else
             {
@@ -79,21 +119,18 @@ public class RecipeMenuUI : MonoBehaviour
         }
     }
 
-    private void SetRawImageTexture(RawImage rawImage, Texture texture)
+    private void SetRawImageTexture(RawImage rawImage, Texture texture, Vector2 originalSlotSize)
     {
         rawImage.texture = texture;
         rawImage.enabled = true;
 
-        RectTransform rectTransform = rawImage.rectTransform;
+        float slotWidth = originalSlotSize.x;
+        float slotHeight = originalSlotSize.y;
 
-        float slotWidth = rectTransform.rect.width;
-        float slotHeight = rectTransform.rect.height;
-
-        float textureWidth = texture.width;
-        float textureHeight = texture.height;
-
+        float textureAspect = (float)texture.width / texture.height;
         float slotAspect = slotWidth / slotHeight;
-        float textureAspect = textureWidth / textureHeight;
+
+        RectTransform rectTransform = rawImage.rectTransform;
 
         if (textureAspect > slotAspect)
         {
@@ -107,23 +144,9 @@ public class RecipeMenuUI : MonoBehaviour
         }
     }
 
-    private void ShowNextRecipe()
+    public void CloseRecipePanel()
     {
-        currentRecipeIndex++;
-
-        if (currentRecipeIndex >= recipes.Length)
-            currentRecipeIndex = 0;
-
-        ShowRecipe(currentRecipeIndex);
-    }
-
-    private void ShowPreviousRecipe()
-    {
-        currentRecipeIndex--;
-
-        if (currentRecipeIndex < 0)
-            currentRecipeIndex = recipes.Length - 1;
-
-        ShowRecipe(currentRecipeIndex);
+        if (recipePanel != null)
+            recipePanel.SetActive(false);
     }
 }
