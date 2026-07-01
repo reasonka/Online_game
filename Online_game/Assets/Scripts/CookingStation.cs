@@ -54,7 +54,7 @@ public class CookingStation : MonoBehaviourPun
     public Transform failedProductSpawnPoint;
 
     [Header("Input Ingredient Setting")]
-    [Tooltip("Destroy the ingredient object that enters the trigger zone, such as cheese_pack or sauce bottle.")]
+    [Tooltip("Destroy the input ingredient object that enters the trigger zone, such as cheese_pack or sauce bottle.")]
     public bool destroyInputIngredientAfterAdding = true;
 
     [Header("Clear Visuals When Recipe Ends")]
@@ -65,11 +65,25 @@ public class CookingStation : MonoBehaviourPun
     public bool clearPlacedVisualsAfterFail = true;
 
     [Header("Destroy Cooking Station When Recipe Ends")]
-    [Tooltip("Destroy this CookingStation GameObject after success. Useful when the station itself is the pizza base.")]
+    [Tooltip("Destroy this CookingStation object or Destroy Target Object after success.")]
     public bool destroyCookingStationAfterSuccess = false;
 
-    [Tooltip("Destroy this CookingStation GameObject after fail.")]
+    [Tooltip("Destroy this CookingStation object or Destroy Target Object after fail.")]
     public bool destroyCookingStationAfterFail = false;
+
+    [Header("Destroy Target Object")]
+    [Tooltip("The object to destroy after success/fail. If empty, this GameObject will be destroyed. Usually this is the root parent, such as Pizza_dough root.")]
+    public GameObject destroyTargetObject;
+
+    [Header("Detach Spawn Points Before Destroy")]
+    [Tooltip("Detach final product spawn point before destroying the cooking station target object.")]
+    public bool detachFinalProductSpawnPointBeforeDestroy = true;
+
+    [Tooltip("Detach failed product spawn point before destroying the cooking station target object.")]
+    public bool detachFailedProductSpawnPointBeforeDestroy = true;
+
+    [Tooltip("Detach ingredient visual spawn points before destroying the cooking station target object.")]
+    public bool detachIngredientVisualSpawnPointsBeforeDestroy = false;
 
     private List<string> currentIngredientIds = new List<string>();
     private List<GameObject> spawnedVisualObjects = new List<GameObject>();
@@ -212,6 +226,15 @@ public class CookingStation : MonoBehaviourPun
         if (failedProductSpawnPoint == null)
         {
             LogWarning("Failed Product Spawn Point is empty. Failed product will spawn above station.");
+        }
+
+        if (destroyTargetObject == null)
+        {
+            Log("Destroy Target Object is empty. If destroy is enabled, this GameObject will be destroyed: " + gameObject.name);
+        }
+        else
+        {
+            Log("Destroy Target Object: " + destroyTargetObject.name);
         }
     }
 
@@ -560,32 +583,96 @@ public class CookingStation : MonoBehaviourPun
 
     private void DestroyCookingStationObject()
     {
-        Log("Destroying CookingStation GameObject: " + gameObject.name);
+        Log("DestroyCookingStationObject called.");
+
+        DetachSpawnPointsBeforeDestroy();
+
+        GameObject target = destroyTargetObject != null ? destroyTargetObject : gameObject;
+
+        Log("Destroying CookingStation target object: " + target.name);
 
         if (usePhotonSync && PhotonNetwork.IsConnected)
         {
-            PhotonView view = GetComponent<PhotonView>();
+            PhotonView view = target.GetComponent<PhotonView>();
 
             if (view != null)
             {
                 if (PhotonNetwork.IsMasterClient)
                 {
-                    PhotonNetwork.Destroy(gameObject);
+                    PhotonNetwork.Destroy(target);
                 }
                 else
                 {
-                    Log("Not MasterClient. CookingStation will not be destroyed by this client.");
+                    Log("Not MasterClient. Target object will not be destroyed by this client.");
                 }
             }
             else
             {
-                LogWarning("CookingStation has no PhotonView. Using local Destroy.");
-                Destroy(gameObject);
+                LogWarning("Destroy target has no PhotonView. Using local Destroy.");
+                Destroy(target);
             }
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(target);
+        }
+    }
+
+    private void DetachSpawnPointsBeforeDestroy()
+    {
+        if (detachFinalProductSpawnPointBeforeDestroy && finalProductSpawnPoint != null)
+        {
+            Log("Detaching final product spawn point: " + finalProductSpawnPoint.name);
+            finalProductSpawnPoint.SetParent(null);
+        }
+
+        if (detachFailedProductSpawnPointBeforeDestroy && failedProductSpawnPoint != null)
+        {
+            if (failedProductSpawnPoint != finalProductSpawnPoint)
+            {
+                Log("Detaching failed product spawn point: " + failedProductSpawnPoint.name);
+                failedProductSpawnPoint.SetParent(null);
+            }
+        }
+
+        if (detachIngredientVisualSpawnPointsBeforeDestroy)
+        {
+            DetachIngredientVisualSpawnPoints();
+        }
+    }
+
+    private void DetachIngredientVisualSpawnPoints()
+    {
+        if (recipes == null)
+            return;
+
+        Log("Detaching ingredient visual spawn points.");
+
+        HashSet<Transform> detachedPoints = new HashSet<Transform>();
+
+        foreach (CookingRecipe recipe in recipes)
+        {
+            if (recipe == null || recipe.requiredIngredients == null)
+                continue;
+
+            foreach (IngredientRequirement req in recipe.requiredIngredients)
+            {
+                if (req == null || req.visualSpawnPoints == null)
+                    continue;
+
+                foreach (Transform point in req.visualSpawnPoints)
+                {
+                    if (point == null)
+                        continue;
+
+                    if (detachedPoints.Contains(point))
+                        continue;
+
+                    Log("Detaching ingredient visual spawn point: " + point.name);
+                    point.SetParent(null);
+                    detachedPoints.Add(point);
+                }
+            }
         }
     }
 

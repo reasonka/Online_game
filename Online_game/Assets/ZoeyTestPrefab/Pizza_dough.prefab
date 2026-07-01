@@ -221,16 +221,20 @@ MonoBehaviour:
       visualPrefabOnDish: {fileID: 6842445340047376032, guid: c18107fefde87154f8e07530a22e32de, type: 3}
       visualSpawnPoints:
       - {fileID: 2688769651478322844}
-    finalProductPrefab: {fileID: 2189101484033972954, guid: e595081ca049d9a43b5a38f54681025d, type: 3}
+    finalProductPrefab: {fileID: 548783413241283944, guid: e595081ca049d9a43b5a38f54681025d, type: 3}
   currentRecipeIndex: 0
   finalProductSpawnPoint: {fileID: 1884110619186623447}
-  failedProductPrefab: {fileID: 7604889359486055219, guid: c3f3fb0d7ea0e864c8ae21d004c419c4, type: 3}
+  failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
   failedProductSpawnPoint: {fileID: 1884110619186623447}
   destroyInputIngredientAfterAdding: 1
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
   destroyCookingStationAfterFail: 1
+  destroyTargetObject: {fileID: 1677698015488625666}
+  detachFinalProductSpawnPointBeforeDestroy: 1
+  detachFailedProductSpawnPointBeforeDestroy: 1
+  detachIngredientVisualSpawnPointsBeforeDestroy: 0
 --- !u!1 &6395286162409302567
 GameObject:
   m_ObjectHideFlags: 0
