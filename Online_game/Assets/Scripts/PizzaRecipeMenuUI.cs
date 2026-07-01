@@ -3,28 +3,27 @@ using UnityEngine.UI;
 using TMPro;
 
 [System.Serializable]
-public class FoodRecipe
+public class PizzaRecipe
 {
     public string foodName;
-    public Texture[] ingredientTextures = new Texture[6];
+    public Texture[] ingredientTextures = new Texture[7];
     public Texture finalFoodTexture;
 }
 
-public class RecipeMenuUI : MonoBehaviour
+public class PizzaRecipeMenuUI : MonoBehaviour
 {
     [Header("Recipe Data")]
-    public FoodRecipe[] recipes;
+    public PizzaRecipe[] recipes;
 
     [Header("UI References")]
     public TMP_Text foodNameText;
-    public RawImage[] ingredientSlots = new RawImage[6];
+    public RawImage[] ingredientSlots = new RawImage[7];
     public RawImage finalFoodSlot;
 
     [Header("Recipe Buttons")]
-    public Button burgerButton1;
-    public Button burgerButton2;
-    public Button burgerButton3;
-    public Button burgerButton4;
+    public Button pizzaButton1;
+    public Button pizzaButton2;
+    public Button pizzaButton3;
 
     [Header("Close Button")]
     public Button closeButton;
@@ -49,17 +48,14 @@ public class RecipeMenuUI : MonoBehaviour
 
     private void Start()
     {
-        if (burgerButton1 != null)
-            burgerButton1.onClick.AddListener(() => ShowRecipe(0));
+        if (pizzaButton1 != null)
+            pizzaButton1.onClick.AddListener(() => ShowRecipe(0));
 
-        if (burgerButton2 != null)
-            burgerButton2.onClick.AddListener(() => ShowRecipe(1));
+        if (pizzaButton2 != null)
+            pizzaButton2.onClick.AddListener(() => ShowRecipe(1));
 
-        if (burgerButton3 != null)
-            burgerButton3.onClick.AddListener(() => ShowRecipe(2));
-
-        if (burgerButton4 != null)
-            burgerButton4.onClick.AddListener(() => ShowRecipe(3));
+        if (pizzaButton3 != null)
+            pizzaButton3.onClick.AddListener(() => ShowRecipe(2));
 
         if (closeButton != null)
             closeButton.onClick.AddListener(CloseRecipePanel);
@@ -71,20 +67,20 @@ public class RecipeMenuUI : MonoBehaviour
     {
         if (recipes == null || recipes.Length == 0)
         {
-            Debug.LogWarning("No recipes assigned.");
+            Debug.LogWarning("No pizza recipes assigned.");
             return;
         }
 
         if (index < 0 || index >= recipes.Length)
         {
-            Debug.LogWarning("Recipe index is out of range: " + index);
+            Debug.LogWarning("Pizza recipe index is out of range: " + index);
             return;
         }
 
         if (recipePanel != null)
             recipePanel.SetActive(true);
 
-        FoodRecipe recipe = recipes[index];
+        PizzaRecipe recipe = recipes[index];
 
         if (foodNameText != null)
             foodNameText.text = recipe.foodName;
