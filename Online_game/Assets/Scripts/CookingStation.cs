@@ -3,19 +3,32 @@ using UnityEngine;
 using Photon.Pun;
 
 [System.Serializable]
+public class IngredientRequirement
+{
+    [Header("Input Ingredient Prefab")]
+    public GameObject ingredientPrefab;
+
+    [Header("Visual Prefab On Dish")]
+    public GameObject visualPrefabOnDish;
+
+    [Header("Spawn Points For This Ingredient")]
+    public List<Transform> visualSpawnPoints = new List<Transform>();
+}
+
+[System.Serializable]
 public class CookingRecipe
 {
     [Header("Recipe Name")]
     public string recipeName;
 
-    [Header("Ingredients Required")]
-    public List<GameObject> ingredientPrefabs = new List<GameObject>();
-
-    [Header("Final Product")]
-    public GameObject finalProductPrefab;
-
-    [Header("Order Requirement")]
+    [Header("Use Order")]
     public bool useOrder = false;
+
+    [Header("Required Ingredients")]
+    public List<IngredientRequirement> requiredIngredients = new List<IngredientRequirement>();
+
+    [Header("Final Product Prefab")]
+    public GameObject finalProductPrefab;
 }
 
 public class CookingStation : MonoBehaviourPun
@@ -24,19 +37,58 @@ public class CookingStation : MonoBehaviourPun
     public bool showDebugLog = true;
 
     [Header("Photon Setting")]
-    [Tooltip("Turn this off for local testing without Photon sync.")]
+    [Tooltip("Turn this off for local testing.")]
     public bool usePhotonSync = false;
 
     [Header("Recipe List")]
     public List<CookingRecipe> recipes = new List<CookingRecipe>();
 
-    [Header("Spawn Point")]
-    public Transform productSpawnPoint;
+    [Header("Current Recipe Index")]
+    public int currentRecipeIndex = 0;
 
-    [Header("Destroy Ingredient After Adding")]
-    public bool destroyIngredientAfterAdding = true;
+    [Header("Final Product Spawn Point")]
+    public Transform finalProductSpawnPoint;
 
-    private List<string> currentIngredients = new List<string>();
+    [Header("Failed Product Setting")]
+    public GameObject failedProductPrefab;
+    public Transform failedProductSpawnPoint;
+
+    [Header("Input Ingredient Setting")]
+    [Tooltip("Destroy the ingredient object that enters the trigger zone, such as cheese_pack or sauce bottle.")]
+    public bool destroyInputIngredientAfterAdding = true;
+
+    [Header("Clear Visuals When Recipe Ends")]
+    [Tooltip("Clear placed toppings after successful cooking.")]
+    public bool clearPlacedVisualsAfterSuccess = true;
+
+    [Tooltip("Clear placed toppings after failed cooking.")]
+    public bool clearPlacedVisualsAfterFail = true;
+
+    [Header("Destroy Cooking Station When Recipe Ends")]
+    [Tooltip("Destroy this CookingStation GameObject after success. Useful when the station itself is the pizza base.")]
+    public bool destroyCookingStationAfterSuccess = false;
+
+    [Tooltip("Destroy this CookingStation GameObject after fail.")]
+    public bool destroyCookingStationAfterFail = false;
+
+    private List<string> currentIngredientIds = new List<string>();
+    private List<GameObject> spawnedVisualObjects = new List<GameObject>();
+
+    private bool recipeEnded = false;
+
+    private CookingRecipe CurrentRecipe
+    {
+        get
+        {
+            if (recipes == null || recipes.Count == 0)
+                return null;
+
+            if (currentRecipeIndex < 0 || currentRecipeIndex >= recipes.Count)
+                return null;
+
+            return recipes[currentRecipeIndex];
+        }
+    }
 
     private void Start()
     {
@@ -45,31 +97,23 @@ public class CookingStation : MonoBehaviourPun
         Log("Use Photon Sync: " + usePhotonSync);
         Log("Photon Connected: " + PhotonNetwork.IsConnected);
         Log("Is MasterClient: " + PhotonNetwork.IsMasterClient);
-        Log("Recipe Count: " + recipes.Count);
+        Log("Recipe Count: " + (recipes == null ? 0 : recipes.Count));
 
         Collider stationCollider = GetComponent<Collider>();
+
         if (stationCollider == null)
         {
-            LogWarning("CookingStation has NO Collider. OnTriggerEnter will not work.");
+            LogWarning("CookingStation has NO Collider. Trigger will not work.");
         }
         else
         {
-            Log("CookingStation Collider found: " + stationCollider.GetType().Name);
-            Log("CookingStation Collider Is Trigger: " + stationCollider.isTrigger);
+            Log("CookingStation Collider: " + stationCollider.GetType().Name);
+            Log("CookingStation Is Trigger: " + stationCollider.isTrigger);
 
             if (!stationCollider.isTrigger)
             {
                 LogWarning("CookingStation Collider is NOT trigger. Please enable Is Trigger.");
             }
-        }
-
-        if (productSpawnPoint == null)
-        {
-            LogWarning("Product Spawn Point is empty. Product will spawn above CookingStation.");
-        }
-        else
-        {
-            Log("Product Spawn Point: " + productSpawnPoint.name);
         }
 
         CheckRecipeSetup();
@@ -79,51 +123,68 @@ public class CookingStation : MonoBehaviourPun
     {
         Log("Checking recipe setup...");
 
+        if (recipes == null || recipes.Count == 0)
+        {
+            LogWarning("No recipes assigned.");
+            return;
+        }
+
         for (int i = 0; i < recipes.Count; i++)
         {
             CookingRecipe recipe = recipes[i];
 
             if (recipe == null)
             {
-                LogWarning("Recipe index " + i + " is null.");
+                LogWarning("Recipe [" + i + "] is null.");
                 continue;
             }
 
             Log("Recipe [" + i + "]: " + recipe.recipeName);
             Log("Use Order: " + recipe.useOrder);
 
-            if (recipe.ingredientPrefabs == null || recipe.ingredientPrefabs.Count == 0)
+            if (recipe.requiredIngredients == null || recipe.requiredIngredients.Count == 0)
             {
-                LogWarning("Recipe [" + recipe.recipeName + "] has NO ingredients.");
+                LogWarning("Recipe [" + recipe.recipeName + "] has no required ingredients.");
             }
             else
             {
-                Log("Ingredient Count: " + recipe.ingredientPrefabs.Count);
+                Log("Required Ingredient Count: " + recipe.requiredIngredients.Count);
 
-                for (int j = 0; j < recipe.ingredientPrefabs.Count; j++)
+                for (int j = 0; j < recipe.requiredIngredients.Count; j++)
                 {
-                    GameObject prefab = recipe.ingredientPrefabs[j];
+                    IngredientRequirement req = recipe.requiredIngredients[j];
 
-                    if (prefab == null)
+                    if (req == null)
                     {
-                        LogWarning("Recipe [" + recipe.recipeName + "] ingredient index " + j + " is empty.");
+                        LogWarning("Requirement [" + j + "] is null.");
                         continue;
                     }
 
-                    IngredientId id = prefab.GetComponent<IngredientId>();
+                    string id = GetIngredientIdFromRequirement(req);
 
-                    if (id == null)
+                    Log("Required [" + j + "]: " + GetObjectName(req.ingredientPrefab) + " / ID = " + id);
+
+                    if (string.IsNullOrEmpty(id))
                     {
-                        LogWarning("Ingredient prefab [" + prefab.name + "] has NO IngredientId script.");
+                        LogWarning("Required ingredient [" + j + "] has empty ID or missing IngredientId.");
+                    }
+
+                    if (req.visualPrefabOnDish == null)
+                    {
+                        LogWarning("Requirement [" + j + "] has no visualPrefabOnDish.");
                     }
                     else
                     {
-                        Log("Ingredient [" + j + "]: " + prefab.name + " / ID = " + id.ingredientId);
+                        Log("Visual Prefab [" + j + "]: " + req.visualPrefabOnDish.name);
+                    }
 
-                        if (string.IsNullOrEmpty(id.ingredientId))
-                        {
-                            LogWarning("Ingredient prefab [" + prefab.name + "] has EMPTY ingredientId.");
-                        }
+                    if (req.visualSpawnPoints == null || req.visualSpawnPoints.Count == 0)
+                    {
+                        LogWarning("Requirement [" + j + "] has no visual spawn points.");
+                    }
+                    else
+                    {
+                        Log("Visual Spawn Point Count [" + j + "]: " + req.visualSpawnPoints.Count);
                     }
                 }
             }
@@ -137,81 +198,84 @@ public class CookingStation : MonoBehaviourPun
                 Log("Final Product: " + recipe.finalProductPrefab.name);
             }
         }
+
+        if (finalProductSpawnPoint == null)
+        {
+            LogWarning("Final Product Spawn Point is empty. Final product will spawn above station.");
+        }
+
+        if (failedProductPrefab == null)
+        {
+            LogWarning("Failed Product Prefab is empty.");
+        }
+
+        if (failedProductSpawnPoint == null)
+        {
+            LogWarning("Failed Product Spawn Point is empty. Failed product will spawn above station.");
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (recipeEnded)
+        {
+            Log("Recipe already ended. Ignoring trigger: " + other.gameObject.name);
+            return;
+        }
+
         Log("OnTriggerEnter detected object: " + other.gameObject.name);
 
         IngredientId ingredient = other.GetComponent<IngredientId>();
 
         if (ingredient == null)
+            ingredient = other.GetComponentInParent<IngredientId>();
+
+        if (ingredient == null)
+            ingredient = other.GetComponentInChildren<IngredientId>();
+
+        if (ingredient == null)
         {
-            LogWarning("Entered object [" + other.gameObject.name + "] has NO IngredientId. Ignored.");
+            LogWarning("Entered object has no IngredientId. Ignored: " + other.gameObject.name);
             return;
         }
 
-        Log("Ingredient detected: " + other.gameObject.name);
-        Log("Ingredient ID: " + ingredient.ingredientId);
+        string ingredientId = ingredient.ingredientId;
 
-        if (string.IsNullOrEmpty(ingredient.ingredientId))
+        Log("Ingredient detected object: " + ingredient.gameObject.name);
+        Log("Ingredient ID: " + ingredientId);
+
+        if (string.IsNullOrEmpty(ingredientId))
         {
             LogWarning("Ingredient ID is empty. Ignored.");
             return;
         }
 
-        AddIngredient(ingredient.ingredientId);
+        AddIngredient(ingredientId);
 
-        if (destroyIngredientAfterAdding)
+        if (destroyInputIngredientAfterAdding)
         {
-            DestroyIngredientObject(other.gameObject);
-        }
-    }
-
-    private void DestroyIngredientObject(GameObject ingredientObject)
-    {
-        Log("Trying to destroy ingredient object: " + ingredientObject.name);
-
-        if (usePhotonSync && PhotonNetwork.IsConnected)
-        {
-            PhotonView targetPhotonView = ingredientObject.GetComponent<PhotonView>();
-
-            if (targetPhotonView == null)
-            {
-                LogWarning("Ingredient has no PhotonView. Cannot PhotonNetwork.Destroy. Using normal Destroy instead.");
-                Destroy(ingredientObject);
-                return;
-            }
-
-            if (targetPhotonView.IsMine)
-            {
-                Log("Photon destroying ingredient: " + ingredientObject.name);
-                PhotonNetwork.Destroy(ingredientObject);
-            }
-            else
-            {
-                LogWarning("Ingredient PhotonView is not mine. Cannot destroy from this client.");
-            }
-        }
-        else
-        {
-            Log("Local destroying ingredient: " + ingredientObject.name);
-            Destroy(ingredientObject);
+            DestroyInputIngredient(ingredient.gameObject);
         }
     }
 
     public void AddIngredient(string ingredientId)
     {
-        Log("AddIngredient called with ID: " + ingredientId);
+        if (recipeEnded)
+        {
+            Log("Recipe already ended. Cannot add ingredient: " + ingredientId);
+            return;
+        }
+
+        Log("AddIngredient called: " + ingredientId);
 
         if (usePhotonSync && PhotonNetwork.IsConnected)
         {
-            Log("Photon mode active. Sending RPC_AddIngredient to all clients.");
+            Log("Photon mode. Sending RPC_AddIngredient.");
             photonView.RPC(nameof(RPC_AddIngredient), RpcTarget.AllBuffered, ingredientId);
         }
         else
         {
-            Log("Local mode active. Adding ingredient locally.");
+            Log("Local mode. Adding ingredient locally.");
             LocalAddIngredient(ingredientId);
         }
     }
@@ -225,248 +289,527 @@ public class CookingStation : MonoBehaviourPun
 
     private void LocalAddIngredient(string ingredientId)
     {
-        currentIngredients.Add(ingredientId);
-
-        Log("Ingredient added to current list: " + ingredientId);
-        LogCurrentIngredients();
-
-        CheckRecipes();
-    }
-
-    private void CheckRecipes()
-    {
-        Log("Checking recipes...");
-
-        if (recipes == null || recipes.Count == 0)
+        if (recipeEnded)
         {
-            LogWarning("No recipes in CookingStation.");
+            Log("Recipe already ended inside LocalAddIngredient. Ignored.");
             return;
         }
 
-        foreach (CookingRecipe recipe in recipes)
+        CookingRecipe recipe = CurrentRecipe;
+
+        if (recipe == null)
         {
-            if (recipe == null)
+            LogWarning("No current recipe. Cannot add ingredient.");
+            return;
+        }
+
+        Log("Current Recipe: " + recipe.recipeName);
+        Log("Current ingredients before add: " + GetCurrentIngredientText());
+
+        IngredientRequirement matchedRequirement = FindRequirementById(recipe, ingredientId);
+
+        if (matchedRequirement == null)
+        {
+            LogWarning("Wrong ingredient. This ingredient is not required: " + ingredientId);
+            HandleFailedRecipe("Wrong ingredient: " + ingredientId);
+            return;
+        }
+
+        if (recipe.useOrder)
+        {
+            int nextIndex = currentIngredientIds.Count;
+
+            if (nextIndex >= recipe.requiredIngredients.Count)
             {
-                LogWarning("Found null recipe. Skipping.");
-                continue;
+                LogWarning("Too many ingredients added.");
+                HandleFailedRecipe("Too many ingredients.");
+                return;
             }
 
-            Log("Checking recipe: " + recipe.recipeName);
+            string expectedId = GetIngredientIdFromRequirement(recipe.requiredIngredients[nextIndex]);
 
-            if (recipe.ingredientPrefabs == null || recipe.ingredientPrefabs.Count == 0)
+            Log("Order check. Expected: " + expectedId + " / Actual: " + ingredientId);
+
+            if (ingredientId != expectedId)
             {
-                LogWarning("Recipe [" + recipe.recipeName + "] has no ingredients. Skipping.");
-                continue;
+                LogWarning("Wrong order. Expected " + expectedId + " but got " + ingredientId);
+                HandleFailedRecipe("Wrong order.");
+                return;
             }
+        }
+        else
+        {
+            int alreadyAddedCount = CountCurrentIngredient(ingredientId);
+            int requiredCount = CountRequiredIngredient(recipe, ingredientId);
 
-            if (recipe.finalProductPrefab == null)
+            Log("Unordered count check. Already Added: " + alreadyAddedCount + " / Required: " + requiredCount);
+
+            if (alreadyAddedCount >= requiredCount)
             {
-                LogWarning("Recipe [" + recipe.recipeName + "] has no final product prefab. Skipping.");
-                continue;
-            }
-
-            List<string> requiredIds = GetRecipeIngredientIds(recipe);
-
-            Log("Required ingredients for [" + recipe.recipeName + "]: " + string.Join(", ", requiredIds));
-            Log("Current ingredients: " + string.Join(", ", currentIngredients));
-            Log("Use Order: " + recipe.useOrder);
-
-            bool matched;
-
-            if (recipe.useOrder)
-            {
-                matched = CheckOrderedRecipe(requiredIds);
-            }
-            else
-            {
-                matched = CheckUnorderedRecipe(requiredIds);
-            }
-
-            Log("Recipe [" + recipe.recipeName + "] matched: " + matched);
-
-            if (matched)
-            {
-                Log("RECIPE COMPLETED: " + recipe.recipeName);
-
-                CreateFinalProduct(recipe);
-                ClearIngredients();
-
+                LogWarning("Too many of same ingredient: " + ingredientId);
+                HandleFailedRecipe("Too many same ingredient: " + ingredientId);
                 return;
             }
         }
 
-        Log("No recipe matched yet.");
+        currentIngredientIds.Add(ingredientId);
+
+        Log("Ingredient accepted: " + ingredientId);
+        Log("Current ingredients after add: " + GetCurrentIngredientText());
+
+        SpawnIngredientVisuals(matchedRequirement);
+
+        if (IsRecipeComplete(recipe))
+        {
+            Log("RECIPE COMPLETED: " + recipe.recipeName);
+
+            recipeEnded = true;
+
+            SpawnFinalProduct(recipe);
+
+            if (clearPlacedVisualsAfterSuccess)
+            {
+                ClearSpawnedVisuals();
+            }
+
+            ClearProgress();
+
+            if (destroyCookingStationAfterSuccess)
+            {
+                DestroyCookingStationObject();
+            }
+        }
+        else
+        {
+            Log("Recipe not complete yet.");
+        }
     }
 
-    private List<string> GetRecipeIngredientIds(CookingRecipe recipe)
+    private void SpawnIngredientVisuals(IngredientRequirement requirement)
     {
-        List<string> ids = new List<string>();
-
-        foreach (GameObject prefab in recipe.ingredientPrefabs)
+        if (requirement == null)
         {
-            if (prefab == null)
+            LogWarning("Cannot spawn visuals because requirement is null.");
+            return;
+        }
+
+        if (requirement.visualPrefabOnDish == null)
+        {
+            LogWarning("Cannot spawn visuals because visualPrefabOnDish is null.");
+            return;
+        }
+
+        if (requirement.visualSpawnPoints == null || requirement.visualSpawnPoints.Count == 0)
+        {
+            LogWarning("Cannot spawn visuals because spawn point list is empty.");
+            return;
+        }
+
+        Log("Spawning visual topping prefab: " + requirement.visualPrefabOnDish.name);
+        Log("Spawn point count: " + requirement.visualSpawnPoints.Count);
+
+        for (int i = 0; i < requirement.visualSpawnPoints.Count; i++)
+        {
+            Transform point = requirement.visualSpawnPoints[i];
+
+            if (point == null)
             {
-                LogWarning("A required ingredient prefab is empty in recipe: " + recipe.recipeName);
+                LogWarning("Visual spawn point [" + i + "] is null.");
                 continue;
             }
 
-            IngredientId ingredientId = prefab.GetComponent<IngredientId>();
-
-            if (ingredientId == null)
-            {
-                LogWarning("Prefab missing IngredientId: " + prefab.name);
-                continue;
-            }
-
-            ids.Add(ingredientId.ingredientId);
+            SpawnObject(requirement.visualPrefabOnDish, point.position, point.rotation, true);
         }
-
-        return ids;
     }
 
-    private bool CheckOrderedRecipe(List<string> requiredIds)
+    private void SpawnFinalProduct(CookingRecipe recipe)
     {
-        Log("Checking ordered recipe...");
-
-        if (currentIngredients.Count < requiredIds.Count)
+        if (recipe == null || recipe.finalProductPrefab == null)
         {
-            Log("Not enough ingredients. Current: " + currentIngredients.Count + ", Required: " + requiredIds.Count);
-            return false;
+            LogWarning("Cannot spawn final product. Final product prefab is null.");
+            return;
         }
 
-        int startIndex = currentIngredients.Count - requiredIds.Count;
-
-        for (int i = 0; i < requiredIds.Count; i++)
-        {
-            string current = currentIngredients[startIndex + i];
-            string required = requiredIds[i];
-
-            Log("Order check index " + i + ": current = " + current + ", required = " + required);
-
-            if (current != required)
-            {
-                Log("Ordered recipe failed at index " + i);
-                return false;
-            }
-        }
-
-        Log("Ordered recipe success.");
-        return true;
-    }
-
-    private bool CheckUnorderedRecipe(List<string> requiredIds)
-    {
-        Log("Checking unordered recipe...");
-
-        if (currentIngredients.Count < requiredIds.Count)
-        {
-            Log("Not enough ingredients. Current: " + currentIngredients.Count + ", Required: " + requiredIds.Count);
-            return false;
-        }
-
-        List<string> tempCurrent = new List<string>(currentIngredients);
-
-        foreach (string requiredId in requiredIds)
-        {
-            Log("Looking for required ingredient: " + requiredId);
-
-            if (!tempCurrent.Contains(requiredId))
-            {
-                Log("Missing required ingredient: " + requiredId);
-                return false;
-            }
-
-            tempCurrent.Remove(requiredId);
-            Log("Found and removed required ingredient: " + requiredId);
-        }
-
-        Log("Unordered recipe success.");
-        return true;
-    }
-
-    private void CreateFinalProduct(CookingRecipe recipe)
-    {
-        Log("CreateFinalProduct called for recipe: " + recipe.recipeName);
-
-        Vector3 spawnPosition = productSpawnPoint != null
-            ? productSpawnPoint.position
+        Vector3 pos = finalProductSpawnPoint != null
+            ? finalProductSpawnPoint.position
             : transform.position + Vector3.up;
 
-        Quaternion spawnRotation = productSpawnPoint != null
-            ? productSpawnPoint.rotation
+        Quaternion rot = finalProductSpawnPoint != null
+            ? finalProductSpawnPoint.rotation
             : Quaternion.identity;
 
-        Log("Spawn Position: " + spawnPosition);
-        Log("Spawn Rotation: " + spawnRotation.eulerAngles);
+        Log("Spawning final product: " + recipe.finalProductPrefab.name);
+        SpawnObject(recipe.finalProductPrefab, pos, rot, false);
+    }
 
-        if (recipe.finalProductPrefab == null)
+    private void HandleFailedRecipe(string reason)
+    {
+        if (recipeEnded)
         {
-            LogWarning("Cannot create final product because finalProductPrefab is null.");
+            Log("Recipe already ended. Ignore failure: " + reason);
+            return;
+        }
+
+        recipeEnded = true;
+
+        LogWarning("RECIPE FAILED. Reason: " + reason);
+
+        Vector3 pos = failedProductSpawnPoint != null
+            ? failedProductSpawnPoint.position
+            : transform.position + Vector3.up;
+
+        Quaternion rot = failedProductSpawnPoint != null
+            ? failedProductSpawnPoint.rotation
+            : Quaternion.identity;
+
+        if (failedProductPrefab != null)
+        {
+            Log("Spawning failed product: " + failedProductPrefab.name);
+            SpawnObject(failedProductPrefab, pos, rot, false);
+        }
+        else
+        {
+            LogWarning("Failed Product Prefab is null. Nothing spawned.");
+        }
+
+        if (clearPlacedVisualsAfterFail)
+        {
+            ClearSpawnedVisuals();
+        }
+
+        ClearProgress();
+
+        if (destroyCookingStationAfterFail)
+        {
+            DestroyCookingStationObject();
+        }
+    }
+
+    private void SpawnObject(GameObject prefab, Vector3 position, Quaternion rotation, bool trackAsVisual)
+    {
+        if (prefab == null)
+        {
+            LogWarning("SpawnObject failed because prefab is null.");
             return;
         }
 
         if (usePhotonSync && PhotonNetwork.IsConnected)
         {
-            Log("Photon spawn mode.");
-
             if (PhotonNetwork.IsMasterClient)
             {
-                Log("This client is MasterClient. PhotonNetwork.Instantiate: " + recipe.finalProductPrefab.name);
-                PhotonNetwork.Instantiate(recipe.finalProductPrefab.name, spawnPosition, spawnRotation);
+                Log("PhotonNetwork.Instantiate: " + prefab.name);
+
+                GameObject obj = PhotonNetwork.Instantiate(prefab.name, position, rotation);
+
+                if (trackAsVisual && obj != null)
+                {
+                    spawnedVisualObjects.Add(obj);
+                }
             }
             else
             {
-                Log("This client is NOT MasterClient. Product will not be spawned by this client.");
+                Log("Not MasterClient. This client will not spawn object.");
             }
         }
         else
         {
-            Log("Local spawn mode. Instantiate: " + recipe.finalProductPrefab.name);
-            Instantiate(recipe.finalProductPrefab, spawnPosition, spawnRotation);
+            Log("Local Instantiate: " + prefab.name);
+
+            GameObject obj = Instantiate(prefab, position, rotation);
+
+            if (trackAsVisual && obj != null)
+            {
+                spawnedVisualObjects.Add(obj);
+            }
         }
     }
 
-    private void ClearIngredients()
+    private void DestroyInputIngredient(GameObject obj)
     {
-        Log("ClearIngredients called.");
+        if (obj == null)
+            return;
+
+        Log("Destroying input ingredient: " + obj.name);
 
         if (usePhotonSync && PhotonNetwork.IsConnected)
         {
-            Log("Clearing ingredients by RPC.");
-            photonView.RPC(nameof(RPC_ClearIngredients), RpcTarget.AllBuffered);
+            PhotonView view = obj.GetComponent<PhotonView>();
+
+            if (view != null)
+            {
+                if (view.IsMine)
+                {
+                    PhotonNetwork.Destroy(obj);
+                }
+                else
+                {
+                    LogWarning("Input ingredient PhotonView is not mine. Cannot destroy.");
+                }
+            }
+            else
+            {
+                LogWarning("Input ingredient has no PhotonView. Using local Destroy.");
+                Destroy(obj);
+            }
         }
         else
         {
-            Log("Clearing ingredients locally.");
-            currentIngredients.Clear();
-            LogCurrentIngredients();
+            Destroy(obj);
         }
     }
 
-    [PunRPC]
-    private void RPC_ClearIngredients()
+    private void DestroyCookingStationObject()
     {
-        Log("RPC_ClearIngredients received.");
-        currentIngredients.Clear();
-        LogCurrentIngredients();
-    }
+        Log("Destroying CookingStation GameObject: " + gameObject.name);
 
-    public void ResetCookingStation()
-    {
-        Log("ResetCookingStation called.");
-        ClearIngredients();
-    }
-
-    private void LogCurrentIngredients()
-    {
-        if (currentIngredients.Count == 0)
+        if (usePhotonSync && PhotonNetwork.IsConnected)
         {
-            Log("Current ingredients list is empty.");
+            PhotonView view = GetComponent<PhotonView>();
+
+            if (view != null)
+            {
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    PhotonNetwork.Destroy(gameObject);
+                }
+                else
+                {
+                    Log("Not MasterClient. CookingStation will not be destroyed by this client.");
+                }
+            }
+            else
+            {
+                LogWarning("CookingStation has no PhotonView. Using local Destroy.");
+                Destroy(gameObject);
+            }
         }
         else
         {
-            Log("Current ingredients list: " + string.Join(", ", currentIngredients));
+            Destroy(gameObject);
         }
+    }
+
+    private bool IsRecipeComplete(CookingRecipe recipe)
+    {
+        if (recipe == null)
+            return false;
+
+        if (recipe.requiredIngredients == null)
+            return false;
+
+        if (currentIngredientIds.Count != recipe.requiredIngredients.Count)
+        {
+            Log("Recipe incomplete. Current count: " + currentIngredientIds.Count + " / Required count: " + recipe.requiredIngredients.Count);
+            return false;
+        }
+
+        if (recipe.useOrder)
+        {
+            for (int i = 0; i < recipe.requiredIngredients.Count; i++)
+            {
+                string requiredId = GetIngredientIdFromRequirement(recipe.requiredIngredients[i]);
+
+                if (currentIngredientIds[i] != requiredId)
+                {
+                    Log("Recipe not complete because order mismatch at index " + i);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else
+        {
+            Dictionary<string, int> requiredCounts = GetRequiredCounts(recipe);
+            Dictionary<string, int> currentCounts = GetCurrentCounts();
+
+            foreach (KeyValuePair<string, int> pair in requiredCounts)
+            {
+                int currentCount = currentCounts.ContainsKey(pair.Key) ? currentCounts[pair.Key] : 0;
+
+                if (currentCount != pair.Value)
+                {
+                    Log("Recipe not complete. Ingredient " + pair.Key + " current " + currentCount + " / required " + pair.Value);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    private IngredientRequirement FindRequirementById(CookingRecipe recipe, string ingredientId)
+    {
+        if (recipe == null || recipe.requiredIngredients == null)
+            return null;
+
+        foreach (IngredientRequirement req in recipe.requiredIngredients)
+        {
+            string reqId = GetIngredientIdFromRequirement(req);
+
+            if (reqId == ingredientId)
+            {
+                return req;
+            }
+        }
+
+        return null;
+    }
+
+    private string GetIngredientIdFromRequirement(IngredientRequirement req)
+    {
+        if (req == null)
+            return "";
+
+        return GetIngredientIdFromPrefab(req.ingredientPrefab);
+    }
+
+    private string GetIngredientIdFromPrefab(GameObject prefab)
+    {
+        if (prefab == null)
+            return "";
+
+        IngredientId id = prefab.GetComponent<IngredientId>();
+
+        if (id == null)
+            id = prefab.GetComponentInChildren<IngredientId>();
+
+        if (id == null)
+            return "";
+
+        return id.ingredientId;
+    }
+
+    private int CountCurrentIngredient(string ingredientId)
+    {
+        int count = 0;
+
+        foreach (string id in currentIngredientIds)
+        {
+            if (id == ingredientId)
+                count++;
+        }
+
+        return count;
+    }
+
+    private int CountRequiredIngredient(CookingRecipe recipe, string ingredientId)
+    {
+        int count = 0;
+
+        if (recipe == null || recipe.requiredIngredients == null)
+            return count;
+
+        foreach (IngredientRequirement req in recipe.requiredIngredients)
+        {
+            string reqId = GetIngredientIdFromRequirement(req);
+
+            if (reqId == ingredientId)
+                count++;
+        }
+
+        return count;
+    }
+
+    private Dictionary<string, int> GetRequiredCounts(CookingRecipe recipe)
+    {
+        Dictionary<string, int> counts = new Dictionary<string, int>();
+
+        if (recipe == null || recipe.requiredIngredients == null)
+            return counts;
+
+        foreach (IngredientRequirement req in recipe.requiredIngredients)
+        {
+            string id = GetIngredientIdFromRequirement(req);
+
+            if (string.IsNullOrEmpty(id))
+                continue;
+
+            if (!counts.ContainsKey(id))
+                counts[id] = 0;
+
+            counts[id]++;
+        }
+
+        return counts;
+    }
+
+    private Dictionary<string, int> GetCurrentCounts()
+    {
+        Dictionary<string, int> counts = new Dictionary<string, int>();
+
+        foreach (string id in currentIngredientIds)
+        {
+            if (!counts.ContainsKey(id))
+                counts[id] = 0;
+
+            counts[id]++;
+        }
+
+        return counts;
+    }
+
+    private void ClearProgress()
+    {
+        Log("Clearing recipe progress.");
+        currentIngredientIds.Clear();
+    }
+
+    private void ClearSpawnedVisuals()
+    {
+        Log("Clearing spawned visual objects. Count: " + spawnedVisualObjects.Count);
+
+        for (int i = spawnedVisualObjects.Count - 1; i >= 0; i--)
+        {
+            GameObject obj = spawnedVisualObjects[i];
+
+            if (obj == null)
+                continue;
+
+            if (usePhotonSync && PhotonNetwork.IsConnected)
+            {
+                PhotonView view = obj.GetComponent<PhotonView>();
+
+                if (view != null && PhotonNetwork.IsMasterClient)
+                {
+                    PhotonNetwork.Destroy(obj);
+                }
+                else
+                {
+                    Destroy(obj);
+                }
+            }
+            else
+            {
+                Destroy(obj);
+            }
+        }
+
+        spawnedVisualObjects.Clear();
+    }
+
+    public void ResetStation()
+    {
+        Log("ResetStation called.");
+        recipeEnded = false;
+        ClearProgress();
+        ClearSpawnedVisuals();
+    }
+
+    private string GetCurrentIngredientText()
+    {
+        if (currentIngredientIds == null || currentIngredientIds.Count == 0)
+            return "Empty";
+
+        return string.Join(", ", currentIngredientIds);
+    }
+
+    private string GetObjectName(GameObject obj)
+    {
+        if (obj == null)
+            return "NULL";
+
+        return obj.name;
     }
 
     private void Log(string message)
