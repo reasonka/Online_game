@@ -1587,6 +1587,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5659075152335483152}
   - component: {fileID: -5098218815595646808}
+  - component: {fileID: 2815747843674444770}
   m_Layer: 0
   m_Name: Pancake 3
   m_TagString: Untagged
@@ -1642,3 +1643,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 2
   ingredientIdComponent: {fileID: 0}
+--- !u!114 &2815747843674444770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8779830565682862819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 13
+  foodPrefabId: {fileID: 8779830565682862819}

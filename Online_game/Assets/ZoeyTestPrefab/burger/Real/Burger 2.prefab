@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7560643475052531803}
   - component: {fileID: -8161724459116237718}
+  - component: {fileID: 2707110608030156360}
   m_Layer: 0
   m_Name: Burger 2
   m_TagString: Untagged
@@ -54,6 +55,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 2
   ingredientIdComponent: {fileID: 0}
+--- !u!114 &2707110608030156360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7560643475052531802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 2
+  foodPrefabId: {fileID: 7560643475052531802}
 --- !u!1001 &291994669996104882
 PrefabInstance:
   m_ObjectHideFlags: 0

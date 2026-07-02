@@ -342,6 +342,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2357945611230363955}
   - component: {fileID: 2278786097279312307}
+  - component: {fileID: -3667506287389404403}
   m_Layer: 0
   m_Name: Hot dog 3
   m_TagString: Untagged
@@ -386,6 +387,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 2
   ingredientIdComponent: {fileID: 0}
+--- !u!114 &-3667506287389404403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2357945611230363954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 10
+  foodPrefabId: {fileID: 2357945611230363954}
 --- !u!1 &4363656632279489969
 GameObject:
   m_ObjectHideFlags: 0
