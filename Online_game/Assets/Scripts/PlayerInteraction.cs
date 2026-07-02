@@ -8,7 +8,8 @@ public class PlayerInteraction : MonoBehaviourPun
     public PlayerInventory inventory;
 
     [Header("Input")]
-    public KeyCode interactKey = KeyCode.F;
+    public KeyCode openStorageKey = KeyCode.E;
+    public KeyCode useHeldItemKey = KeyCode.F;
 
     [Header("Photon")]
     public bool usePhotonSync = false;
@@ -16,11 +17,31 @@ public class PlayerInteraction : MonoBehaviourPun
     [Header("Debug")]
     public bool showDebugLog = true;
 
+    private readonly List<IngredientStorage> nearbyStorages =
+        new List<IngredientStorage>();
+
     private readonly List<CookingStation> nearbyCookingStations =
         new List<CookingStation>();
 
     private readonly List<PlacementSurface> nearbyPlacementSurfaces =
         new List<PlacementSurface>();
+
+    private IngredientStorage NearbyStorage
+    {
+        get
+        {
+            CleanNullReferences(nearbyStorages);
+
+            if (nearbyStorages.Count == 0)
+            {
+                return null;
+            }
+
+            return nearbyStorages[
+                nearbyStorages.Count - 1
+            ];
+        }
+    }
 
     private CookingStation NearbyCookingStation
     {
@@ -76,7 +97,12 @@ public class PlayerInteraction : MonoBehaviourPun
             return;
         }
 
-        if (Input.GetKeyDown(interactKey))
+        if (Input.GetKeyDown(openStorageKey))
+        {
+            TryOpenStorage();
+        }
+
+        if (Input.GetKeyDown(useHeldItemKey))
         {
             TryUseHeldItem();
         }
@@ -97,6 +123,35 @@ public class PlayerInteraction : MonoBehaviourPun
         return photonView.IsMine;
     }
 
+    private void TryOpenStorage()
+    {
+        IngredientStorage storage = NearbyStorage;
+
+        if (storage == null)
+        {
+            Log("No IngredientStorage is nearby.");
+            return;
+        }
+
+        if (inventory == null)
+        {
+            LogWarning("PlayerInventory is missing.");
+            return;
+        }
+
+        if (inventory.HasHeldItem)
+        {
+            Log(
+                "Cannot open storage because hand is occupied by: " +
+                inventory.HeldItem.name
+            );
+
+            return;
+        }
+
+        storage.OpenStorage(inventory);
+    }
+
     public void TryUseHeldItem()
     {
         if (inventory == null)
@@ -113,20 +168,17 @@ public class PlayerInteraction : MonoBehaviourPun
 
         HoldableItem item = inventory.HeldItem;
 
-        /*
-         * 优先级 1：
-         * Ingredient 永远优先交给 CookingStation。
-         *
-         * 即使下面的桌子已经 occupied，
-         * 也不会调用桌子的 TryPlaceFromInventory。
-         */
+        // Ingredient 必须优先进入 CookingStation。
         if (item.itemType == HoldableItemType.Ingredient)
         {
             CookingStation station = NearbyCookingStation;
 
             if (station == null)
             {
-                Log("Holding ingredient, but no CookingStation is nearby.");
+                Log(
+                    "Holding an Ingredient, but no CookingStation is nearby."
+                );
+
                 return;
             }
 
@@ -135,42 +187,35 @@ public class PlayerInteraction : MonoBehaviourPun
             if (string.IsNullOrEmpty(ingredientId))
             {
                 LogWarning(
-                    "Held ingredient has no valid IngredientId: " +
+                    "Held Ingredient has no valid IngredientId: " +
                     item.name
                 );
+
                 return;
             }
 
-            bool accepted = station.TryAddIngredient(ingredientId);
+            bool accepted =
+                station.TryAddIngredient(ingredientId);
 
             if (accepted)
             {
                 Log(
-                    "Ingredient accepted by CookingStation: " +
+                    "Ingredient sent to CookingStation: " +
                     ingredientId
                 );
 
                 inventory.ConsumeHeldItem();
             }
-            else
-            {
-                Log(
-                    "CookingStation did not accept ingredient: " +
-                    ingredientId
-                );
-            }
 
             return;
         }
 
-        /*
-         * 优先级 2：
-         * CookingBase 和 FinishedFood 才尝试放到桌面。
-         */
+        // Food Base 和成品才走桌子的 PlacementPoint。
         if (item.itemType == HoldableItemType.CookingBase ||
             item.itemType == HoldableItemType.FinishedFood)
         {
-            PlacementSurface surface = NearbyPlacementSurface;
+            PlacementSurface surface =
+                NearbyPlacementSurface;
 
             if (surface == null)
             {
@@ -178,37 +223,56 @@ public class PlayerInteraction : MonoBehaviourPun
                 return;
             }
 
-            bool placed = surface.TryPlaceFromInventory(inventory);
+            bool placed =
+                surface.TryPlaceFromInventory(inventory);
 
             if (!placed)
             {
                 Log(
-                    "Could not place object. Surface may be occupied " +
-                    "or item type is not allowed."
+                    "Could not place object on surface."
                 );
             }
 
             return;
         }
 
-        Log("Held item has no supported interaction: " + item.name);
+        Log(
+            "Held item type is not supported: " +
+            item.itemType
+        );
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        IngredientStorage storage =
+            other.GetComponent<IngredientStorage>();
+
+        if (storage == null)
+        {
+            storage =
+                other.GetComponentInParent<IngredientStorage>();
+        }
+
+        if (storage != null &&
+            !nearbyStorages.Contains(storage))
+        {
+            nearbyStorages.Add(storage);
+            Log("Entered storage zone: " + storage.name);
+        }
+
         CookingStation station =
             other.GetComponent<CookingStation>();
 
         if (station == null)
         {
-            station = other.GetComponentInParent<CookingStation>();
+            station =
+                other.GetComponentInParent<CookingStation>();
         }
 
         if (station != null &&
             !nearbyCookingStations.Contains(station))
         {
             nearbyCookingStations.Add(station);
-
             Log("Entered CookingStation zone: " + station.name);
         }
 
@@ -217,32 +281,47 @@ public class PlayerInteraction : MonoBehaviourPun
 
         if (surface == null)
         {
-            surface = other.GetComponentInParent<PlacementSurface>();
+            surface =
+                other.GetComponentInParent<PlacementSurface>();
         }
 
         if (surface != null &&
             !nearbyPlacementSurfaces.Contains(surface))
         {
             nearbyPlacementSurfaces.Add(surface);
-
             Log("Entered PlacementSurface zone: " + surface.name);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
+        IngredientStorage storage =
+            other.GetComponent<IngredientStorage>();
+
+        if (storage == null)
+        {
+            storage =
+                other.GetComponentInParent<IngredientStorage>();
+        }
+
+        if (storage != null)
+        {
+            nearbyStorages.Remove(storage);
+            Log("Exited storage zone: " + storage.name);
+        }
+
         CookingStation station =
             other.GetComponent<CookingStation>();
 
         if (station == null)
         {
-            station = other.GetComponentInParent<CookingStation>();
+            station =
+                other.GetComponentInParent<CookingStation>();
         }
 
         if (station != null)
         {
             nearbyCookingStations.Remove(station);
-
             Log("Exited CookingStation zone: " + station.name);
         }
 
@@ -251,13 +330,13 @@ public class PlayerInteraction : MonoBehaviourPun
 
         if (surface == null)
         {
-            surface = other.GetComponentInParent<PlacementSurface>();
+            surface =
+                other.GetComponentInParent<PlacementSurface>();
         }
 
         if (surface != null)
         {
             nearbyPlacementSurfaces.Remove(surface);
-
             Log("Exited PlacementSurface zone: " + surface.name);
         }
     }
@@ -278,7 +357,10 @@ public class PlayerInteraction : MonoBehaviourPun
     {
         if (showDebugLog)
         {
-            Debug.Log("[PlayerInteraction] " + message, this);
+            Debug.Log(
+                "[PlayerInteraction] " + message,
+                this
+            );
         }
     }
 

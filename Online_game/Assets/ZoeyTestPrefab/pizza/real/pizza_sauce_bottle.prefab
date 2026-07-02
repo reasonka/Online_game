@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -6294476242289988196}
   - component: {fileID: -7804317209393766192}
   - component: {fileID: -8962992997539019625}
+  - component: {fileID: -7089448099830180248}
   m_Layer: 0
   m_Name: pizza_sauce_bottle
   m_TagString: Untagged
@@ -128,3 +129,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.45869297, y: 0.7965027, z: 0.26807353}
   m_Center: {x: 0.00013391674, y: 0.015882432, z: 0.000000014901161}
+--- !u!114 &-7089448099830180248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8584677274691523657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: -6294476242289988196}
