@@ -45,6 +45,8 @@ MonoBehaviour:
   - RPC_PaintPoint
   - RPC_ReceiveStroke
   - RPC_ReceiveStrokeEnd
+  - RPC_Clear
+  - RPC_DrawPoint
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 0
