@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -4043107492706765889}
   - component: {fileID: 5084870671746884760}
   - component: {fileID: -7492279965940478935}
+  - component: {fileID: -1243278702605026754}
   m_Layer: 0
   m_Name: Patty
   m_TagString: Untagged
@@ -128,3 +129,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientId: Patty
+--- !u!114 &-1243278702605026754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699785247678517173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: -7492279965940478935}
