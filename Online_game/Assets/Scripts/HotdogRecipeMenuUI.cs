@@ -6,7 +6,7 @@ using TMPro;
 public class HotdogRecipe
 {
     public string foodName;
-    public Texture[] ingredientTextures = new Texture[5];
+    public Texture[] ingredientTextures = new Texture[4];
     public Texture finalFoodTexture;
 }
 
@@ -17,7 +17,7 @@ public class HotdogRecipeMenuUI : MonoBehaviour
 
     [Header("UI References")]
     public TMP_Text foodNameText;
-    public RawImage[] ingredientSlots = new RawImage[5];
+    public RawImage[] ingredientSlots = new RawImage[4];
     public RawImage finalFoodSlot;
 
     [Header("Recipe Buttons")]
