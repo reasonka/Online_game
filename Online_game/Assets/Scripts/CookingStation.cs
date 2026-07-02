@@ -31,6 +31,13 @@ public class CookingRecipe
     public GameObject finalProductPrefab;
 }
 
+public enum RecipeMatchState
+{
+    Invalid,
+    Possible,
+    Complete
+}
+
 public class CookingStation : MonoBehaviourPun
 {
     [Header("Debug")]
@@ -42,9 +49,6 @@ public class CookingStation : MonoBehaviourPun
 
     [Header("Recipe List")]
     public List<CookingRecipe> recipes = new List<CookingRecipe>();
-
-    [Header("Current Recipe Index")]
-    public int currentRecipeIndex = 0;
 
     [Header("Final Product Spawn Point")]
     public Transform finalProductSpawnPoint;
@@ -72,7 +76,7 @@ public class CookingStation : MonoBehaviourPun
     public bool destroyCookingStationAfterFail = false;
 
     [Header("Destroy Target Object")]
-    [Tooltip("The object to destroy after success/fail. If empty, this GameObject will be destroyed. Usually this is the root parent, such as Pizza_dough root.")]
+    [Tooltip("The object to destroy after success/fail. If empty, this GameObject will be destroyed. Usually this is the root parent, such as PizzaBase root.")]
     public GameObject destroyTargetObject;
 
     [Header("Detach Spawn Points Before Destroy")]
@@ -89,20 +93,6 @@ public class CookingStation : MonoBehaviourPun
     private List<GameObject> spawnedVisualObjects = new List<GameObject>();
 
     private bool recipeEnded = false;
-
-    private CookingRecipe CurrentRecipe
-    {
-        get
-        {
-            if (recipes == null || recipes.Count == 0)
-                return null;
-
-            if (currentRecipeIndex < 0 || currentRecipeIndex >= recipes.Count)
-                return null;
-
-            return recipes[currentRecipeIndex];
-        }
-    }
 
     private void Start()
     {
@@ -251,10 +241,14 @@ public class CookingStation : MonoBehaviourPun
         IngredientId ingredient = other.GetComponent<IngredientId>();
 
         if (ingredient == null)
+        {
             ingredient = other.GetComponentInParent<IngredientId>();
+        }
 
         if (ingredient == null)
+        {
             ingredient = other.GetComponentInChildren<IngredientId>();
+        }
 
         if (ingredient == null)
         {
@@ -318,77 +312,81 @@ public class CookingStation : MonoBehaviourPun
             return;
         }
 
-        CookingRecipe recipe = CurrentRecipe;
-
-        if (recipe == null)
+        if (recipes == null || recipes.Count == 0)
         {
-            LogWarning("No current recipe. Cannot add ingredient.");
+            LogWarning("No recipes assigned. Cannot add ingredient.");
             return;
         }
 
-        Log("Current Recipe: " + recipe.recipeName);
+        Log("Adding ingredient with auto recipe matching: " + ingredientId);
         Log("Current ingredients before add: " + GetCurrentIngredientText());
-
-        IngredientRequirement matchedRequirement = FindRequirementById(recipe, ingredientId);
-
-        if (matchedRequirement == null)
-        {
-            LogWarning("Wrong ingredient. This ingredient is not required: " + ingredientId);
-            HandleFailedRecipe("Wrong ingredient: " + ingredientId);
-            return;
-        }
-
-        if (recipe.useOrder)
-        {
-            int nextIndex = currentIngredientIds.Count;
-
-            if (nextIndex >= recipe.requiredIngredients.Count)
-            {
-                LogWarning("Too many ingredients added.");
-                HandleFailedRecipe("Too many ingredients.");
-                return;
-            }
-
-            string expectedId = GetIngredientIdFromRequirement(recipe.requiredIngredients[nextIndex]);
-
-            Log("Order check. Expected: " + expectedId + " / Actual: " + ingredientId);
-
-            if (ingredientId != expectedId)
-            {
-                LogWarning("Wrong order. Expected " + expectedId + " but got " + ingredientId);
-                HandleFailedRecipe("Wrong order.");
-                return;
-            }
-        }
-        else
-        {
-            int alreadyAddedCount = CountCurrentIngredient(ingredientId);
-            int requiredCount = CountRequiredIngredient(recipe, ingredientId);
-
-            Log("Unordered count check. Already Added: " + alreadyAddedCount + " / Required: " + requiredCount);
-
-            if (alreadyAddedCount >= requiredCount)
-            {
-                LogWarning("Too many of same ingredient: " + ingredientId);
-                HandleFailedRecipe("Too many same ingredient: " + ingredientId);
-                return;
-            }
-        }
 
         currentIngredientIds.Add(ingredientId);
 
-        Log("Ingredient accepted: " + ingredientId);
         Log("Current ingredients after add: " + GetCurrentIngredientText());
 
-        SpawnIngredientVisuals(matchedRequirement);
+        List<CookingRecipe> possibleRecipes = new List<CookingRecipe>();
+        CookingRecipe completedRecipe = null;
+        IngredientRequirement matchedRequirementForVisual = null;
 
-        if (IsRecipeComplete(recipe))
+        foreach (CookingRecipe recipe in recipes)
         {
-            Log("RECIPE COMPLETED: " + recipe.recipeName);
+            if (recipe == null)
+            {
+                continue;
+            }
+
+            RecipeMatchState state = CheckRecipeState(recipe, currentIngredientIds);
+
+            Log("Recipe [" + recipe.recipeName + "] state: " + state);
+
+            if (state == RecipeMatchState.Invalid)
+            {
+                continue;
+            }
+
+            possibleRecipes.Add(recipe);
+
+            // Important:
+            // This supports repeated same ingredient IDs.
+            // Example:
+            // Element 0 = chicken -> chicken point
+            // Element 2 = chicken -> chicken2 point
+            // The second chicken will use the second chicken requirement.
+            if (matchedRequirementForVisual == null)
+            {
+                matchedRequirementForVisual = FindRequirementForCurrentAdd(recipe, ingredientId, currentIngredientIds);
+            }
+
+            if (state == RecipeMatchState.Complete)
+            {
+                completedRecipe = recipe;
+            }
+        }
+
+        if (possibleRecipes.Count == 0)
+        {
+            LogWarning("No possible recipe after adding ingredient: " + ingredientId);
+            HandleFailedRecipe("No possible recipe after adding: " + ingredientId);
+            return;
+        }
+
+        if (matchedRequirementForVisual != null)
+        {
+            SpawnIngredientVisuals(matchedRequirementForVisual);
+        }
+        else
+        {
+            LogWarning("Ingredient was accepted by recipe logic, but no visual requirement found: " + ingredientId);
+        }
+
+        if (completedRecipe != null)
+        {
+            Log("RECIPE COMPLETED: " + completedRecipe.recipeName);
 
             recipeEnded = true;
 
-            SpawnFinalProduct(recipe);
+            SpawnFinalProduct(completedRecipe);
 
             if (clearPlacedVisualsAfterSuccess)
             {
@@ -404,8 +402,174 @@ public class CookingStation : MonoBehaviourPun
         }
         else
         {
-            Log("Recipe not complete yet.");
+            Log("No recipe completed yet. Possible recipe count: " + possibleRecipes.Count);
         }
+    }
+
+    private RecipeMatchState CheckRecipeState(CookingRecipe recipe, List<string> currentIds)
+    {
+        if (recipe == null)
+        {
+            return RecipeMatchState.Invalid;
+        }
+
+        if (recipe.requiredIngredients == null || recipe.requiredIngredients.Count == 0)
+        {
+            return RecipeMatchState.Invalid;
+        }
+
+        if (currentIds == null || currentIds.Count == 0)
+        {
+            return RecipeMatchState.Possible;
+        }
+
+        if (currentIds.Count > recipe.requiredIngredients.Count)
+        {
+            return RecipeMatchState.Invalid;
+        }
+
+        if (recipe.useOrder)
+        {
+            return CheckOrderedRecipeState(recipe, currentIds);
+        }
+        else
+        {
+            return CheckUnorderedRecipeState(recipe, currentIds);
+        }
+    }
+
+    private RecipeMatchState CheckOrderedRecipeState(CookingRecipe recipe, List<string> currentIds)
+    {
+        for (int i = 0; i < currentIds.Count; i++)
+        {
+            string expectedId = GetIngredientIdFromRequirement(recipe.requiredIngredients[i]);
+            string currentId = currentIds[i];
+
+            Log("Ordered check recipe [" + recipe.recipeName + "] index " + i + ": expected = " + expectedId + ", current = " + currentId);
+
+            if (currentId != expectedId)
+            {
+                return RecipeMatchState.Invalid;
+            }
+        }
+
+        if (currentIds.Count == recipe.requiredIngredients.Count)
+        {
+            return RecipeMatchState.Complete;
+        }
+
+        return RecipeMatchState.Possible;
+    }
+
+    private RecipeMatchState CheckUnorderedRecipeState(CookingRecipe recipe, List<string> currentIds)
+    {
+        Dictionary<string, int> requiredCounts = GetRequiredCounts(recipe);
+        Dictionary<string, int> currentCounts = new Dictionary<string, int>();
+
+        foreach (string id in currentIds)
+        {
+            if (!currentCounts.ContainsKey(id))
+            {
+                currentCounts[id] = 0;
+            }
+
+            currentCounts[id]++;
+        }
+
+        foreach (KeyValuePair<string, int> pair in currentCounts)
+        {
+            string ingredientId = pair.Key;
+            int currentCount = pair.Value;
+
+            if (!requiredCounts.ContainsKey(ingredientId))
+            {
+                Log("Unordered check failed. Recipe [" + recipe.recipeName + "] does not need ingredient: " + ingredientId);
+                return RecipeMatchState.Invalid;
+            }
+
+            if (currentCount > requiredCounts[ingredientId])
+            {
+                Log("Unordered check failed. Too many ingredient [" + ingredientId + "] for recipe [" + recipe.recipeName + "]");
+                return RecipeMatchState.Invalid;
+            }
+        }
+
+        if (currentIds.Count == recipe.requiredIngredients.Count)
+        {
+            foreach (KeyValuePair<string, int> required in requiredCounts)
+            {
+                int currentCount = currentCounts.ContainsKey(required.Key) ? currentCounts[required.Key] : 0;
+
+                if (currentCount != required.Value)
+                {
+                    return RecipeMatchState.Invalid;
+                }
+            }
+
+            return RecipeMatchState.Complete;
+        }
+
+        return RecipeMatchState.Possible;
+    }
+
+    private IngredientRequirement FindRequirementForCurrentAdd(CookingRecipe recipe, string ingredientId, List<string> currentIds)
+    {
+        if (recipe == null || recipe.requiredIngredients == null || currentIds == null)
+        {
+            return null;
+        }
+
+        if (recipe.useOrder)
+        {
+            int currentIndex = currentIds.Count - 1;
+
+            if (currentIndex < 0 || currentIndex >= recipe.requiredIngredients.Count)
+            {
+                return null;
+            }
+
+            IngredientRequirement requirement = recipe.requiredIngredients[currentIndex];
+            string requiredId = GetIngredientIdFromRequirement(requirement);
+
+            Log("Find visual requirement ordered. Index: " + currentIndex + ", requiredId: " + requiredId + ", actualId: " + ingredientId);
+
+            if (requiredId == ingredientId)
+            {
+                return requirement;
+            }
+
+            return null;
+        }
+
+        int currentOccurrence = 0;
+
+        foreach (string id in currentIds)
+        {
+            if (id == ingredientId)
+            {
+                currentOccurrence++;
+            }
+        }
+
+        int requirementOccurrence = 0;
+
+        foreach (IngredientRequirement requirement in recipe.requiredIngredients)
+        {
+            string requiredId = GetIngredientIdFromRequirement(requirement);
+
+            if (requiredId == ingredientId)
+            {
+                requirementOccurrence++;
+
+                if (requirementOccurrence == currentOccurrence)
+                {
+                    Log("Find visual requirement unordered. Ingredient: " + ingredientId + ", occurrence: " + currentOccurrence);
+                    return requirement;
+                }
+            }
+        }
+
+        return null;
     }
 
     private void SpawnIngredientVisuals(IngredientRequirement requirement)
@@ -550,7 +714,9 @@ public class CookingStation : MonoBehaviourPun
     private void DestroyInputIngredient(GameObject obj)
     {
         if (obj == null)
+        {
             return;
+        }
 
         Log("Destroying input ingredient: " + obj.name);
 
@@ -644,7 +810,9 @@ public class CookingStation : MonoBehaviourPun
     private void DetachIngredientVisualSpawnPoints()
     {
         if (recipes == null)
+        {
             return;
+        }
 
         Log("Detaching ingredient visual spawn points.");
 
@@ -653,20 +821,28 @@ public class CookingStation : MonoBehaviourPun
         foreach (CookingRecipe recipe in recipes)
         {
             if (recipe == null || recipe.requiredIngredients == null)
+            {
                 continue;
+            }
 
             foreach (IngredientRequirement req in recipe.requiredIngredients)
             {
                 if (req == null || req.visualSpawnPoints == null)
+                {
                     continue;
+                }
 
                 foreach (Transform point in req.visualSpawnPoints)
                 {
                     if (point == null)
+                    {
                         continue;
+                    }
 
                     if (detachedPoints.Contains(point))
+                    {
                         continue;
+                    }
 
                     Log("Detaching ingredient visual spawn point: " + point.name);
                     point.SetParent(null);
@@ -676,59 +852,12 @@ public class CookingStation : MonoBehaviourPun
         }
     }
 
-    private bool IsRecipeComplete(CookingRecipe recipe)
-    {
-        if (recipe == null)
-            return false;
-
-        if (recipe.requiredIngredients == null)
-            return false;
-
-        if (currentIngredientIds.Count != recipe.requiredIngredients.Count)
-        {
-            Log("Recipe incomplete. Current count: " + currentIngredientIds.Count + " / Required count: " + recipe.requiredIngredients.Count);
-            return false;
-        }
-
-        if (recipe.useOrder)
-        {
-            for (int i = 0; i < recipe.requiredIngredients.Count; i++)
-            {
-                string requiredId = GetIngredientIdFromRequirement(recipe.requiredIngredients[i]);
-
-                if (currentIngredientIds[i] != requiredId)
-                {
-                    Log("Recipe not complete because order mismatch at index " + i);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        else
-        {
-            Dictionary<string, int> requiredCounts = GetRequiredCounts(recipe);
-            Dictionary<string, int> currentCounts = GetCurrentCounts();
-
-            foreach (KeyValuePair<string, int> pair in requiredCounts)
-            {
-                int currentCount = currentCounts.ContainsKey(pair.Key) ? currentCounts[pair.Key] : 0;
-
-                if (currentCount != pair.Value)
-                {
-                    Log("Recipe not complete. Ingredient " + pair.Key + " current " + currentCount + " / required " + pair.Value);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-
     private IngredientRequirement FindRequirementById(CookingRecipe recipe, string ingredientId)
     {
         if (recipe == null || recipe.requiredIngredients == null)
+        {
             return null;
+        }
 
         foreach (IngredientRequirement req in recipe.requiredIngredients)
         {
@@ -746,7 +875,9 @@ public class CookingStation : MonoBehaviourPun
     private string GetIngredientIdFromRequirement(IngredientRequirement req)
     {
         if (req == null)
+        {
             return "";
+        }
 
         return GetIngredientIdFromPrefab(req.ingredientPrefab);
     }
@@ -754,15 +885,21 @@ public class CookingStation : MonoBehaviourPun
     private string GetIngredientIdFromPrefab(GameObject prefab)
     {
         if (prefab == null)
+        {
             return "";
+        }
 
         IngredientId id = prefab.GetComponent<IngredientId>();
 
         if (id == null)
+        {
             id = prefab.GetComponentInChildren<IngredientId>();
+        }
 
         if (id == null)
+        {
             return "";
+        }
 
         return id.ingredientId;
     }
@@ -774,7 +911,9 @@ public class CookingStation : MonoBehaviourPun
         foreach (string id in currentIngredientIds)
         {
             if (id == ingredientId)
+            {
                 count++;
+            }
         }
 
         return count;
@@ -785,14 +924,18 @@ public class CookingStation : MonoBehaviourPun
         int count = 0;
 
         if (recipe == null || recipe.requiredIngredients == null)
+        {
             return count;
+        }
 
         foreach (IngredientRequirement req in recipe.requiredIngredients)
         {
             string reqId = GetIngredientIdFromRequirement(req);
 
             if (reqId == ingredientId)
+            {
                 count++;
+            }
         }
 
         return count;
@@ -803,17 +946,23 @@ public class CookingStation : MonoBehaviourPun
         Dictionary<string, int> counts = new Dictionary<string, int>();
 
         if (recipe == null || recipe.requiredIngredients == null)
+        {
             return counts;
+        }
 
         foreach (IngredientRequirement req in recipe.requiredIngredients)
         {
             string id = GetIngredientIdFromRequirement(req);
 
             if (string.IsNullOrEmpty(id))
+            {
                 continue;
+            }
 
             if (!counts.ContainsKey(id))
+            {
                 counts[id] = 0;
+            }
 
             counts[id]++;
         }
@@ -828,7 +977,9 @@ public class CookingStation : MonoBehaviourPun
         foreach (string id in currentIngredientIds)
         {
             if (!counts.ContainsKey(id))
+            {
                 counts[id] = 0;
+            }
 
             counts[id]++;
         }
@@ -851,7 +1002,9 @@ public class CookingStation : MonoBehaviourPun
             GameObject obj = spawnedVisualObjects[i];
 
             if (obj == null)
+            {
                 continue;
+            }
 
             if (usePhotonSync && PhotonNetwork.IsConnected)
             {
@@ -886,7 +1039,9 @@ public class CookingStation : MonoBehaviourPun
     private string GetCurrentIngredientText()
     {
         if (currentIngredientIds == null || currentIngredientIds.Count == 0)
+        {
             return "Empty";
+        }
 
         return string.Join(", ", currentIngredientIds);
     }
@@ -894,7 +1049,9 @@ public class CookingStation : MonoBehaviourPun
     private string GetObjectName(GameObject obj)
     {
         if (obj == null)
+        {
             return "NULL";
+        }
 
         return obj.name;
     }
