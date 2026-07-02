@@ -6,7 +6,7 @@ using TMPro;
 public class PancakeRecipe
 {
     public string foodName;
-    public Texture[] ingredientTextures = new Texture[3];
+    public Texture[] ingredientTextures = new Texture[4];
     public Texture finalFoodTexture;
 
     [Header("Pancake Slice Amount")]
@@ -20,7 +20,7 @@ public class PancakeRecipeMenuUI : MonoBehaviour
 
     [Header("UI References")]
     public TMP_Text foodNameText;
-    public RawImage[] ingredientSlots = new RawImage[3];
+    public RawImage[] ingredientSlots = new RawImage[4];
     public RawImage finalFoodSlot;
 
     [Header("Pancake Amount UI")]
