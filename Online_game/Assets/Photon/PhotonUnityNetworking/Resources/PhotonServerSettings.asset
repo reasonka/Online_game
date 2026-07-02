@@ -41,6 +41,10 @@ MonoBehaviour:
   - RespawnSpaceship
   - RPC_AddIngredient
   - RPC_ClearIngredients
+  - RPC_ClearBoard
+  - RPC_PaintPoint
+  - RPC_ReceiveStroke
+  - RPC_ReceiveStrokeEnd
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 0
