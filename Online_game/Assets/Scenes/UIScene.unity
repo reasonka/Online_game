@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028292, g: 0.22571306, b: 0.30692118, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3457,7 +3457,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 119.3, y: -19.2}
-  m_SizeDelta: {x: 180, y: 180}
+  m_SizeDelta: {x: 250, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &987799619
 MonoBehaviour:
@@ -3530,7 +3530,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -499, y: -59}
-  m_SizeDelta: {x: 170, y: 170}
+  m_SizeDelta: {x: 170, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1024605416
 CanvasRenderer:
@@ -4520,7 +4520,7 @@ RectTransform:
   m_GameObject: {fileID: 1344308231}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1.4191157, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1351817821}
@@ -4528,8 +4528,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -327, y: -59}
-  m_SizeDelta: {x: 170, y: 170}
+  m_AnchoredPosition: {x: -342.7, y: -59}
+  m_SizeDelta: {x: 190, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1344308233
 CanvasRenderer:
@@ -4656,7 +4656,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1351817821
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6165,7 +6165,7 @@ MonoBehaviour:
     ingredientTextures:
     - {fileID: 2800000, guid: 6cffe46dc53a94c2faecb8fab9945655, type: 3}
     - {fileID: 2800000, guid: 21e4145949b7b44158f5fb6d77b1f9d6, type: 3}
-    - {fileID: 2800000, guid: 4a949c669977f4b4a923e04f2b4c98a6, type: 3}
+    - {fileID: 2800000, guid: 60cfe414eb0e547c79f3fae865eb1f40, type: 3}
     - {fileID: 2800000, guid: 7ed4bb1df74304b868dc4c4d9f06e708, type: 3}
     - {fileID: 2800000, guid: 12e8d73af606a4e20b60217456ef0160, type: 3}
     - {fileID: 2800000, guid: 465f13b38848b4c61993cbe26fe366fa, type: 3}
@@ -6175,7 +6175,7 @@ MonoBehaviour:
     ingredientTextures:
     - {fileID: 2800000, guid: 6cffe46dc53a94c2faecb8fab9945655, type: 3}
     - {fileID: 2800000, guid: 21e4145949b7b44158f5fb6d77b1f9d6, type: 3}
-    - {fileID: 2800000, guid: 4a949c669977f4b4a923e04f2b4c98a6, type: 3}
+    - {fileID: 2800000, guid: 60cfe414eb0e547c79f3fae865eb1f40, type: 3}
     - {fileID: 2800000, guid: 7b5f7a1f0738041d0bbd388d55a0ea19, type: 3}
     - {fileID: 2800000, guid: dd3e1824a0b29440a8a8ad4bdbe4404f, type: 3}
     - {fileID: 2800000, guid: 465f13b38848b4c61993cbe26fe366fa, type: 3}
@@ -6185,7 +6185,7 @@ MonoBehaviour:
     ingredientTextures:
     - {fileID: 2800000, guid: 6cffe46dc53a94c2faecb8fab9945655, type: 3}
     - {fileID: 2800000, guid: 21e4145949b7b44158f5fb6d77b1f9d6, type: 3}
-    - {fileID: 2800000, guid: 4a949c669977f4b4a923e04f2b4c98a6, type: 3}
+    - {fileID: 2800000, guid: 60cfe414eb0e547c79f3fae865eb1f40, type: 3}
     - {fileID: 2800000, guid: dd3e1824a0b29440a8a8ad4bdbe4404f, type: 3}
     - {fileID: 2800000, guid: 7f856b3a98c6c42e18ec94551d7e1888, type: 3}
     - {fileID: 2800000, guid: a3e08c0e8ad3f41a6a150b88fa1a0db6, type: 3}
@@ -6384,7 +6384,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1923447390
 RectTransform:
   m_ObjectHideFlags: 0
