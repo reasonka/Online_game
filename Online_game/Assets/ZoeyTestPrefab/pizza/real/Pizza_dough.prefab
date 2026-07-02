@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6884275054580276702}
+  - component: {fileID: 3515699085348790970}
   m_Layer: 0
   m_Name: Pizza_dough
   m_TagString: Untagged
@@ -33,6 +34,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3515699085348790970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677698015488625666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 0
+  ingredientIdComponent: {fileID: 0}
 --- !u!1 &2688769651478322845
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,6 +224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebugLog: 1
   usePhotonSync: 0
+  acceptIngredientByTrigger: 0
   recipes:
   - recipeName: PizzaBase1
     useOrder: 1
@@ -222,11 +238,10 @@ MonoBehaviour:
       visualSpawnPoints:
       - {fileID: 2688769651478322844}
     finalProductPrefab: {fileID: 548783413241283944, guid: e595081ca049d9a43b5a38f54681025d, type: 3}
-  currentRecipeIndex: 0
   finalProductSpawnPoint: {fileID: 1884110619186623447}
   failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
   failedProductSpawnPoint: {fileID: 1884110619186623447}
-  destroyInputIngredientAfterAdding: 1
+  destroyTriggerIngredientAfterAdding: 1
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
