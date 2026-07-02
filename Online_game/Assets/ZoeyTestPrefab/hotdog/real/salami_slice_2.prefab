@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6416208867441746883}
   - component: {fileID: -6398504882283138248}
   - component: {fileID: 98692229270163640}
+  - component: {fileID: 7784136571280152621}
   m_Layer: 0
   m_Name: salami_slice_2
   m_TagString: Untagged
@@ -128,3 +129,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientId: SalamiSlice
+--- !u!114 &7784136571280152621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2705063091623505886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: 98692229270163640}

@@ -165,6 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebugLog: 1
   usePhotonSync: 0
+  acceptIngredientByTrigger: 0
   recipes:
   - recipeName: NileMustardHotdog
     useOrder: 1
@@ -228,7 +229,7 @@ MonoBehaviour:
   finalProductSpawnPoint: {fileID: 6286866242324039646}
   failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
   failedProductSpawnPoint: {fileID: 6286866242324039646}
-  destroyInputIngredientAfterAdding: 1
+  destroyTriggerIngredientAfterAdding: 1
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
@@ -832,6 +833,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6286866242468034822}
+  - component: {fileID: -3191137240324460917}
   m_Layer: 0
   m_Name: hotdogbase
   m_TagString: Untagged
@@ -856,6 +858,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-3191137240324460917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6286866242468034821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 0
+  ingredientIdComponent: {fileID: 0}
 --- !u!1 &6286866242621888981
 GameObject:
   m_ObjectHideFlags: 0

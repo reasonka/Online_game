@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -8388068426131906888}
   - component: {fileID: 1062469219970530043}
   - component: {fileID: -5946087746475600854}
+  - component: {fileID: 3656909025534682891}
   m_Layer: 0
   m_Name: pickled_cucumber_slice
   m_TagString: Untagged
@@ -128,3 +129,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientId: Pickle
+--- !u!114 &3656909025534682891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8790449782119018905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: -5946087746475600854}

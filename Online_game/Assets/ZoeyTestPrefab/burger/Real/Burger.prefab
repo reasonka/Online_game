@@ -136,8 +136,8 @@ GameObject:
   - component: {fileID: 8536896913003976023}
   - component: {fileID: 8536896913003976020}
   - component: {fileID: 8536896913003976021}
-  - component: {fileID: 8536896913003976026}
   - component: {fileID: 8536896913003976027}
+  - component: {fileID: 8536896913003976026}
   m_Layer: 0
   m_Name: BurgerBreadBase
   m_TagString: Untagged
@@ -227,19 +227,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientId: Buger_Bread_Bottom
---- !u!65 &8536896913003976026
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8536896913003976024}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.525063, y: 0.4300353, z: 0.5250629}
-  m_Center: {x: 0, y: 0.21535888, z: 0}
 --- !u!114 &8536896913003976027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,6 +241,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebugLog: 1
   usePhotonSync: 0
+  acceptIngredientByTrigger: 0
   recipes:
   - recipeName: NileCheseBurger
     useOrder: 1
@@ -362,7 +350,7 @@ MonoBehaviour:
   finalProductSpawnPoint: {fileID: 8536896913087363823}
   failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
   failedProductSpawnPoint: {fileID: 8536896913087363823}
-  destroyInputIngredientAfterAdding: 1
+  destroyTriggerIngredientAfterAdding: 1
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
@@ -371,6 +359,19 @@ MonoBehaviour:
   detachFinalProductSpawnPointBeforeDestroy: 1
   detachFailedProductSpawnPointBeforeDestroy: 1
   detachIngredientVisualSpawnPointsBeforeDestroy: 0
+--- !u!65 &8536896913003976026
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8536896913003976024}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.525063, y: 0.4300353, z: 0.5250629}
+  m_Center: {x: 0, y: 0.21535888, z: 0}
 --- !u!1 &8536896913025667281
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,6 +696,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8536896913279714492}
+  - component: {fileID: 1746756335944044577}
   m_Layer: 0
   m_Name: Burger
   m_TagString: Untagged
@@ -717,8 +719,22 @@ Transform:
   - {fileID: 8536896913003976022}
   - {fileID: 8536896913087363823}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1746756335944044577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8536896913279714493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 0
+  ingredientIdComponent: {fileID: 0}
 --- !u!1 &8536896913291126853
 GameObject:
   m_ObjectHideFlags: 0
