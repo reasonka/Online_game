@@ -389,7 +389,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 770131e798e664f0987eedc2f24d7fc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recipes: []
+  recipes:
+  - foodName: Nile Mustard Hotdog
+    ingredientTextures:
+    - {fileID: 2800000, guid: 2ff60453779094b7b93686a5fe8a05b3, type: 3}
+    - {fileID: 2800000, guid: 4036f007c5a95436480a74b09c64126a, type: 3}
+    - {fileID: 2800000, guid: 7585ccd948d814ab3b7bf85c22f8b710, type: 3}
+    - {fileID: 2800000, guid: 582d05b4a8a164daa8c258432a1e6cd0, type: 3}
+    - {fileID: 2800000, guid: 6092814f104ad429084a2ee7fc2fd012, type: 3}
+    finalFoodTexture: {fileID: 2800000, guid: a04382a85a40347068ff856638740a48, type: 3}
+  - foodName: Pharoah Ketchup Hotdog
+    ingredientTextures:
+    - {fileID: 2800000, guid: 2ff60453779094b7b93686a5fe8a05b3, type: 3}
+    - {fileID: 2800000, guid: 4036f007c5a95436480a74b09c64126a, type: 3}
+    - {fileID: 2800000, guid: ae8ab2294f5844f01b8a1656094ec670, type: 3}
+    - {fileID: 2800000, guid: 937f459f0641c49d98645225f7f824a4, type: 3}
+    - {fileID: 2800000, guid: 6092814f104ad429084a2ee7fc2fd012, type: 3}
+    finalFoodTexture: {fileID: 2800000, guid: 7fbddd64df267464798913a582f5355f, type: 3}
+  - foodName: Desert Mayo Hotdog
+    ingredientTextures:
+    - {fileID: 2800000, guid: 2ff60453779094b7b93686a5fe8a05b3, type: 3}
+    - {fileID: 2800000, guid: 4036f007c5a95436480a74b09c64126a, type: 3}
+    - {fileID: 2800000, guid: 7d0845e10004b47aeab832d90880becd, type: 3}
+    - {fileID: 2800000, guid: c883884db396544dba5090718ef8906d, type: 3}
+    - {fileID: 2800000, guid: 6092814f104ad429084a2ee7fc2fd012, type: 3}
+    finalFoodTexture: {fileID: 2800000, guid: bde96ce761c41467fa5b8c8c7e3f11b1, type: 3}
   foodNameText: {fileID: 1439470692}
   ingredientSlots:
   - {fileID: 677440887}
@@ -3511,7 +3535,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1351817821
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4491,7 +4515,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1644138450
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4543,7 +4567,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: c593f461142c94365a8e7389d702a36f, type: 3}
+  m_Texture: {fileID: 2800000, guid: 715a1518e31e04f8ea88345511639632, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
