@@ -118,7 +118,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _RecolorBlack: {r: 0.99300003, g: 0.579854, b: 0.05073723, a: 0}
+    - _RecolorBlack: {r: 0.38679248, g: 0.13808574, b: 0.0707903, a: 0}
     - _RecolorWhite: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Tiling: {r: 1, g: 16, b: 0, a: 0}
