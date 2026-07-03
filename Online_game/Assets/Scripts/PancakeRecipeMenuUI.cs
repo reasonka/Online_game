@@ -71,7 +71,8 @@ public class PancakeRecipeMenuUI : MonoBehaviour
         if (closeButton != null)
             closeButton.onClick.AddListener(CloseRecipePanel);
 
-        ShowRecipe(0);
+        if (recipePanel != null)
+        recipePanel.SetActive(false);
     }
 
     public void ShowRecipe(int index)

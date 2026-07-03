@@ -13,15 +13,23 @@ public class RecipeCategoryMenuUI : MonoBehaviour
     public Button pancakeButton;
     public Button cocktailButton;
 
-    [Header("Level 1 Recipe Panels")]
+    [Header("Level 1 Recipe Scripts")]
+    public PizzaRecipeMenuUI pizzaRecipeUI;
+    public HotdogRecipeMenuUI hotdogRecipeUI;
+
+    [Header("Level 2 Recipe Scripts")]
+    public BurgerRecipeMenuUI burgerRecipeUI;
+    public PancakeRecipeMenuUI pancakeRecipeUI;
+
+    [Header("Static Recipe Panels")]
+    public GameObject beerPanel;
+    public GameObject cocktailPanel;
+
+    [Header("All Recipe Panels")]
     public GameObject pizzaPanel;
     public GameObject hotdogPanel;
-    public GameObject beerPanel;
-
-    [Header("Level 2 Recipe Panels")]
     public GameObject burgerPanel;
     public GameObject pancakePanel;
-    public GameObject cocktailPanel;
 
     [Header("Optional Main UI Panels")]
     public GameObject level1MainRecipeUI;
@@ -54,7 +62,9 @@ public class RecipeCategoryMenuUI : MonoBehaviour
     {
         CloseAllRecipePanels();
 
-        if (pizzaPanel != null)
+        if (pizzaRecipeUI != null)
+            pizzaRecipeUI.ShowRecipe(0);
+        else if (pizzaPanel != null)
             pizzaPanel.SetActive(true);
     }
 
@@ -62,7 +72,9 @@ public class RecipeCategoryMenuUI : MonoBehaviour
     {
         CloseAllRecipePanels();
 
-        if (hotdogPanel != null)
+        if (hotdogRecipeUI != null)
+            hotdogRecipeUI.ShowRecipe(0);
+        else if (hotdogPanel != null)
             hotdogPanel.SetActive(true);
     }
 
@@ -78,7 +90,9 @@ public class RecipeCategoryMenuUI : MonoBehaviour
     {
         CloseAllRecipePanels();
 
-        if (burgerPanel != null)
+        if (burgerRecipeUI != null)
+            burgerRecipeUI.ShowRecipe(0);
+        else if (burgerPanel != null)
             burgerPanel.SetActive(true);
     }
 
@@ -86,7 +100,9 @@ public class RecipeCategoryMenuUI : MonoBehaviour
     {
         CloseAllRecipePanels();
 
-        if (pancakePanel != null)
+        if (pancakeRecipeUI != null)
+            pancakeRecipeUI.ShowRecipe(0);
+        else if (pancakePanel != null)
             pancakePanel.SetActive(true);
     }
 

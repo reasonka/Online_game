@@ -2319,6 +2319,7 @@ RectTransform:
   - {fileID: 831481686}
   - {fileID: 397949484}
   - {fileID: 140009540}
+  - {fileID: 756130518}
   m_Father: {fileID: 1049688261}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3482,12 +3483,16 @@ MonoBehaviour:
   burgerButton: {fileID: 1137818940}
   pancakeButton: {fileID: 1943884414}
   cocktailButton: {fileID: 2001167176}
+  pizzaRecipeUI: {fileID: 1810664555}
+  hotdogRecipeUI: {fileID: 62554765}
+  burgerRecipeUI: {fileID: 699670174}
+  pancakeRecipeUI: {fileID: 1235034277}
+  beerPanel: {fileID: 383852593}
+  cocktailPanel: {fileID: 1479894542}
   pizzaPanel: {fileID: 1351817820}
   hotdogPanel: {fileID: 1644138449}
-  beerPanel: {fileID: 383852593}
   burgerPanel: {fileID: 588380905}
   pancakePanel: {fileID: 1923447389}
-  cocktailPanel: {fileID: 1479894542}
   level1MainRecipeUI: {fileID: 320251035}
   level2MainRecipeUI: {fileID: 1527738854}
 --- !u!4 &701757711
@@ -3928,6 +3933,7 @@ GameObject:
   - component: {fileID: 756130521}
   - component: {fileID: 756130520}
   - component: {fileID: 756130519}
+  - component: {fileID: 756130522}
   m_Layer: 5
   m_Name: Close
   m_TagString: Untagged
@@ -3942,12 +3948,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 756130517}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1923447390}
+  m_Father: {fileID: 383852594}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4025,7 +4031,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 756130519}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!222 &756130521
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4034,6 +4052,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 756130517}
   m_CullTransparentMesh: 1
+--- !u!114 &756130522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 756130517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04c54f77e39d7411dbfb6e47b95c0a20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  closeButton: {fileID: 756130520}
+  panelToClose: {fileID: 383852593}
 --- !u!1 &767329976
 GameObject:
   m_ObjectHideFlags: 0
@@ -5365,6 +5397,7 @@ GameObject:
   - component: {fileID: 1114116361}
   - component: {fileID: 1114116360}
   - component: {fileID: 1114116359}
+  - component: {fileID: 1114116362}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5438,6 +5471,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1114116362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114116358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1 &1137818936
 GameObject:
   m_ObjectHideFlags: 0
@@ -9225,7 +9291,6 @@ RectTransform:
   - {fileID: 743327655}
   - {fileID: 214758518}
   - {fileID: 1310216064}
-  - {fileID: 756130518}
   - {fileID: 1538536264}
   - {fileID: 718862743}
   m_Father: {fileID: 1049688261}
