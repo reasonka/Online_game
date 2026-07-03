@@ -55,5 +55,10 @@ public class FoodItem : MonoBehaviour
     [Header("Prefab ID used for customer checking")]
     public GameObject foodPrefabId;
     // Drag the original prefab from the Project folder here.
-    // This connects the served food to CustomerOrderUI / TableServeArea.
+    // This is what CustomerOrderUI uses to check whether the served food is correct.
+
+    [Header("Pickup Settings")]
+    public bool canBePickedUp = true;
+
+    [HideInInspector] public bool isHeld = false;
 }

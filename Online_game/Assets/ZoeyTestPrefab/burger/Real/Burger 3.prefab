@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 6723917083076228304}
   - component: {fileID: 2618223113299559234}
   - component: {fileID: 5343282622461086281}
+  - component: {fileID: 3815818662139429018}
+  - component: {fileID: 5673737821214991474}
   m_Layer: 0
   m_Name: Burger 3
   m_TagString: Untagged
@@ -69,6 +71,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foodType: 3
   foodPrefabId: {fileID: 6723917083076228311}
+  canBePickedUp: 1
+  isHeld: 0
+--- !u!54 &3815818662139429018
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6723917083076228311}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &5673737821214991474
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6723917083076228311}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.7, y: 0.7, z: 0.7}
+  m_Center: {x: 0, y: 0.35, z: 0}
 --- !u!1001 &1266846267298347935
 PrefabInstance:
   m_ObjectHideFlags: 0

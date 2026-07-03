@@ -3,75 +3,140 @@ using UnityEngine;
 
 public class CustomerWaitArea : MonoBehaviour
 {
-    [Header("设置")]
+    [Header("Settings")]
     public float waitTime = 10f;
     public string playerTag = "Player";
-    public string customerTag = "Customer";
+
+    [Header("Order Start Logic")]
+    public bool requirePlayerToStartOrder = false;
 
     private bool playerInside = false;
     private bool customerInside = false;
     private bool isCounting = false;
+
     private Coroutine waitCoroutine;
 
     private CustomerOrderUI currentCustomerUI;
+    private CustomerAI currentCustomerAI;
 
-    // ⭐ 提供给桌子使用：当前这张桌子前的顾客 UI
-    public CustomerOrderUI CurrentCustomerUI => currentCustomerUI;
+    public CustomerOrderUI CurrentCustomerUI
+    {
+        get
+        {
+            if (currentCustomerUI == null)
+                return null;
+
+            return currentCustomerUI;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        // 玩家进入桌前区域
         if (other.CompareTag(playerTag))
         {
             playerInside = true;
+            Debug.Log($"{name}: Player entered wait area.");
             TryStartCountdown();
-            Debug.Log("Player in trigger zone");
+            return;
         }
-        // 顾客进入桌前区域
-        else if (other.CompareTag(customerTag))
+
+        CustomerAI foundCustomerAI = other.GetComponentInParent<CustomerAI>();
+
+        if (foundCustomerAI == null)
+            return;
+
+        CustomerOrderUI foundCustomerUI = foundCustomerAI.GetComponentInChildren<CustomerOrderUI>(true);
+
+        if (foundCustomerUI == null)
         {
-            customerInside = true;
-
-            currentCustomerUI = other.GetComponentInChildren<CustomerOrderUI>();
-
-            if (currentCustomerUI != null && !currentCustomerUI.completed)
-            {
-                currentCustomerUI.PrepareForWait();
-            }
-
-            
-
-            TryStartCountdown();
+            Debug.LogWarning($"{name}: Customer entered, but no CustomerOrderUI was found.");
+            return;
         }
+
+        currentCustomerAI = foundCustomerAI;
+        currentCustomerUI = foundCustomerUI;
+        customerInside = true;
+
+        Debug.Log($"{name}: Customer entered wait area.");
+        Debug.Log($"{name}: Found CustomerOrderUI on {currentCustomerUI.gameObject.name}");
+
+        if (!currentCustomerUI.completed && !isCounting)
+        {
+            currentCustomerUI.PrepareForWait();
+        }
+
+        TryStartCountdown();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // 玩家离开
         if (other.CompareTag(playerTag))
         {
             playerInside = false;
-            StopCountdownIfRunning();
+            Debug.Log($"{name}: Player left wait area.");
+
+            if (requirePlayerToStartOrder)
+            {
+                StopCountdownIfRunning();
+            }
+
+            return;
         }
-        // 顾客离开
-        else if (other.CompareTag(customerTag))
+
+        CustomerAI exitingCustomerAI = other.GetComponentInParent<CustomerAI>();
+
+        if (exitingCustomerAI == null)
+            return;
+
+        if (exitingCustomerAI != currentCustomerAI)
+            return;
+
+        customerInside = false;
+
+        Debug.Log($"{name}: Customer collider left wait area.");
+
+        // Important:
+        // If the customer already has an order, DO NOT clear them.
+        // Their collider may leave slightly after sitting, but they still belong to this table.
+        if (currentCustomerUI != null && currentCustomerUI.completed)
         {
-            customerInside = false;
-            StopCountdownIfRunning();
-            currentCustomerUI = null;
+            Debug.Log($"{name}: Customer already ordered, keeping customer assigned to this table.");
+            return;
         }
+
+        StopCountdownIfRunning();
+
+        currentCustomerAI = null;
+        currentCustomerUI = null;
     }
 
     private void TryStartCountdown()
     {
-        if (playerInside &&
-            customerInside &&
-            currentCustomerUI != null &&
-            !currentCustomerUI.completed &&
-            !isCounting)
+        if (currentCustomerUI == null)
         {
-            waitCoroutine = StartCoroutine(WaitAndShowIcon());
+            Debug.Log($"{name}: Countdown not started yet, waiting for customer.");
+            return;
         }
+
+        if (currentCustomerUI.completed)
+        {
+            Debug.Log($"{name}: Customer already has an order.");
+            return;
+        }
+
+        if (isCounting)
+        {
+            return;
+        }
+
+        if (requirePlayerToStartOrder && !playerInside)
+        {
+            Debug.Log($"{name}: Waiting for player before starting order countdown.");
+            return;
+        }
+
+        Debug.Log($"{name}: Countdown started for customer order.");
+        waitCoroutine = StartCoroutine(WaitAndShowIcon());
     }
 
     private void StopCountdownIfRunning()
@@ -98,16 +163,24 @@ public class CustomerWaitArea : MonoBehaviour
 
         while (timer < waitTime)
         {
-            if (!playerInside || !customerInside || currentCustomerUI == null)
+            if (currentCustomerUI == null)
             {
+                Debug.LogWarning($"{name}: Countdown stopped because CustomerOrderUI became null.");
                 isCounting = false;
+                waitCoroutine = null;
+                yield break;
+            }
+
+            if (requirePlayerToStartOrder && !playerInside)
+            {
+                Debug.Log($"{name}: Countdown stopped because player left.");
+                isCounting = false;
+                waitCoroutine = null;
                 yield break;
             }
 
             timer += Time.deltaTime;
-            float progress = timer / waitTime;
-
-            currentCustomerUI.SetProgress(progress);
+            currentCustomerUI.SetProgress(timer / waitTime);
 
             yield return null;
         }
@@ -119,6 +192,15 @@ public class CustomerWaitArea : MonoBehaviour
         }
 
         isCounting = false;
+        waitCoroutine = null;
     }
 
+    public void ClearCustomerAfterLeaving()
+    {
+        currentCustomerAI = null;
+        currentCustomerUI = null;
+        customerInside = false;
+        isCounting = false;
+        waitCoroutine = null;
+    }
 }

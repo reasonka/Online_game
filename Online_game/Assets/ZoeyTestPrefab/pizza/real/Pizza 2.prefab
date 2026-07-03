@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 5609312099810887952}
   - component: {fileID: 234281707603793587}
   - component: {fileID: 6422071165899815416}
+  - component: {fileID: 4035011018276682267}
+  - component: {fileID: 6830275147413771231}
   m_Layer: 0
   m_Name: Pizza 2
   m_TagString: Untagged
@@ -100,6 +102,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foodType: 6
   foodPrefabId: {fileID: 8723612179399725256}
+  canBePickedUp: 1
+  isHeld: 0
+--- !u!54 &4035011018276682267
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8723612179399725256}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &6830275147413771231
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8723612179399725256}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.7, z: 1}
+  m_Center: {x: 0, y: 0.35, z: 0}
 --- !u!1001 &402990320862345348
 PrefabInstance:
   m_ObjectHideFlags: 0

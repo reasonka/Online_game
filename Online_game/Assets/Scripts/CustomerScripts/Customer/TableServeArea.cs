@@ -6,18 +6,39 @@ public class TableServeArea : MonoBehaviour
     [Header("Center point on the table where food is placed")]
     public Transform platePoint;
 
-    private CustomerWaitArea waitArea;
+    [Header("Connected customer wait area")]
+    public CustomerWaitArea waitArea;
+
+    [Header("Serve Area Settings")]
+    public bool debugThisTable = true;
 
     private void Awake()
     {
-        waitArea = GetComponentInParent<CustomerWaitArea>();
+        if (waitArea == null)
+        {
+            waitArea = GetComponentInParent<CustomerWaitArea>();
+        }
+
+        if (waitArea == null)
+        {
+            waitArea = GetComponentInChildren<CustomerWaitArea>();
+        }
+
+        if (waitArea != null)
+        {
+            Debug.Log($"{name}: Connected to wait area {waitArea.name}");
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: No CustomerWaitArea found. Assign it manually.");
+        }
     }
 
     public void PlaceFood(FoodItem food)
     {
-        if (food == null) return;
+        if (food == null)
+            return;
 
-        // Place the food at the table's serving point
         food.transform.SetParent(null);
 
         if (platePoint != null)
@@ -26,7 +47,7 @@ public class TableServeArea : MonoBehaviour
             food.transform.rotation = platePoint.rotation;
         }
 
-        var rb = food.GetComponent<Rigidbody>();
+        Rigidbody rb = food.GetComponent<Rigidbody>();
 
         if (rb != null)
         {
@@ -34,45 +55,69 @@ public class TableServeArea : MonoBehaviour
             rb.useGravity = true;
         }
 
-        Debug.Log("Placed food on the table: " + food.name);
-        Debug.Log("Food Type = " + food.foodType);
-        Debug.Log("Food Prefab ID = " + food.foodPrefabId?.name);
-
-        // Get the current customer from the waiting area
-        var customerOrderUI = (waitArea != null) ? waitArea.CurrentCustomerUI : null;
-
-        if (customerOrderUI != null)
+        if (debugThisTable)
         {
-            // Pass the prefab ID to the customer order system
-            var reaction = customerOrderUI.EvaluateFood(food.foodPrefabId);
-
-            switch (reaction)
-            {
-                case CustomerReactionType.Reaction1:
-                    Debug.Log("Reaction1: Correct food served, customer is happy.");
-                    break;
-
-                case CustomerReactionType.Reaction2:
-                    Debug.Log("Reaction2: Special food served, customer collapses.");
-                    break;
-
-                case CustomerReactionType.Reaction3:
-                    Debug.Log("Reaction3: Wrong food served, customer is angry.");
-                    break;
-
-                default:
-                    Debug.Log("Customer has not ordered yet / invalid serving action.");
-                    break;
-            }
-
-            customerOrderUI.PlayReaction(reaction);
-        }
-        else
-        {
-            Debug.LogWarning("There is currently no customer at this table, or CustomerWaitArea did not detect a customer.");
+            Debug.Log("========== SERVING DEBUG ==========");
+            Debug.Log("TableServeArea used: " + name);
+            Debug.Log("Connected WaitArea: " + (waitArea != null ? waitArea.name : "NULL"));
+            Debug.Log("Placed food: " + food.name);
+            Debug.Log("Food Type = " + food.foodType);
+            Debug.Log("Food Prefab ID = " + food.foodPrefabId?.name);
         }
 
+        CustomerOrderUI customerOrderUI = waitArea != null ? waitArea.CurrentCustomerUI : null;
+
+        if (customerOrderUI == null)
+        {
+            Debug.LogWarning($"{name}: No customer assigned to this table. Food cannot trigger reaction.");
+            StartCoroutine(DestroyFoodAfterSeconds(food, 3f));
+            return;
+        }
+
+        if (!customerOrderUI.completed)
+        {
+            Debug.LogWarning($"{name}: Customer exists, but they have not finished ordering yet.");
+            StartCoroutine(DestroyFoodAfterSeconds(food, 3f));
+            return;
+        }
+
+        Debug.Log($"{name}: Found customer order UI: {customerOrderUI.name}");
+
+        CustomerReactionType reaction = customerOrderUI.EvaluateFood(food);
+
+        switch (reaction)
+        {
+            case CustomerReactionType.Reaction1:
+                Debug.Log("Reaction1: Correct food served, customer is happy.");
+                break;
+
+            case CustomerReactionType.Reaction2:
+                Debug.Log("Reaction2: Shared special food served, customer collapses.");
+                break;
+
+            case CustomerReactionType.Reaction3:
+                Debug.Log("Reaction3: Wrong food served, customer is angry.");
+                break;
+
+            default:
+                Debug.LogWarning("No valid reaction returned.");
+                break;
+        }
+
+        customerOrderUI.PlayReaction(reaction);
+
+        StartCoroutine(ClearTableCustomerAfterDelay(6f));
         StartCoroutine(DestroyFoodAfterSeconds(food, 3f));
+    }
+
+    private IEnumerator ClearTableCustomerAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (waitArea != null)
+        {
+            waitArea.ClearCustomerAfterLeaving();
+        }
     }
 
     private IEnumerator DestroyFoodAfterSeconds(FoodItem food, float delay)
