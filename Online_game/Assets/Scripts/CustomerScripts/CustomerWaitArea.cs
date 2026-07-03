@@ -25,6 +25,7 @@ public class CustomerWaitArea : MonoBehaviour
         {
             playerInside = true;
             TryStartCountdown();
+            Debug.Log("Player in trigger zone");
         }
         // 顾客进入桌前区域
         else if (other.CompareTag(customerTag))
@@ -37,6 +38,8 @@ public class CustomerWaitArea : MonoBehaviour
             {
                 currentCustomerUI.PrepareForWait();
             }
+
+            
 
             TryStartCountdown();
         }
