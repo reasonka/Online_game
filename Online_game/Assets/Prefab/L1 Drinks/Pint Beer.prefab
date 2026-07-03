@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3563354246141207696}
   - component: {fileID: 1627880322780663898}
   - component: {fileID: 96529589870922976}
+  - component: {fileID: 4861676154349176553}
   m_Layer: 0
   m_Name: Pint Beer
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3563354246141207696
 MeshFilter:
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 9004387674932699659, guid: 9d786e92e1233874fb884c0a87ba0730, type: 3}
+--- !u!114 &4861676154349176553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 979419632456642959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 16
+  foodPrefabId: {fileID: 979419632456642959}
+  canBePickedUp: 1
+  isHeld: 0

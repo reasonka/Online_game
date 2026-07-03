@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7088998097519843518}
   - component: {fileID: 5009649287152790644}
   - component: {fileID: 5927947525098402034}
+  - component: {fileID: 8191182759509282933}
   m_Layer: 0
   m_Name: Weisse Cocktail
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7088998097519843518
 MeshFilter:
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -570577987186188686, guid: 63f425c6dd1c03742bdbff4e924e8eb9, type: 3}
+--- !u!114 &8191182759509282933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810890745821023649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 20
+  foodPrefabId: {fileID: 6810890745821023649}
+  canBePickedUp: 1
+  isHeld: 0

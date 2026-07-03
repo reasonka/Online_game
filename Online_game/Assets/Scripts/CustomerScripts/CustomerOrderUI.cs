@@ -6,26 +6,26 @@ using UnityEngine.SceneManagement;
 
 public enum CustomerReactionType
 {
-    None,       // Has not ordered yet / invalid
-    Reaction1, // Correct food -> happy
-    Reaction2, // Shared special food -> dead
-    Reaction3  // Any other food -> angry
+    None,
+    Reaction1, // Correct food/drink
+    Reaction2, // Shared special food/drink
+    Reaction3  // Wrong food/drink
 }
 
 public enum LevelOrderMode
 {
     AutoFromSceneName,
-    AllFoods,
-    Level1_PizzaAndHotdog,
-    Level2_BurgerAndPancake
+    AllOrders,
+    Level1_BeersOnly,
+    Level2_CocktailsOnly
 }
 
 [System.Serializable]
 public class OrderDefinition
 {
-    public string orderName;               // Example: "Pizza 1", "Burger 3", "Pancake 2"
-    public Image finalIcon;                // Image displayed above the customer's head
-    public GameObject reaction1FoodPrefab; // Correct food prefab for this order
+    public string orderName;
+    public Image finalIcon;
+    public GameObject reaction1FoodPrefab;
 }
 
 public class CustomerOrderUI : MonoBehaviour
@@ -38,18 +38,18 @@ public class CustomerOrderUI : MonoBehaviour
 
     [Header("Shared Reaction 2 Food")]
     public GameObject reaction2FoodPrefab;
-    // Assign ONE special prefab here.
-    // This prefab triggers Reaction2 no matter what the customer ordered.
 
     [Header("Level Order Filtering")]
     public LevelOrderMode levelOrderMode = LevelOrderMode.AutoFromSceneName;
 
-    [Header("Non-Repeating Orders Per Level")]
+    [Header("Non-Repeating Orders")]
     public bool preventRepeatedOrdersInLevel = true;
 
-    public bool resetOrderPoolWhenAllFoodsUsed = false;
-    // False = no repeats in the level.
-    // True = if all allowed foods are used, the pool resets.
+    [Tooltip("Level 1 needs this ON if you have 5 customers but only 2 beer orders.")]
+    public bool autoResetOrderPoolInLevel1 = true;
+
+    [Tooltip("Level 2 should usually keep this OFF so cocktails stay unique.")]
+    public bool autoResetOrderPoolInLevel2 = false;
 
     [HideInInspector] public bool completed = false;
     [HideInInspector] public int currentOrderIndex = -1;
@@ -148,9 +148,9 @@ public class CustomerOrderUI : MonoBehaviour
         {
             Debug.LogWarning("No unique allowed customer orders left for this level.");
 
-            if (resetOrderPoolWhenAllFoodsUsed)
+            if (ShouldAutoResetOrderPoolForCurrentLevel())
             {
-                Debug.Log("Resetting order pool because all allowed foods were already used.");
+                Debug.Log("Resetting order pool for this level because all allowed orders were used.");
                 usedOrderKeys.Clear();
                 availableOrderIndexes = GetAvailableOrderIndexes();
             }
@@ -158,6 +158,12 @@ public class CustomerOrderUI : MonoBehaviour
             {
                 return;
             }
+        }
+
+        if (availableOrderIndexes.Count == 0)
+        {
+            Debug.LogWarning("Still no allowed orders after reset. Check your order names.");
+            return;
         }
 
         int randomListIndex = Random.Range(0, availableOrderIndexes.Count);
@@ -204,7 +210,7 @@ public class CustomerOrderUI : MonoBehaviour
 
             if (order.reaction1FoodPrefab == null)
             {
-                Debug.LogWarning("Order has no correct food prefab assigned: " + order.orderName);
+                Debug.LogWarning("Order has no correct food/drink prefab assigned: " + order.orderName);
                 continue;
             }
 
@@ -226,6 +232,23 @@ public class CustomerOrderUI : MonoBehaviour
         }
 
         return availableIndexes;
+    }
+
+    private bool ShouldAutoResetOrderPoolForCurrentLevel()
+    {
+        LevelOrderMode activeMode = GetActiveLevelOrderMode();
+
+        if (activeMode == LevelOrderMode.Level1_BeersOnly)
+        {
+            return autoResetOrderPoolInLevel1;
+        }
+
+        if (activeMode == LevelOrderMode.Level2_CocktailsOnly)
+        {
+            return autoResetOrderPoolInLevel2;
+        }
+
+        return false;
     }
 
     private string GetOrderName(OrderDefinition order)
@@ -250,18 +273,17 @@ public class CustomerOrderUI : MonoBehaviour
     private bool IsOrderAllowedInCurrentLevel(string orderName)
     {
         LevelOrderMode activeMode = GetActiveLevelOrderMode();
-
         string cleanName = NormalizeName(orderName);
 
         switch (activeMode)
         {
-            case LevelOrderMode.Level1_PizzaAndHotdog:
-                return cleanName.StartsWith("pizza") || cleanName.StartsWith("hotdog");
+            case LevelOrderMode.Level1_BeersOnly:
+                return IsBeerOrder(cleanName);
 
-            case LevelOrderMode.Level2_BurgerAndPancake:
-                return cleanName.StartsWith("burger") || cleanName.StartsWith("pancake");
+            case LevelOrderMode.Level2_CocktailsOnly:
+                return IsCocktailOrder(cleanName);
 
-            case LevelOrderMode.AllFoods:
+            case LevelOrderMode.AllOrders:
                 return true;
 
             default:
@@ -276,20 +298,30 @@ public class CustomerOrderUI : MonoBehaviour
             return levelOrderMode;
         }
 
-        string sceneName = SceneManager.GetActiveScene().name.ToLower();
+        string sceneName = NormalizeName(SceneManager.GetActiveScene().name);
 
         if (sceneName.Contains("level1"))
         {
-            return LevelOrderMode.Level1_PizzaAndHotdog;
+            return LevelOrderMode.Level1_BeersOnly;
         }
 
         if (sceneName.Contains("level2"))
         {
-            return LevelOrderMode.Level2_BurgerAndPancake;
+            return LevelOrderMode.Level2_CocktailsOnly;
         }
 
-        Debug.LogWarning("Scene name does not contain Level1 or Level2. Allowing all foods.");
-        return LevelOrderMode.AllFoods;
+        Debug.LogWarning("Scene name does not contain Level1 or Level2. Allowing all orders.");
+        return LevelOrderMode.AllOrders;
+    }
+
+    private bool IsBeerOrder(string cleanName)
+    {
+        return cleanName.Contains("beer");
+    }
+
+    private bool IsCocktailOrder(string cleanName)
+    {
+        return cleanName.Contains("cocktail");
     }
 
     public CustomerReactionType EvaluateFood(FoodItem servedFood)
@@ -315,21 +347,20 @@ public class CustomerOrderUI : MonoBehaviour
 
         if (FoodMatches(servedFood, reaction2FoodPrefab))
         {
-            Debug.Log("Matched Reaction2. Shared special food served.");
+            Debug.Log("Matched Reaction2. Shared special food/drink served.");
             return CustomerReactionType.Reaction2;
         }
 
         if (FoodMatches(servedFood, currentOrder.reaction1FoodPrefab))
         {
-            Debug.Log("Matched Reaction1. Correct food served.");
+            Debug.Log("Matched Reaction1. Correct food/drink served.");
             return CustomerReactionType.Reaction1;
         }
 
-        Debug.Log("No match. Wrong food served.");
+        Debug.Log("No match. Wrong food/drink served.");
         return CustomerReactionType.Reaction3;
     }
 
-    // Backup version, in case another script still calls EvaluateFood(GameObject)
     public CustomerReactionType EvaluateFood(GameObject servedFoodPrefab)
     {
         if (currentOrderIndex < 0 ||
@@ -342,26 +373,16 @@ public class CustomerOrderUI : MonoBehaviour
 
         OrderDefinition currentOrder = orders[currentOrderIndex];
 
-        Debug.Log(
-            $"Customer wants: {GetOrderName(currentOrder)} / " +
-            $"Correct={currentOrder.reaction1FoodPrefab?.name} / " +
-            $"Shared Reaction2={reaction2FoodPrefab?.name} / " +
-            $"Served={servedFoodPrefab.name}"
-        );
-
         if (GameObjectMatches(servedFoodPrefab, reaction2FoodPrefab))
         {
-            Debug.Log("Matched Reaction2. Shared special food served.");
             return CustomerReactionType.Reaction2;
         }
 
         if (GameObjectMatches(servedFoodPrefab, currentOrder.reaction1FoodPrefab))
         {
-            Debug.Log("Matched Reaction1. Correct food served.");
             return CustomerReactionType.Reaction1;
         }
 
-        Debug.Log("No match. Wrong food served.");
         return CustomerReactionType.Reaction3;
     }
 
@@ -370,7 +391,6 @@ public class CustomerOrderUI : MonoBehaviour
         if (servedFood == null || targetPrefab == null)
             return false;
 
-        // Best case: exact prefab reference match
         if (servedFood.foodPrefabId == targetPrefab)
             return true;
 
@@ -472,9 +492,5 @@ public class CustomerOrderUI : MonoBehaviour
                 customer.PlayAngryReaction();
                 break;
         }
-
-        // Do NOT call LeaveRestaurant here anymore.
-        // CustomerAI now leaves automatically after the reaction animation duration.
     }
-
 }

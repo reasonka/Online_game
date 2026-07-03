@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1435500013177606707}
   - component: {fileID: 3751248771117606649}
   - component: {fileID: 2580150545309727347}
+  - component: {fileID: 7713694841598194851}
   m_Layer: 0
   m_Name: Pilsner Beer
   m_TagString: Untagged
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 658617763157368470, guid: 106fc4825b5c0c042b170ad1832dc61d, type: 3}
+--- !u!114 &7713694841598194851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3391175961368741676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 15
+  foodPrefabId: {fileID: 3391175961368741676}
+  canBePickedUp: 1
+  isHeld: 0

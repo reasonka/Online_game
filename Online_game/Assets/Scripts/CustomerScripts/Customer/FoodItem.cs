@@ -44,7 +44,25 @@ public enum FoodType
     Pancake3,
 
     [InspectorName("Pancake 4")]
-    Pancake4
+    Pancake4,
+
+    [InspectorName("Pilsner Beer")]
+    PilsnerBeer,
+
+    [InspectorName("Pint Beer")]
+    PintBeer,
+
+    [InspectorName("Creamsicle Cocktail")]
+    CreamsicleCocktail,
+
+    [InspectorName("Raspberry Cocktail")]
+    RaspberryCocktail,
+
+    [InspectorName("Rose Cocktail")]
+    RoseCocktail,
+
+    [InspectorName("Weisse Cocktail")]
+    WeisseCocktail
 }
 
 public class FoodItem : MonoBehaviour

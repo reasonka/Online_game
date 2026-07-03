@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2184685748089616184}
   - component: {fileID: 4158343445761328114}
   - component: {fileID: 3347567556319715176}
+  - component: {fileID: 562913734495268809}
   m_Layer: 0
   m_Name: Raspberry Cocktail
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2184685748089616184
 MeshFilter:
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -8906336985691161505, guid: 898e288f56f71d64fa108e1bf5eb56e8, type: 3}
+--- !u!114 &562913734495268809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2501075752162828839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 18
+  foodPrefabId: {fileID: 2501075752162828839}
+  canBePickedUp: 1
+  isHeld: 0

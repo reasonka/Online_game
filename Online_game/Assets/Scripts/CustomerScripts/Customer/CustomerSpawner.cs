@@ -144,7 +144,6 @@ public class CustomerSpawner : MonoBehaviour
             return CountUniqueAllowedOrdersForLevel2();
         }
 
-        // -1 means unlimited for scenes that are not Level1 or Level2
         return -1;
     }
 
@@ -182,7 +181,7 @@ public class CustomerSpawner : MonoBehaviour
             string orderName = GetOrderName(order);
             string cleanOrderName = NormalizeName(orderName);
 
-            if (IsLevel2Food(cleanOrderName))
+            if (IsLevel2Cocktail(cleanOrderName))
             {
                 uniqueAllowedOrders.Add(cleanOrderName);
             }
@@ -190,7 +189,7 @@ public class CustomerSpawner : MonoBehaviour
 
         if (showDebugLogs)
         {
-            Debug.Log("CustomerSpawner: Level2 unique allowed orders = " + uniqueAllowedOrders.Count);
+            Debug.Log("CustomerSpawner: Level2 unique cocktail orders = " + uniqueAllowedOrders.Count);
         }
 
         return uniqueAllowedOrders.Count;
@@ -216,10 +215,9 @@ public class CustomerSpawner : MonoBehaviour
         return "";
     }
 
-    private bool IsLevel2Food(string cleanOrderName)
+    private bool IsLevel2Cocktail(string cleanOrderName)
     {
-        return cleanOrderName.StartsWith("burger") ||
-               cleanOrderName.StartsWith("pancake");
+        return cleanOrderName.Contains("cocktail");
     }
 
     private string NormalizeName(string name)
