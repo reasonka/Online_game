@@ -64,6 +64,8 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
     private const string CharacterPropertyKey = "CharacterIndex";
 
+    private const byte OpenCharacterSelectEventCode = 1;
+
     private void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
@@ -315,17 +317,26 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.InRoom)
             return;
 
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         if (PhotonNetwork.CurrentRoom.PlayerCount < maxPlayersPerRoom)
         {
             roomPromptText.text = "Need 3 players before starting.";
             return;
         }
 
-        CloseAllPanels();
-        characterSelectPanel.SetActive(true);
+        RaiseEventOptions options = new RaiseEventOptions
+        {
+            Receivers = ReceiverGroup.All
+        };
 
-        selectedCharacterIndex = -1;
-        UpdateCharacterPrompt("Choose your character.");
+        PhotonNetwork.RaiseEvent(
+            OpenCharacterSelectEventCode,
+            null,
+            options,
+            SendOptions.SendReliable
+        );
     }
 
     private void SelectCharacter(int characterIndex)
@@ -435,5 +446,34 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     private void QuitGame()
     {
         Application.Quit();
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        PhotonNetwork.NetworkingClient.EventReceived += OnPhotonEvent;
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        PhotonNetwork.NetworkingClient.EventReceived -= OnPhotonEvent;
+    }
+
+    private void OnPhotonEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == OpenCharacterSelectEventCode)
+        {
+            ShowCharacterSelectPanelForEveryone();
+        }
+    }
+
+    private void ShowCharacterSelectPanelForEveryone()
+    {
+        CloseAllPanels();
+        characterSelectPanel.SetActive(true);
+
+        selectedCharacterIndex = -1;
+        UpdateCharacterPrompt("Choose your character.");
     }
 }
