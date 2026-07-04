@@ -5,28 +5,36 @@ using Photon.Pun;
 public class Throw : MonoBehaviour
 {
     [Header("Throw Point")]
-    [Tooltip("FinishedFood 会移动到这个位置，然后恢复物理并自然下落。")]
+    [Tooltip(
+        "FinishedFood 或 Drink 会移动到这里，然后恢复物理并自然掉落。"
+    )]
     public Transform throwPoint;
 
     [Header("Input")]
-    [Tooltip("玩家位于 Trigger Zone 内时，按这个键释放 FinishedFood。")]
+    [Tooltip(
+        "玩家在 Trigger Zone 内时，按这个键释放物品。"
+    )]
     public KeyCode throwKey = KeyCode.T;
 
     [Header("Player Collision Protection")]
-    [Tooltip("释放后暂时忽略物品与玩家之间的碰撞，防止玩家被顶起来。")]
+    [Tooltip(
+        "释放后暂时忽略物品与玩家的碰撞，防止玩家被顶起。"
+    )]
     public bool temporarilyIgnorePlayerCollision = true;
 
-    [Tooltip("释放后忽略玩家碰撞的时间。")]
+    [Tooltip("暂时忽略玩家碰撞的时间。")]
     public float ignorePlayerCollisionDuration = 0.75f;
 
     [Header("Optional Force")]
-    [Tooltip("关闭时物品只会自然下落。")]
+    [Tooltip(
+        "关闭时物品只会恢复物理并自然下落。"
+    )]
     public bool addThrowForce = false;
 
-    [Tooltip("开启 Add Throw Force 后使用的向前力量。")]
+    [Tooltip("可选的向前力量。")]
     public float forwardForce = 2f;
 
-    [Tooltip("开启 Add Throw Force 后使用的向上力量。")]
+    [Tooltip("可选的向上力量。")]
     public float upwardForce = 1f;
 
     [Header("Debug")]
@@ -67,7 +75,8 @@ public class Throw : MonoBehaviour
             return;
         }
 
-        if (!CanPlayerUseInput(playerInside))
+        if (!CanPlayerUseInput(
+                playerInside))
         {
             return;
         }
@@ -138,13 +147,18 @@ public class Throw : MonoBehaviour
         }
 
         /*
-         * 只有 FinishedFood 可以从这个区域释放。
+         * 只允许 FinishedFood 或 Drink。
          */
-        if (heldItem.itemType !=
-            HoldableItemType.FinishedFood)
+        bool allowedType =
+            heldItem.itemType ==
+                HoldableItemType.FinishedFood ||
+            heldItem.itemType ==
+                HoldableItemType.Drink;
+
+        if (!allowedType)
         {
             Log(
-                "Only FinishedFood can be thrown here. " +
+                "Only FinishedFood or Drink can be thrown here. " +
                 "Current item type: " +
                 heldItem.itemType
             );
@@ -161,22 +175,20 @@ public class Throw : MonoBehaviour
             return;
         }
 
-        /*
-         * 在释放前保存物品和玩家的 Collider。
-         * 因为释放后 PlayerInventory 的 HeldItem 会变成 null。
-         */
         GameObject itemObject =
             heldItem.gameObject;
 
         Collider[] itemColliders =
-            itemObject.GetComponentsInChildren<Collider>(
-                true
-            );
+            itemObject
+                .GetComponentsInChildren<Collider>(
+                    true
+                );
 
         Collider[] playerColliders =
-            playerInside.GetComponentsInChildren<Collider>(
-                true
-            );
+            playerInside
+                .GetComponentsInChildren<Collider>(
+                    true
+                );
 
         Rigidbody releasedRigidbody =
             playerInside.ReleaseHeldItemAt(
@@ -186,16 +198,14 @@ public class Throw : MonoBehaviour
         if (releasedRigidbody == null)
         {
             LogWarning(
-                "Failed to release FinishedFood."
+                "Failed to release " +
+                heldItem.itemType +
+                ". Make sure the item has a Rigidbody."
             );
 
             return;
         }
 
-        /*
-         * 避免刚恢复 Collider 时与玩家重叠，
-         * 导致 CharacterController 被向上顶起。
-         */
         if (temporarilyIgnorePlayerCollision)
         {
             SetIgnoreCollisions(
@@ -212,14 +222,13 @@ public class Throw : MonoBehaviour
             );
         }
 
-        /*
-         * 默认关闭，所以只会自然下落。
-         */
         if (addThrowForce)
         {
             Vector3 forceDirection =
-                throwPoint.forward * forwardForce +
-                Vector3.up * upwardForce;
+                throwPoint.forward *
+                forwardForce +
+                Vector3.up *
+                upwardForce;
 
             releasedRigidbody.AddForce(
                 forceDirection,
@@ -228,14 +237,15 @@ public class Throw : MonoBehaviour
         }
 
         Log(
-            "FinishedFood released at Throw Point: " +
+            "Released item at Throw Point: " +
             itemObject.name
         );
     }
 
-    private IEnumerator RestorePlayerCollisionsAfterDelay(
-        Collider[] itemColliders,
-        Collider[] playerColliders)
+    private IEnumerator
+        RestorePlayerCollisionsAfterDelay(
+            Collider[] itemColliders,
+            Collider[] playerColliders)
     {
         yield return new WaitForSeconds(
             ignorePlayerCollisionDuration
@@ -259,7 +269,8 @@ public class Throw : MonoBehaviour
             return;
         }
 
-        foreach (Collider first in firstColliders)
+        foreach (Collider first
+                 in firstColliders)
         {
             if (first == null ||
                 first.isTrigger)
@@ -267,7 +278,8 @@ public class Throw : MonoBehaviour
                 continue;
             }
 
-            foreach (Collider second in secondColliders)
+            foreach (Collider second
+                     in secondColliders)
             {
                 if (second == null ||
                     second.isTrigger)
@@ -284,7 +296,8 @@ public class Throw : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(
+        Collider other)
     {
         PlayerInventory inventory =
             FindInventory(other);
@@ -307,7 +320,8 @@ public class Throw : MonoBehaviour
         );
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnTriggerExit(
+        Collider other)
     {
         PlayerInventory inventory =
             FindInventory(other);
@@ -361,7 +375,8 @@ public class Throw : MonoBehaviour
         if (showDebugLog)
         {
             Debug.Log(
-                "[Throw] " + message,
+                "[Throw] " +
+                message,
                 this
             );
         }
@@ -372,7 +387,8 @@ public class Throw : MonoBehaviour
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[Throw] " + message,
+                "[Throw] " +
+                message,
                 this
             );
         }
