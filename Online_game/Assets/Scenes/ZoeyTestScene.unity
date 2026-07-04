@@ -2059,6 +2059,14 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3532879911916447149, guid: 57081198976f74344a4d7b1f6134cc5b, type: 3}
+      propertyPath: throwAwayKey
+      value: 101
+      objectReference: {fileID: 0}
+    - target: {fileID: 3532879911916447149, guid: 57081198976f74344a4d7b1f6134cc5b, type: 3}
+      propertyPath: useHeldItemKey
+      value: 101
+      objectReference: {fileID: 0}
     - target: {fileID: 3532879911916447154, guid: 57081198976f74344a4d7b1f6134cc5b, type: 3}
       propertyPath: m_Name
       value: Cooker
