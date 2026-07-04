@@ -67,7 +67,7 @@ public class DrawCanvasUILocal : MonoBehaviour, IPointerDownHandler, IDragHandle
         {
             _isDragging = true;
             _lastUV = uv;
-            bool erasing = eventData.button == PointerEventData.InputButton.Left;
+            bool erasing = eventData.button == PointerEventData.InputButton.Right;
             Color color = erasing ? drawBoard.backgroundColor : brushColor;
             int size = erasing ? eraserSize : brushSize;
             drawBoard.RequestDrawPoint(uv, color, size);
@@ -81,7 +81,7 @@ public class DrawCanvasUILocal : MonoBehaviour, IPointerDownHandler, IDragHandle
 
         if (TryGetUV(eventData, out Vector2 uv))
         {
-            bool erasing = eventData.button == PointerEventData.InputButton.Left;
+            bool erasing = eventData.button == PointerEventData.InputButton.Right;
             Color color = erasing ? drawBoard.backgroundColor : brushColor;
             int size = erasing ? eraserSize : brushSize;
 
