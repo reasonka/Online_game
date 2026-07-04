@@ -7,10 +7,11 @@ public class PlayerMovementController : MonoBehaviourPun
     [Header("Movement")]
     public float walkSpeed = 4f;
     public float runSpeed = 7f;
-    public float rotationSpeed = 12f;
 
     [Header("Mouse Look")]
+    [Tooltip("摄像机上下旋转的父物体。")]
     public Transform cameraPivot;
+
     public float mouseSensitivity = 2f;
     public float minPitch = -60f;
     public float maxPitch = 75f;
@@ -18,25 +19,47 @@ public class PlayerMovementController : MonoBehaviourPun
     [Header("Gravity")]
     public float gravity = -20f;
 
+    [Header("Animator")]
+    [Tooltip("角色模型上的 Animator。")]
+    public Animator animator;
+
+    [Tooltip("Animator 中的 Float 参数名称。")]
+    public string speedParameter = "Speed";
+
+    [Tooltip("动画速度参数平滑变化的速度。")]
+    public float animatorSpeedSmooth = 12f;
+
     [Header("Photon")]
+    [Tooltip("本地测试时关闭，正式联网时开启。")]
     public bool usePhotonSync = false;
 
     [Header("Control")]
     public bool canMove = true;
 
+    [Header("Cursor")]
+    public bool lockCursorOnStart = true;
+
     private CharacterController controller;
+
     private float verticalVelocity;
-    private float pitch;
-    private bool cursorLocked = true;
+    private float cameraPitch;
+    private float currentAnimatorSpeed;
+
+    private bool cursorLocked;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
 
     private void Start()
     {
-        SetCursorLocked(true);
+        SetCursorLocked(lockCursorOnStart);
     }
 
     private void Update()
@@ -46,10 +69,11 @@ public class PlayerMovementController : MonoBehaviourPun
             return;
         }
 
-        HandleCursorLock();
+        HandleCursorInput();
 
         if (!canMove)
         {
+            UpdateAnimatorSpeed(0f);
             ApplyGravityOnly();
             return;
         }
@@ -80,40 +104,87 @@ public class PlayerMovementController : MonoBehaviourPun
     private void HandleMouseLook()
     {
         float mouseX =
-            Input.GetAxis("Mouse X") * mouseSensitivity;
+            Input.GetAxis("Mouse X") *
+            mouseSensitivity;
 
         float mouseY =
-            Input.GetAxis("Mouse Y") * mouseSensitivity;
+            Input.GetAxis("Mouse Y") *
+            mouseSensitivity;
 
-        // 玩家左右旋转
-        transform.Rotate(Vector3.up * mouseX);
+        /*
+         * 鼠标左右移动时，旋转整个玩家根物体。
+         */
+        transform.Rotate(
+            Vector3.up * mouseX
+        );
 
-        // 摄像机上下旋转
-        pitch -= mouseY;
-        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+        /*
+         * 鼠标上下移动时，只旋转 CameraPivot。
+         */
+        cameraPitch -= mouseY;
+
+        cameraPitch = Mathf.Clamp(
+            cameraPitch,
+            minPitch,
+            maxPitch
+        );
 
         if (cameraPivot != null)
         {
             cameraPivot.localRotation =
-                Quaternion.Euler(pitch, 0f, 0f);
+                Quaternion.Euler(
+                    cameraPitch,
+                    0f,
+                    0f
+                );
         }
     }
 
     private void HandleMovement()
     {
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal =
+            Input.GetAxisRaw("Horizontal");
+
+        float vertical =
+            Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection =
             transform.right * horizontal +
             transform.forward * vertical;
 
-        moveDirection.Normalize();
+        moveDirection = Vector3.ClampMagnitude(
+            moveDirection,
+            1f
+        );
 
-        float speed =
-            Input.GetKey(KeyCode.LeftShift)
+        bool hasMovementInput =
+            moveDirection.sqrMagnitude > 0.01f;
+
+        bool isRunning =
+            hasMovementInput &&
+            Input.GetKey(KeyCode.LeftShift);
+
+        float currentSpeed =
+            isRunning
                 ? runSpeed
                 : walkSpeed;
+
+        float targetAnimatorSpeed;
+
+        if (!hasMovementInput)
+        {
+            targetAnimatorSpeed = 0f;
+        }
+        else if (isRunning)
+        {
+            targetAnimatorSpeed = 1f;
+        }
+        else
+        {
+            targetAnimatorSpeed = 0.5f;
+        }
+
+        UpdateAnimatorSpeed(targetAnimatorSpeed);
 
         if (controller.isGrounded &&
             verticalVelocity < 0f)
@@ -121,15 +192,16 @@ public class PlayerMovementController : MonoBehaviourPun
             verticalVelocity = -2f;
         }
 
-        verticalVelocity += gravity * Time.deltaTime;
+        verticalVelocity +=
+            gravity * Time.deltaTime;
 
-        Vector3 movement =
-            moveDirection * speed;
+        Vector3 finalMovement =
+            moveDirection * currentSpeed;
 
-        movement.y = verticalVelocity;
+        finalMovement.y = verticalVelocity;
 
         controller.Move(
-            movement * Time.deltaTime
+            finalMovement * Time.deltaTime
         );
     }
 
@@ -141,7 +213,8 @@ public class PlayerMovementController : MonoBehaviourPun
             verticalVelocity = -2f;
         }
 
-        verticalVelocity += gravity * Time.deltaTime;
+        verticalVelocity +=
+            gravity * Time.deltaTime;
 
         controller.Move(
             Vector3.up *
@@ -150,7 +223,26 @@ public class PlayerMovementController : MonoBehaviourPun
         );
     }
 
-    private void HandleCursorLock()
+    private void UpdateAnimatorSpeed(float targetSpeed)
+    {
+        currentAnimatorSpeed =
+            Mathf.MoveTowards(
+                currentAnimatorSpeed,
+                targetSpeed,
+                animatorSpeedSmooth *
+                Time.deltaTime
+            );
+
+        if (animator != null)
+        {
+            animator.SetFloat(
+                speedParameter,
+                currentAnimatorSpeed
+            );
+        }
+    }
+
+    private void HandleCursorInput()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -158,9 +250,20 @@ public class PlayerMovementController : MonoBehaviourPun
         }
 
         if (!cursorLocked &&
+            canMove &&
             Input.GetMouseButtonDown(0))
         {
             SetCursorLocked(true);
+        }
+    }
+
+    public void SetCanMove(bool value)
+    {
+        canMove = value;
+
+        if (!canMove)
+        {
+            UpdateAnimatorSpeed(0f);
         }
     }
 
@@ -175,17 +278,8 @@ public class PlayerMovementController : MonoBehaviourPun
             : CursorLockMode.None;
     }
 
-    public void SetCanMove(bool value)
+    public bool IsCursorLocked()
     {
-        canMove = value;
-
-        if (!value)
-        {
-            SetCursorLocked(false);
-        }
-        else
-        {
-            SetCursorLocked(true);
-        }
+        return cursorLocked;
     }
 }

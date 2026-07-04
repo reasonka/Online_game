@@ -7,12 +7,35 @@ public class PlayerInteraction : MonoBehaviourPun
     [Header("References")]
     public PlayerInventory inventory;
 
+    [Tooltip("角色模型上的 Animator。")]
+    public Animator animator;
+
+    [Header("Animator Parameters")]
+    [Tooltip("Animator 中控制手持状态的 Bool 参数。")]
+    public string isCarryingParameter = "IsCarrying";
+
+    [Tooltip("Animator 中播放举手动画的 Trigger 参数。")]
+    public string raiseHandTriggerParameter = "RaiseHand";
+
     [Header("Input")]
+    [Tooltip("打开附近储物柜。")]
     public KeyCode openStorageKey = KeyCode.E;
+
+    [Tooltip("放置、添加食材或拿起成品。")]
     public KeyCode useHeldItemKey = KeyCode.F;
+
+    [Tooltip("靠近垃圾桶时丢弃手上的物体。")]
     public KeyCode throwAwayKey = KeyCode.G;
 
+    [Header("Raise Hand")]
+    [Tooltip("手上有物品时，鼠标右键播放举手动画。")]
+    public bool enableRaiseHand = true;
+
+    [Tooltip("0 代表鼠标左键，1 代表鼠标右键，2 代表鼠标中键。")]
+    public int raiseHandMouseButton = 1;
+
     [Header("Photon")]
+    [Tooltip("本地测试时关闭，正式联网时开启。")]
     public bool usePhotonSync = false;
 
     [Header("Debug")]
@@ -51,7 +74,9 @@ public class PlayerInteraction : MonoBehaviourPun
     {
         get
         {
-            CleanNullReferences(nearbyCookingStations);
+            CleanNullReferences(
+                nearbyCookingStations
+            );
 
             if (nearbyCookingStations.Count == 0)
             {
@@ -68,7 +93,9 @@ public class PlayerInteraction : MonoBehaviourPun
     {
         get
         {
-            CleanNullReferences(nearbyPlacementSurfaces);
+            CleanNullReferences(
+                nearbyPlacementSurfaces
+            );
 
             if (nearbyPlacementSurfaces.Count == 0)
             {
@@ -98,17 +125,24 @@ public class PlayerInteraction : MonoBehaviourPun
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         if (inventory == null)
         {
-            inventory = GetComponent<PlayerInventory>();
+            inventory =
+                GetComponent<PlayerInventory>();
         }
 
-        if (inventory == null)
+        if (animator == null)
         {
-            LogWarning("PlayerInventory is missing.");
+            animator =
+                GetComponentInChildren<Animator>();
         }
+    }
+
+    private void Start()
+    {
+        UpdateAnimatorCarryingState();
     }
 
     private void Update()
@@ -125,12 +159,20 @@ public class PlayerInteraction : MonoBehaviourPun
 
         if (Input.GetKeyDown(useHeldItemKey))
         {
-            TryUseHeldItem();
+            TryUseInteraction();
         }
 
         if (Input.GetKeyDown(throwAwayKey))
         {
-            TryThrowAwayHeldItem();
+            TryThrowAway();
+        }
+
+        if (enableRaiseHand &&
+            Input.GetMouseButtonDown(
+                raiseHandMouseButton
+            ))
+        {
+            TryRaiseHand();
         }
     }
 
@@ -149,19 +191,80 @@ public class PlayerInteraction : MonoBehaviourPun
         return photonView.IsMine;
     }
 
-    private void TryOpenStorage()
+    private void TryRaiseHand()
     {
-        IngredientStorage storage = NearbyStorage;
-
-        if (storage == null)
+        if (inventory == null)
         {
-            Log("No IngredientStorage is nearby.");
+            LogWarning(
+                "Cannot raise hand because PlayerInventory is missing."
+            );
+
             return;
         }
 
+        /*
+         * 只有玩家正在拿东西时才允许播放举手动画。
+         */
+        if (!inventory.HasHeldItem)
+        {
+            Log(
+                "Cannot raise hand because the player is not carrying anything."
+            );
+
+            return;
+        }
+
+        if (animator == null)
+        {
+            LogWarning(
+                "Cannot raise hand because Animator is missing."
+            );
+
+            return;
+        }
+
+        /*
+         * 保证 Animator 当前的手持状态正确。
+         */
+        animator.SetBool(
+            isCarryingParameter,
+            true
+        );
+
+        /*
+         * 防止快速点击右键导致旧 Trigger 残留。
+         */
+        animator.ResetTrigger(
+            raiseHandTriggerParameter
+        );
+
+        animator.SetTrigger(
+            raiseHandTriggerParameter
+        );
+
+        Log("Raise-hand animation triggered.");
+    }
+
+    private void TryOpenStorage()
+    {
         if (inventory == null)
         {
-            LogWarning("PlayerInventory is missing.");
+            LogWarning(
+                "PlayerInventory is missing."
+            );
+
+            return;
+        }
+
+        IngredientStorage storage =
+            NearbyStorage;
+
+        if (storage == null)
+        {
+            Log(
+                "No IngredientStorage is nearby."
+            );
+
             return;
         }
 
@@ -178,17 +281,20 @@ public class PlayerInteraction : MonoBehaviourPun
         storage.OpenStorage(inventory);
     }
 
-    public void TryUseHeldItem()
+    private void TryUseInteraction()
     {
         if (inventory == null)
         {
-            LogWarning("PlayerInventory is missing.");
+            LogWarning(
+                "PlayerInventory is missing."
+            );
+
             return;
         }
 
         /*
          * 手上为空：
-         * 尝试拿起附近桌上的 FinishedFood。
+         * 尝试从附近桌子拿起 FinishedFood。
          */
         if (!inventory.HasHeldItem)
         {
@@ -196,38 +302,129 @@ public class PlayerInteraction : MonoBehaviourPun
             return;
         }
 
-        HoldableItem item = inventory.HeldItem;
+        HoldableItem heldItem =
+            inventory.HeldItem;
 
-        if (item == null)
+        if (heldItem == null)
         {
-            LogWarning("Held item is null.");
+            LogWarning("HeldItem is null.");
             return;
         }
 
         /*
          * Ingredient：
-         * 优先交给 CookingStation。
+         * 添加到附近 CookingStation。
          */
-        if (item.itemType == HoldableItemType.Ingredient)
+        if (heldItem.itemType ==
+            HoldableItemType.Ingredient)
         {
-            TrySendIngredientToCookingStation(item);
+            TryAddIngredient(heldItem);
             return;
         }
 
         /*
          * CookingBase 或 FinishedFood：
-         * 放到桌子的 PlacementPoint。
+         * 放到附近 PlacementSurface。
          */
-        if (item.itemType == HoldableItemType.CookingBase ||
-            item.itemType == HoldableItemType.FinishedFood)
+        if (heldItem.itemType ==
+                HoldableItemType.CookingBase ||
+            heldItem.itemType ==
+                HoldableItemType.FinishedFood)
         {
-            TryPlaceHeldObjectOnSurface();
+            TryPlaceOnSurface();
             return;
         }
 
         Log(
-            "This item type cannot use F interaction: " +
-            item.itemType
+            "This held item type has no F interaction: " +
+            heldItem.itemType
+        );
+    }
+
+    private void TryPlaceOnSurface()
+    {
+        PlacementSurface surface =
+            NearbyPlacementSurface;
+
+        if (surface == null)
+        {
+            Log(
+                "No PlacementSurface is nearby."
+            );
+
+            return;
+        }
+
+        bool placed =
+            surface.TryPlaceFromInventory(
+                inventory
+            );
+
+        if (!placed)
+        {
+            Log(
+                "Could not place held item on surface."
+            );
+
+            return;
+        }
+
+        UpdateAnimatorCarryingState();
+
+        Log("Held item placed on surface.");
+    }
+
+    private void TryAddIngredient(
+        HoldableItem heldItem)
+    {
+        CookingStation station =
+            NearbyCookingStation;
+
+        if (station == null)
+        {
+            Log(
+                "Holding Ingredient, but no CookingStation is nearby."
+            );
+
+            return;
+        }
+
+        string ingredientId =
+            heldItem.GetIngredientId();
+
+        if (string.IsNullOrEmpty(
+                ingredientId))
+        {
+            LogWarning(
+                "Held Ingredient has no valid IngredientId: " +
+                heldItem.name
+            );
+
+            return;
+        }
+
+        bool accepted =
+            station.TryAddIngredient(
+                ingredientId
+            );
+
+        if (!accepted)
+        {
+            Log(
+                "CookingStation rejected Ingredient: " +
+                ingredientId
+            );
+
+            return;
+        }
+
+        inventory.ConsumeHeldItem();
+
+        UpdateAnimatorCarryingState();
+
+        Log(
+            "Ingredient added to CookingStation: " +
+            ingredientId
         );
     }
 
@@ -246,121 +443,98 @@ public class PlayerInteraction : MonoBehaviourPun
         }
 
         bool pickedUp =
-            surface.TryPickupFinishedFood(inventory);
+            surface.TryPickupFinishedFood(
+                inventory
+            );
 
         if (!pickedUp)
         {
-            Log("No FinishedFood was picked up.");
-            return;
-        }
-
-        Log("Picked up FinishedFood from table.");
-    }
-
-    private void TrySendIngredientToCookingStation(
-        HoldableItem item)
-    {
-        CookingStation station =
-            NearbyCookingStation;
-
-        if (station == null)
-        {
             Log(
-                "Holding an Ingredient, but no CookingStation is nearby."
+                "There is no FinishedFood available to pick up."
             );
 
             return;
         }
 
-        string ingredientId =
-            item.GetIngredientId();
-
-        if (string.IsNullOrEmpty(ingredientId))
-        {
-            LogWarning(
-                "Held Ingredient has no IngredientId: " +
-                item.name
-            );
-
-            return;
-        }
-
-        bool accepted =
-            station.TryAddIngredient(ingredientId);
-
-        if (!accepted)
-        {
-            Log(
-                "CookingStation rejected ingredient: " +
-                ingredientId
-            );
-
-            return;
-        }
-
-        inventory.ConsumeHeldItem();
+        UpdateAnimatorCarryingState();
 
         Log(
-            "Ingredient sent to CookingStation: " +
-            ingredientId
+            "Picked up FinishedFood from surface."
         );
     }
 
-    private void TryPlaceHeldObjectOnSurface()
-    {
-        PlacementSurface surface =
-            NearbyPlacementSurface;
-
-        if (surface == null)
-        {
-            Log("No PlacementSurface is nearby.");
-            return;
-        }
-
-        bool placed =
-            surface.TryPlaceFromInventory(inventory);
-
-        if (!placed)
-        {
-            Log(
-                "Could not place held object on surface."
-            );
-
-            return;
-        }
-
-        Log("Held object placed on surface.");
-    }
-
-    private void TryThrowAwayHeldItem()
+    private void TryThrowAway()
     {
         if (inventory == null)
         {
-            LogWarning("PlayerInventory is missing.");
-            return;
-        }
+            LogWarning(
+                "PlayerInventory is missing."
+            );
 
-        TrashBin trashBin = NearbyTrashBin;
-
-        if (trashBin == null)
-        {
-            Log("No TrashBin is nearby.");
             return;
         }
 
         if (!inventory.HasHeldItem)
         {
-            Log("Player has nothing to throw away.");
+            Log(
+                "Player has nothing to throw away."
+            );
+
             return;
         }
 
-        trashBin.TryThrowAway(inventory);
+        TrashBin trashBin =
+            NearbyTrashBin;
+
+        if (trashBin == null)
+        {
+            Log(
+                "No TrashBin is nearby."
+            );
+
+            return;
+        }
+
+        bool thrownAway =
+            trashBin.TryThrowAway(
+                inventory
+            );
+
+        if (!thrownAway)
+        {
+            Log(
+                "Throw-away interaction failed."
+            );
+
+            return;
+        }
+
+        UpdateAnimatorCarryingState();
+
+        Log("Held item thrown away.");
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void UpdateAnimatorCarryingState()
+    {
+        if (animator == null ||
+            inventory == null)
+        {
+            return;
+        }
+
+        animator.SetBool(
+            isCarryingParameter,
+            inventory.HasHeldItem
+        );
+    }
+
+    private void OnTriggerEnter(
+        Collider other)
     {
         IngredientStorage storage =
-            FindComponent<IngredientStorage>(other);
+            FindComponent<IngredientStorage>(
+                other
+            );
 
         if (storage != null &&
             !nearbyStorages.Contains(storage))
@@ -373,25 +547,35 @@ public class PlayerInteraction : MonoBehaviourPun
             );
         }
 
-        CookingStation station =
-            FindComponent<CookingStation>(other);
+        CookingStation cookingStation =
+            FindComponent<CookingStation>(
+                other
+            );
 
-        if (station != null &&
-            !nearbyCookingStations.Contains(station))
+        if (cookingStation != null &&
+            !nearbyCookingStations.Contains(
+                cookingStation
+            ))
         {
-            nearbyCookingStations.Add(station);
+            nearbyCookingStations.Add(
+                cookingStation
+            );
 
             Log(
                 "Entered CookingStation zone: " +
-                station.name
+                cookingStation.name
             );
         }
 
         PlacementSurface surface =
-            FindComponent<PlacementSurface>(other);
+            FindComponent<PlacementSurface>(
+                other
+            );
 
         if (surface != null &&
-            !nearbyPlacementSurfaces.Contains(surface))
+            !nearbyPlacementSurfaces.Contains(
+                surface
+            ))
         {
             nearbyPlacementSurfaces.Add(surface);
 
@@ -405,7 +589,9 @@ public class PlayerInteraction : MonoBehaviourPun
             FindComponent<TrashBin>(other);
 
         if (trashBin != null &&
-            !nearbyTrashBins.Contains(trashBin))
+            !nearbyTrashBins.Contains(
+                trashBin
+            ))
         {
             nearbyTrashBins.Add(trashBin);
 
@@ -416,44 +602,40 @@ public class PlayerInteraction : MonoBehaviourPun
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnTriggerExit(
+        Collider other)
     {
         IngredientStorage storage =
-            FindComponent<IngredientStorage>(other);
+            FindComponent<IngredientStorage>(
+                other
+            );
 
         if (storage != null)
         {
             nearbyStorages.Remove(storage);
-
-            Log(
-                "Exited Storage zone: " +
-                storage.name
-            );
         }
 
-        CookingStation station =
-            FindComponent<CookingStation>(other);
+        CookingStation cookingStation =
+            FindComponent<CookingStation>(
+                other
+            );
 
-        if (station != null)
+        if (cookingStation != null)
         {
-            nearbyCookingStations.Remove(station);
-
-            Log(
-                "Exited CookingStation zone: " +
-                station.name
+            nearbyCookingStations.Remove(
+                cookingStation
             );
         }
 
         PlacementSurface surface =
-            FindComponent<PlacementSurface>(other);
+            FindComponent<PlacementSurface>(
+                other
+            );
 
         if (surface != null)
         {
-            nearbyPlacementSurfaces.Remove(surface);
-
-            Log(
-                "Exited PlacementSurface zone: " +
-                surface.name
+            nearbyPlacementSurfaces.Remove(
+                surface
             );
         }
 
@@ -463,15 +645,11 @@ public class PlayerInteraction : MonoBehaviourPun
         if (trashBin != null)
         {
             nearbyTrashBins.Remove(trashBin);
-
-            Log(
-                "Exited TrashBin zone: " +
-                trashBin.name
-            );
         }
     }
 
-    private T FindComponent<T>(Collider other)
+    private T FindComponent<T>(
+        Collider other)
         where T : Component
     {
         if (other == null)
@@ -479,21 +657,22 @@ public class PlayerInteraction : MonoBehaviourPun
             return null;
         }
 
-        T component = other.GetComponent<T>();
+        T result =
+            other.GetComponent<T>();
 
-        if (component == null)
+        if (result == null)
         {
-            component =
+            result =
                 other.GetComponentInParent<T>();
         }
 
-        if (component == null)
+        if (result == null)
         {
-            component =
+            result =
                 other.GetComponentInChildren<T>();
         }
 
-        return component;
+        return result;
     }
 
     private void CleanNullReferences<T>(
@@ -516,7 +695,8 @@ public class PlayerInteraction : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.Log(
-                "[PlayerInteraction] " + message,
+                "[PlayerInteraction] " +
+                message,
                 this
             );
         }
@@ -527,7 +707,8 @@ public class PlayerInteraction : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[PlayerInteraction] " + message,
+                "[PlayerInteraction] " +
+                message,
                 this
             );
         }
