@@ -87,11 +87,6 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
         roomListBackButton.onClick.AddListener(OpenMainMenuPanel);
 
-        characterButton1.onClick.AddListener(() => SelectCharacter(0));
-        characterButton2.onClick.AddListener(() => SelectCharacter(1));
-        characterButton3.onClick.AddListener(() => SelectCharacter(2));
-        characterNextButton.onClick.AddListener(ConfirmCharacterAndStart);
-
         OpenHomePanel();
     }
 
@@ -420,7 +415,8 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     {
         Hashtable properties = new Hashtable
         {
-            { CharacterPropertyKey, null }
+            { "CharacterIndex", null },
+            { "Ready", null }
         };
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(properties);

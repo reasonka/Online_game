@@ -3552,7 +3552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 405974123da1648b0adc5439a9f880d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameSceneName: GameScene
+  gameSceneName: 
   maxPlayersPerRoom: 3
   homePanel: {fileID: 1720161437}
   namePanel: {fileID: 87175566}
