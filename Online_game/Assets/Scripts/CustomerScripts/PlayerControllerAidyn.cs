@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerControllerAidyn : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 5f;

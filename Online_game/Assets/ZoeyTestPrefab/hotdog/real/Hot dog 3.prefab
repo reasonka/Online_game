@@ -343,6 +343,8 @@ GameObject:
   - component: {fileID: 2357945611230363955}
   - component: {fileID: 2278786097279312307}
   - component: {fileID: -3667506287389404403}
+  - component: {fileID: 3650290974831264833}
+  - component: {fileID: 5026151605524345941}
   m_Layer: 0
   m_Name: Hot dog 3
   m_TagString: Untagged
@@ -371,7 +373,7 @@ Transform:
   - {fileID: 6527878193588025903}
   - {fileID: 8447118333656099683}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2278786097279312307
 MonoBehaviour:
@@ -401,6 +403,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foodType: 10
   foodPrefabId: {fileID: 2357945611230363954}
+  canBePickedUp: 1
+  isHeld: 0
+--- !u!54 &3650290974831264833
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2357945611230363954}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &5026151605524345941
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2357945611230363954}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.7, y: 0.7, z: 1}
+  m_Center: {x: 0, y: 0.35, z: 0}
 --- !u!1 &4363656632279489969
 GameObject:
   m_ObjectHideFlags: 0
