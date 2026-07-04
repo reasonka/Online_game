@@ -44,17 +44,15 @@ public class CustomerOrderUI : MonoBehaviour
 
     [Header("Level 1 Rule")]
     public int level1CustomerLimit = 5;
+    // Level 1 has exactly one beer order.
+    // The other orders are Pizza/Hotdog only.
 
     [Header("Level 2 Rule")]
     public int level2FirstFoodOnlyOrders = 3;
-
-    [Header("Level Objective Reporting")]
-    public float reactionDelayBeforeCounting = 2.5f;
+    // First 3 Level 2 orders must be Burger/Pancake, not Cocktail.
 
     [HideInInspector] public bool completed = false;
     [HideInInspector] public int currentOrderIndex = -1;
-
-    private bool hasReportedServedToLevel = false;
 
     private static HashSet<string> usedOrderKeys = new HashSet<string>();
     private static int ordersGivenThisLevel = 0;
@@ -117,8 +115,6 @@ public class CustomerOrderUI : MonoBehaviour
 
     public void PrepareForWait()
     {
-        hasReportedServedToLevel = false;
-
         if (loadingCircle != null)
         {
             loadingCircle.fillAmount = 0f;
@@ -266,21 +262,25 @@ public class CustomerOrderUI : MonoBehaviour
         bool isBeer = IsBeerOrder(cleanOrderName);
         bool isFood = IsPizzaOrder(cleanOrderName) || IsHotdogOrder(cleanOrderName);
 
+        // If the one beer order was already used, all remaining orders must be Pizza/Hotdog.
         if (level1BeerAlreadyUsed)
         {
             return isFood;
         }
 
+        // Force the randomly selected Level 1 order number to be beer.
         if (nextOrderNumber == level1BeerOrderNumber)
         {
             return isBeer;
         }
 
+        // Safety: if this is the last Level 1 customer and beer has not happened yet, force beer.
         if (nextOrderNumber >= level1CustomerLimit && !level1BeerAlreadyUsed)
         {
             return isBeer;
         }
 
+        // Otherwise, Level 1 customers get Pizza/Hotdog.
         return isFood;
     }
 
@@ -289,11 +289,13 @@ public class CustomerOrderUI : MonoBehaviour
         bool isFood = IsBurgerOrder(cleanOrderName) || IsPancakeOrder(cleanOrderName);
         bool isDrink = IsCocktailOrder(cleanOrderName);
 
+        // First three Level 2 orders must be food, not drinks.
         if (nextOrderNumber <= level2FirstFoodOnlyOrders)
         {
             return isFood;
         }
 
+        // After the first three orders, both food and cocktails are allowed.
         return isFood || isDrink;
     }
 
@@ -536,20 +538,6 @@ public class CustomerOrderUI : MonoBehaviour
             case CustomerReactionType.Reaction3:
                 customer.PlayAngryReaction();
                 break;
-        }
-
-        ReportServedToLevelAfterReaction(reactionDelayBeforeCounting);
-    }
-
-    public void ReportServedToLevelAfterReaction(float reactionDelay)
-    {
-        if (hasReportedServedToLevel) return;
-
-        hasReportedServedToLevel = true;
-
-        if (Level1ObjectiveManager.Instance != null)
-        {
-            Level1ObjectiveManager.Instance.CustomerServedAfterReaction(reactionDelay);
         }
     }
 }
