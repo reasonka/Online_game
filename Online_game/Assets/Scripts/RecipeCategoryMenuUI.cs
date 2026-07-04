@@ -13,19 +13,31 @@ public class RecipeCategoryMenuUI : MonoBehaviour
     public Button pancakeButton;
     public Button cocktailButton;
 
-    [Header("Level 1 Recipe Panels")]
+    [Header("Recipe Scripts")]
+    public PizzaRecipeMenuUI pizzaRecipeUI;
+    public HotdogRecipeMenuUI hotdogRecipeUI;
+    public BurgerRecipeMenuUI burgerRecipeUI;
+    public PancakeRecipeMenuUI pancakeRecipeUI;
+
+    [Header("Main Level Panels")]
+    public GameObject level1MainRecipeUI;
+    public GameObject level2MainRecipeUI;
+
+    [Header("Recipe Panels")]
     public GameObject pizzaPanel;
     public GameObject hotdogPanel;
     public GameObject beerPanel;
-
-    [Header("Level 2 Recipe Panels")]
     public GameObject burgerPanel;
     public GameObject pancakePanel;
     public GameObject cocktailPanel;
 
-    [Header("Optional Main UI Panels")]
-    public GameObject level1MainRecipeUI;
-    public GameObject level2MainRecipeUI;
+    [Header("Recipe Close Buttons")]
+    public Button pizzaCloseButton;
+    public Button hotdogCloseButton;
+    public Button beerCloseButton;
+    public Button burgerCloseButton;
+    public Button pancakeCloseButton;
+    public Button cocktailCloseButton;
 
     private void Start()
     {
@@ -47,28 +59,50 @@ public class RecipeCategoryMenuUI : MonoBehaviour
         if (cocktailButton != null)
             cocktailButton.onClick.AddListener(OpenCocktailPanel);
 
+        if (pizzaCloseButton != null)
+            pizzaCloseButton.onClick.AddListener(ReturnToLevel1Panel);
+
+        if (hotdogCloseButton != null)
+            hotdogCloseButton.onClick.AddListener(ReturnToLevel1Panel);
+
+        if (beerCloseButton != null)
+            beerCloseButton.onClick.AddListener(ReturnToLevel1Panel);
+
+        if (burgerCloseButton != null)
+            burgerCloseButton.onClick.AddListener(ReturnToLevel2Panel);
+
+        if (pancakeCloseButton != null)
+            pancakeCloseButton.onClick.AddListener(ReturnToLevel2Panel);
+
+        if (cocktailCloseButton != null)
+            cocktailCloseButton.onClick.AddListener(ReturnToLevel2Panel);
+
         CloseAllRecipePanels();
     }
 
     public void OpenPizzaPanel()
     {
-        CloseAllRecipePanels();
+        OpenLevel1RecipePanel();
 
-        if (pizzaPanel != null)
+        if (pizzaRecipeUI != null)
+            pizzaRecipeUI.ShowRecipe(0);
+        else if (pizzaPanel != null)
             pizzaPanel.SetActive(true);
     }
 
     public void OpenHotdogPanel()
     {
-        CloseAllRecipePanels();
+        OpenLevel1RecipePanel();
 
-        if (hotdogPanel != null)
+        if (hotdogRecipeUI != null)
+            hotdogRecipeUI.ShowRecipe(0);
+        else if (hotdogPanel != null)
             hotdogPanel.SetActive(true);
     }
 
     public void OpenBeerPanel()
     {
-        CloseAllRecipePanels();
+        OpenLevel1RecipePanel();
 
         if (beerPanel != null)
             beerPanel.SetActive(true);
@@ -76,26 +110,74 @@ public class RecipeCategoryMenuUI : MonoBehaviour
 
     public void OpenBurgerPanel()
     {
-        CloseAllRecipePanels();
+        OpenLevel2RecipePanel();
 
-        if (burgerPanel != null)
+        if (burgerRecipeUI != null)
+            burgerRecipeUI.ShowRecipe(0);
+        else if (burgerPanel != null)
             burgerPanel.SetActive(true);
     }
 
     public void OpenPancakePanel()
     {
-        CloseAllRecipePanels();
+        OpenLevel2RecipePanel();
 
-        if (pancakePanel != null)
+        if (pancakeRecipeUI != null)
+            pancakeRecipeUI.ShowRecipe(0);
+        else if (pancakePanel != null)
             pancakePanel.SetActive(true);
     }
 
     public void OpenCocktailPanel()
     {
-        CloseAllRecipePanels();
+        OpenLevel2RecipePanel();
 
         if (cocktailPanel != null)
             cocktailPanel.SetActive(true);
+    }
+
+    private void OpenLevel1RecipePanel()
+    {
+        CloseAllRecipePanels();
+
+        if (level1MainRecipeUI != null)
+            level1MainRecipeUI.SetActive(false);
+
+        if (level2MainRecipeUI != null)
+            level2MainRecipeUI.SetActive(false);
+    }
+
+    private void OpenLevel2RecipePanel()
+    {
+        CloseAllRecipePanels();
+
+        if (level1MainRecipeUI != null)
+            level1MainRecipeUI.SetActive(false);
+
+        if (level2MainRecipeUI != null)
+            level2MainRecipeUI.SetActive(false);
+    }
+
+    public void ReturnToLevel1Panel()
+    {
+        CloseAllRecipePanels();
+
+        if (level1MainRecipeUI != null)
+            level1MainRecipeUI.SetActive(true);
+
+        if (level2MainRecipeUI != null)
+            level2MainRecipeUI.SetActive(false);
+    }
+
+    public void ReturnToLevel2Panel()
+    {
+        CloseAllRecipePanels();
+
+        if (level1MainRecipeUI != null)
+            level1MainRecipeUI.SetActive(false);
+
+        if (level2MainRecipeUI != null)
+            level2MainRecipeUI.SetActive(true);
     }
 
     public void CloseAllRecipePanels()
@@ -117,27 +199,5 @@ public class RecipeCategoryMenuUI : MonoBehaviour
 
         if (cocktailPanel != null)
             cocktailPanel.SetActive(false);
-    }
-
-    public void OpenLevel1MainRecipeUI()
-    {
-        CloseAllRecipePanels();
-
-        if (level1MainRecipeUI != null)
-            level1MainRecipeUI.SetActive(true);
-
-        if (level2MainRecipeUI != null)
-            level2MainRecipeUI.SetActive(false);
-    }
-
-    public void OpenLevel2MainRecipeUI()
-    {
-        CloseAllRecipePanels();
-
-        if (level1MainRecipeUI != null)
-            level1MainRecipeUI.SetActive(false);
-
-        if (level2MainRecipeUI != null)
-            level2MainRecipeUI.SetActive(true);
     }
 }
