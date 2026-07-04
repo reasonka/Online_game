@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 4861676154349176553}
   - component: {fileID: 3627525622030627106}
   - component: {fileID: -5192799396741072819}
+  - component: {fileID: 3139765181989511542}
   m_Layer: 0
   m_Name: Pint Beer
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 979419632456642959}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.15115851, y: 0, z: -0.51286334}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 1.54158, y: 1.54158, z: 1.54158}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -146,3 +147,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.3, y: 0.5, z: 0.3}
   m_Center: {x: 0.0009968281, y: 0.25, z: 0.0005886158}
+--- !u!114 &3139765181989511542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 979419632456642959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: 0}
