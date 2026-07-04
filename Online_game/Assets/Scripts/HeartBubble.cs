@@ -51,7 +51,7 @@ public class HeartBubble : MonoBehaviour
         _activeHearts.Clear();
         for (int i = 0; i < heartCount; i++)
         {
-            RectTransform heart = Instantiate(heartPrefab, orbitCenter.parent);
+            RectTransform heart = Instantiate(heartPrefab, orbitCenter);
             heart.localScale = Vector3.zero; // start invisible, pop in below
             _activeHearts.Add(heart);
         }
@@ -77,9 +77,14 @@ public class HeartBubble : MonoBehaviour
                 float rad = angle * Mathf.Deg2Rad;
                 float bob = Mathf.Sin(t * bobSpeed + i) * bobAmount;
 
-                Vector2 offset = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * orbitRadius;
-                heart.anchoredPosition = orbitCenter.anchoredPosition + offset + new Vector2(0f, bob);
+                // Horizontal halo: X/Z form the circle, Y just wobbles gently.
+                Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * orbitRadius;
+                heart.localPosition = offset + new Vector3(0f, bob, 0f);
                 heart.localScale = Vector3.one * scale;
+
+                // Keep the heart upright/facing forward in world space, regardless
+                // of any tilt on the parent Canvas used to angle the orbit plane.
+                heart.rotation = Quaternion.identity;
             }
 
             yield return null;
