@@ -1038,7 +1038,7 @@ MonoBehaviour:
       - {fileID: 6677052976371297378}
     finalProductPrefab: {fileID: 8225018416783304119, guid: 5d8e65fafaa82ef4984e9dfc72878d09, type: 3}
   finalProductSpawnPoint: {fileID: 8772707523773316560}
-  failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
+  failedProductPrefab: {fileID: 3343303751383531120, guid: 092dcac992ba8914c91d8e7f599c80d8, type: 3}
   failedProductSpawnPoint: {fileID: 8772707523773316560}
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
