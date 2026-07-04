@@ -9,8 +9,16 @@ public class TableServeArea : MonoBehaviour
     [Header("Connected customer wait area")]
     public CustomerWaitArea waitArea;
 
-    [Header("Serve Area Settings")]
+    [Header("Debug")]
     public bool debugThisTable = true;
+
+    public bool HasCustomerWithOrder
+    {
+        get
+        {
+            return waitArea != null && waitArea.HasCompletedOrder;
+        }
+    }
 
     private void Awake()
     {
@@ -76,27 +84,25 @@ public class TableServeArea : MonoBehaviour
 
         if (!customerOrderUI.completed)
         {
-            Debug.LogWarning($"{name}: Customer exists, but they have not finished ordering yet.");
+            Debug.LogWarning($"{name}: Customer exists, but order is not finished yet.");
             StartCoroutine(DestroyFoodAfterSeconds(food, 3f));
             return;
         }
-
-        Debug.Log($"{name}: Found customer order UI: {customerOrderUI.name}");
 
         CustomerReactionType reaction = customerOrderUI.EvaluateFood(food);
 
         switch (reaction)
         {
             case CustomerReactionType.Reaction1:
-                Debug.Log("Reaction1: Correct food served, customer is happy.");
+                Debug.Log("Reaction1: Correct order served.");
                 break;
 
             case CustomerReactionType.Reaction2:
-                Debug.Log("Reaction2: Shared special food served, customer collapses.");
+                Debug.Log("Reaction2: Shared special order served.");
                 break;
 
             case CustomerReactionType.Reaction3:
-                Debug.Log("Reaction3: Wrong food served, customer is angry.");
+                Debug.Log("Reaction3: Wrong order served.");
                 break;
 
             default:

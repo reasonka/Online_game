@@ -5,6 +5,8 @@ public class PlayerCarryPlaceFood : MonoBehaviour
 {
     [Header("Interaction Settings")]
     public KeyCode interactKey = KeyCode.E;
+    public KeyCode dropKey = KeyCode.Q;
+
     public float pickupRange = 2f;
     public LayerMask interactMask = ~0;
 
@@ -12,6 +14,15 @@ public class PlayerCarryPlaceFood : MonoBehaviour
     public Transform holdPoint;
     public Vector3 holdLocalPosition = new Vector3(0f, 1.2f, 1f);
     public Vector3 holdLocalRotation = Vector3.zero;
+
+    [Header("Drop Settings")]
+    public float dropForwardDistance = 1f;
+    public float dropUpOffset = 0.5f;
+    public float dropPushForce = 1.5f;
+
+    [Header("Serve Rules")]
+    public bool requireCustomerWithOrderToPlace = true;
+    // If true, the player can only place food on a table that has a customer with an active order.
 
     private FoodItem heldFood;
     private Rigidbody heldFoodRb;
@@ -36,7 +47,7 @@ public class PlayerCarryPlaceFood : MonoBehaviour
     {
         if (Input.GetKeyDown(interactKey))
         {
-            Debug.Log("Pressed E.");
+            Debug.Log("Pressed interaction key.");
 
             if (heldFood == null)
             {
@@ -44,7 +55,15 @@ public class PlayerCarryPlaceFood : MonoBehaviour
             }
             else
             {
-                TryPlaceFoodOnCurrentTable();
+                TryPlaceFoodOnBestTable();
+            }
+        }
+
+        if (Input.GetKeyDown(dropKey))
+        {
+            if (heldFood != null)
+            {
+                DropHeldFood();
             }
         }
     }
@@ -144,6 +163,8 @@ public class PlayerCarryPlaceFood : MonoBehaviour
         {
             heldFoodRb.isKinematic = true;
             heldFoodRb.useGravity = false;
+            heldFoodRb.velocity = Vector3.zero;
+            heldFoodRb.angularVelocity = Vector3.zero;
         }
 
         foreach (Collider col in heldFoodColliders)
@@ -161,28 +182,73 @@ public class PlayerCarryPlaceFood : MonoBehaviour
         Debug.Log("Picked up food: " + heldFood.name);
     }
 
-    private void TryPlaceFoodOnCurrentTable()
+    private void TryPlaceFoodOnBestTable()
     {
-        TableServeArea targetTable = GetClosestNearbyServeArea();
+        TableServeArea targetTable = GetBestNearbyServeArea();
 
         if (targetTable == null)
         {
-            Debug.LogWarning("You are not inside any table serve area.");
+            Debug.LogWarning("No valid table nearby. Press Q to drop the food.");
+            return;
+        }
+
+        if (requireCustomerWithOrderToPlace && !targetTable.HasCustomerWithOrder)
+        {
+            Debug.LogWarning("Cannot place food here. This table has no customer with an order.");
             return;
         }
 
         PlaceHeldFood(targetTable);
     }
 
-    private TableServeArea GetClosestNearbyServeArea()
+    private TableServeArea GetBestNearbyServeArea()
     {
         nearbyServeAreas.RemoveAll(area => area == null);
 
+        if (nearbyServeAreas.Count == 0)
+            return null;
+
+        TableServeArea bestTableWithCustomer = null;
+        float closestCustomerTableDistance = Mathf.Infinity;
+
+        foreach (TableServeArea area in nearbyServeAreas)
+        {
+            if (area == null)
+                continue;
+
+            if (!area.HasCustomerWithOrder)
+                continue;
+
+            float distance = Vector3.Distance(transform.position, area.transform.position);
+
+            if (distance < closestCustomerTableDistance)
+            {
+                closestCustomerTableDistance = distance;
+                bestTableWithCustomer = area;
+            }
+        }
+
+        if (bestTableWithCustomer != null)
+        {
+            Debug.Log("Selected table with customer/order: " + bestTableWithCustomer.name);
+            return bestTableWithCustomer;
+        }
+
+        // If placing requires a customer, do NOT return an empty table.
+        if (requireCustomerWithOrderToPlace)
+        {
+            return null;
+        }
+
+        // Optional fallback only if requireCustomerWithOrderToPlace is false.
         TableServeArea closestArea = null;
         float closestDistance = Mathf.Infinity;
 
         foreach (TableServeArea area in nearbyServeAreas)
         {
+            if (area == null)
+                continue;
+
             float distance = Vector3.Distance(transform.position, area.transform.position);
 
             if (distance < closestDistance)
@@ -200,13 +266,7 @@ public class PlayerCarryPlaceFood : MonoBehaviour
         if (heldFood == null)
             return;
 
-        foreach (Collider col in heldFoodColliders)
-        {
-            if (col != null)
-            {
-                col.enabled = true;
-            }
-        }
+        EnableHeldFoodPhysics();
 
         heldFood.isHeld = false;
 
@@ -219,6 +279,56 @@ public class PlayerCarryPlaceFood : MonoBehaviour
         table.PlaceFood(foodToPlace);
 
         Debug.Log("Placed food on table: " + table.name);
+    }
+
+    private void DropHeldFood()
+    {
+        if (heldFood == null)
+            return;
+
+        Transform foodTransform = heldFood.transform;
+
+        foodTransform.SetParent(null);
+
+        Vector3 dropPosition = transform.position + transform.forward * dropForwardDistance + Vector3.up * dropUpOffset;
+        foodTransform.position = dropPosition;
+
+        EnableHeldFoodPhysics();
+
+        if (heldFoodRb != null)
+        {
+            heldFoodRb.AddForce(transform.forward * dropPushForce, ForceMode.Impulse);
+        }
+
+        heldFood.isHeld = false;
+
+        Debug.Log("Dropped food: " + heldFood.name);
+
+        heldFood = null;
+        heldFoodRb = null;
+        heldFoodColliders = null;
+    }
+
+    private void EnableHeldFoodPhysics()
+    {
+        if (heldFoodColliders != null)
+        {
+            foreach (Collider col in heldFoodColliders)
+            {
+                if (col != null)
+                {
+                    col.enabled = true;
+                }
+            }
+        }
+
+        if (heldFoodRb != null)
+        {
+            heldFoodRb.isKinematic = false;
+            heldFoodRb.useGravity = true;
+            heldFoodRb.velocity = Vector3.zero;
+            heldFoodRb.angularVelocity = Vector3.zero;
+        }
     }
 
     private void OnDrawGizmosSelected()

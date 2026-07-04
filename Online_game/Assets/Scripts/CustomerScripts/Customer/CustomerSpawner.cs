@@ -28,6 +28,8 @@ public class CustomerSpawner : MonoBehaviour
             exitPoint = transform;
         }
 
+        CustomerOrderUI.ResetOrderStateForLevel();
+
         maxCustomersThisLevel = GetMaxCustomersForCurrentLevel();
 
         if (showDebugLogs)
@@ -151,7 +153,7 @@ public class CustomerSpawner : MonoBehaviour
     {
         if (customerPrefab == null)
         {
-            Debug.LogError("CustomerSpawner: Customer prefab is not assigned, so Level2 order count cannot be calculated.");
+            Debug.LogError("CustomerSpawner: Customer prefab is not assigned, so Level 2 order count cannot be calculated.");
             return 0;
         }
 
@@ -159,7 +161,7 @@ public class CustomerSpawner : MonoBehaviour
 
         if (orderUI == null)
         {
-            Debug.LogError("CustomerSpawner: Customer prefab has no CustomerOrderUI, so Level2 order count cannot be calculated.");
+            Debug.LogError("CustomerSpawner: Customer prefab has no CustomerOrderUI, so Level 2 order count cannot be calculated.");
             return 0;
         }
 
@@ -174,14 +176,12 @@ public class CustomerSpawner : MonoBehaviour
         foreach (OrderDefinition order in orderUI.orders)
         {
             if (order == null)
-            {
                 continue;
-            }
 
             string orderName = GetOrderName(order);
             string cleanOrderName = NormalizeName(orderName);
 
-            if (IsLevel2Cocktail(cleanOrderName))
+            if (IsLevel2AllowedOrder(cleanOrderName))
             {
                 uniqueAllowedOrders.Add(cleanOrderName);
             }
@@ -189,7 +189,7 @@ public class CustomerSpawner : MonoBehaviour
 
         if (showDebugLogs)
         {
-            Debug.Log("CustomerSpawner: Level2 unique cocktail orders = " + uniqueAllowedOrders.Count);
+            Debug.Log("CustomerSpawner: Level 2 unique allowed orders = " + uniqueAllowedOrders.Count);
         }
 
         return uniqueAllowedOrders.Count;
@@ -215,9 +215,11 @@ public class CustomerSpawner : MonoBehaviour
         return "";
     }
 
-    private bool IsLevel2Cocktail(string cleanOrderName)
+    private bool IsLevel2AllowedOrder(string cleanOrderName)
     {
-        return cleanOrderName.Contains("cocktail");
+        return cleanOrderName.StartsWith("burger") ||
+               cleanOrderName.StartsWith("pancake") ||
+               cleanOrderName.Contains("cocktail");
     }
 
     private string NormalizeName(string name)

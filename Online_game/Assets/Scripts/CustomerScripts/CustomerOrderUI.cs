@@ -7,17 +7,17 @@ using UnityEngine.SceneManagement;
 public enum CustomerReactionType
 {
     None,
-    Reaction1, // Correct food/drink
-    Reaction2, // Shared special food/drink
-    Reaction3  // Wrong food/drink
+    Reaction1, // Correct order
+    Reaction2, // Shared special order
+    Reaction3  // Wrong order
 }
 
 public enum LevelOrderMode
 {
     AutoFromSceneName,
     AllOrders,
-    Level1_BeersOnly,
-    Level2_CocktailsOnly
+    Level1_PizzaHotdogOneBeer,
+    Level2_BurgerPancakeCocktail
 }
 
 [System.Serializable]
@@ -42,20 +42,23 @@ public class CustomerOrderUI : MonoBehaviour
     [Header("Level Order Filtering")]
     public LevelOrderMode levelOrderMode = LevelOrderMode.AutoFromSceneName;
 
-    [Header("Non-Repeating Orders")]
-    public bool preventRepeatedOrdersInLevel = true;
+    [Header("Level 1 Rule")]
+    public int level1CustomerLimit = 5;
+    // Level 1 has exactly one beer order.
+    // The other orders are Pizza/Hotdog only.
 
-    [Tooltip("Level 1 needs this ON if you have 5 customers but only 2 beer orders.")]
-    public bool autoResetOrderPoolInLevel1 = true;
-
-    [Tooltip("Level 2 should usually keep this OFF so cocktails stay unique.")]
-    public bool autoResetOrderPoolInLevel2 = false;
+    [Header("Level 2 Rule")]
+    public int level2FirstFoodOnlyOrders = 3;
+    // First 3 Level 2 orders must be Burger/Pancake, not Cocktail.
 
     [HideInInspector] public bool completed = false;
     [HideInInspector] public int currentOrderIndex = -1;
 
     private static HashSet<string> usedOrderKeys = new HashSet<string>();
-    private static bool sceneResetHookAdded = false;
+    private static int ordersGivenThisLevel = 0;
+    private static int level1BeerOrderNumber = -1;
+    private static bool level1BeerAlreadyUsed = false;
+    private static string lastSceneName = "";
 
     public GameObject CurrentReaction1Food
     {
@@ -78,27 +81,36 @@ public class CustomerOrderUI : MonoBehaviour
 
     private void Awake()
     {
-        AddSceneResetHook();
+        EnsureSceneStateIsFresh();
         PrepareForWait();
     }
 
-    private void AddSceneResetHook()
+    private void EnsureSceneStateIsFresh()
     {
-        if (sceneResetHookAdded) return;
+        string currentSceneName = SceneManager.GetActiveScene().name;
 
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        sceneResetHookAdded = true;
+        if (lastSceneName != currentSceneName)
+        {
+            ResetOrderStateForLevel();
+            lastSceneName = currentSceneName;
+        }
+
+        if (GetActiveLevelOrderMode() == LevelOrderMode.Level1_PizzaHotdogOneBeer &&
+            level1BeerOrderNumber <= 0)
+        {
+            level1BeerOrderNumber = Random.Range(1, level1CustomerLimit + 1);
+            Debug.Log("Level 1 beer order will be customer/order number: " + level1BeerOrderNumber);
+        }
     }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        ClearUsedOrdersForLevel();
-    }
-
-    public static void ClearUsedOrdersForLevel()
+    public static void ResetOrderStateForLevel()
     {
         usedOrderKeys.Clear();
-        Debug.Log("Used customer order pool cleared for this level.");
+        ordersGivenThisLevel = 0;
+        level1BeerOrderNumber = -1;
+        level1BeerAlreadyUsed = false;
+
+        Debug.Log("Customer order state reset for this level.");
     }
 
     public void PrepareForWait()
@@ -134,6 +146,8 @@ public class CustomerOrderUI : MonoBehaviour
 
     public void ShowRandomOrderIcon()
     {
+        EnsureSceneStateIsFresh();
+
         if (orders == null || orders.Length == 0)
         {
             Debug.LogWarning("CustomerOrderUI has no orders assigned.");
@@ -146,23 +160,7 @@ public class CustomerOrderUI : MonoBehaviour
 
         if (availableOrderIndexes.Count == 0)
         {
-            Debug.LogWarning("No unique allowed customer orders left for this level.");
-
-            if (ShouldAutoResetOrderPoolForCurrentLevel())
-            {
-                Debug.Log("Resetting order pool for this level because all allowed orders were used.");
-                usedOrderKeys.Clear();
-                availableOrderIndexes = GetAvailableOrderIndexes();
-            }
-            else
-            {
-                return;
-            }
-        }
-
-        if (availableOrderIndexes.Count == 0)
-        {
-            Debug.LogWarning("Still no allowed orders after reset. Check your order names.");
+            Debug.LogWarning("No valid unique orders left for this level/order position.");
             return;
         }
 
@@ -186,20 +184,29 @@ public class CustomerOrderUI : MonoBehaviour
             Debug.LogWarning("Chosen order has no final icon assigned: " + GetOrderName(chosen));
         }
 
-        if (preventRepeatedOrdersInLevel)
+        string chosenOrderName = GetOrderName(chosen);
+        string chosenKey = GetOrderKey(chosen);
+
+        usedOrderKeys.Add(chosenKey);
+        ordersGivenThisLevel++;
+
+        if (IsBeerOrder(NormalizeName(chosenOrderName)))
         {
-            usedOrderKeys.Add(GetOrderKey(chosen));
+            level1BeerAlreadyUsed = true;
         }
 
         completed = true;
 
-        Debug.Log("Customer order shown: " + GetOrderName(chosen));
+        Debug.Log("Customer order shown: " + chosenOrderName);
+        Debug.Log("Order number this level: " + ordersGivenThisLevel);
         Debug.Log("Used unique orders this level: " + usedOrderKeys.Count);
     }
 
     private List<int> GetAvailableOrderIndexes()
     {
         List<int> availableIndexes = new List<int>();
+
+        int nextOrderNumber = ordersGivenThisLevel + 1;
 
         for (int i = 0; i < orders.Length; i++)
         {
@@ -210,23 +217,19 @@ public class CustomerOrderUI : MonoBehaviour
 
             if (order.reaction1FoodPrefab == null)
             {
-                Debug.LogWarning("Order has no correct food/drink prefab assigned: " + order.orderName);
+                Debug.LogWarning("Order has no correct prefab assigned: " + order.orderName);
                 continue;
             }
 
             string orderName = GetOrderName(order);
-
-            if (!IsOrderAllowedInCurrentLevel(orderName))
-            {
-                continue;
-            }
-
+            string cleanName = NormalizeName(orderName);
             string orderKey = GetOrderKey(order);
 
-            if (preventRepeatedOrdersInLevel && usedOrderKeys.Contains(orderKey))
-            {
+            if (usedOrderKeys.Contains(orderKey))
                 continue;
-            }
+
+            if (!IsOrderAllowedForThisLevelAndPosition(cleanName, nextOrderNumber))
+                continue;
 
             availableIndexes.Add(i);
         }
@@ -234,21 +237,89 @@ public class CustomerOrderUI : MonoBehaviour
         return availableIndexes;
     }
 
-    private bool ShouldAutoResetOrderPoolForCurrentLevel()
+    private bool IsOrderAllowedForThisLevelAndPosition(string cleanOrderName, int nextOrderNumber)
     {
         LevelOrderMode activeMode = GetActiveLevelOrderMode();
 
-        if (activeMode == LevelOrderMode.Level1_BeersOnly)
+        switch (activeMode)
         {
-            return autoResetOrderPoolInLevel1;
+            case LevelOrderMode.Level1_PizzaHotdogOneBeer:
+                return IsAllowedLevel1Order(cleanOrderName, nextOrderNumber);
+
+            case LevelOrderMode.Level2_BurgerPancakeCocktail:
+                return IsAllowedLevel2Order(cleanOrderName, nextOrderNumber);
+
+            case LevelOrderMode.AllOrders:
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
+    private bool IsAllowedLevel1Order(string cleanOrderName, int nextOrderNumber)
+    {
+        bool isBeer = IsBeerOrder(cleanOrderName);
+        bool isFood = IsPizzaOrder(cleanOrderName) || IsHotdogOrder(cleanOrderName);
+
+        // If the one beer order was already used, all remaining orders must be Pizza/Hotdog.
+        if (level1BeerAlreadyUsed)
+        {
+            return isFood;
         }
 
-        if (activeMode == LevelOrderMode.Level2_CocktailsOnly)
+        // Force the randomly selected Level 1 order number to be beer.
+        if (nextOrderNumber == level1BeerOrderNumber)
         {
-            return autoResetOrderPoolInLevel2;
+            return isBeer;
         }
 
-        return false;
+        // Safety: if this is the last Level 1 customer and beer has not happened yet, force beer.
+        if (nextOrderNumber >= level1CustomerLimit && !level1BeerAlreadyUsed)
+        {
+            return isBeer;
+        }
+
+        // Otherwise, Level 1 customers get Pizza/Hotdog.
+        return isFood;
+    }
+
+    private bool IsAllowedLevel2Order(string cleanOrderName, int nextOrderNumber)
+    {
+        bool isFood = IsBurgerOrder(cleanOrderName) || IsPancakeOrder(cleanOrderName);
+        bool isDrink = IsCocktailOrder(cleanOrderName);
+
+        // First three Level 2 orders must be food, not drinks.
+        if (nextOrderNumber <= level2FirstFoodOnlyOrders)
+        {
+            return isFood;
+        }
+
+        // After the first three orders, both food and cocktails are allowed.
+        return isFood || isDrink;
+    }
+
+    private LevelOrderMode GetActiveLevelOrderMode()
+    {
+        if (levelOrderMode != LevelOrderMode.AutoFromSceneName)
+        {
+            return levelOrderMode;
+        }
+
+        string sceneName = NormalizeName(SceneManager.GetActiveScene().name);
+
+        if (sceneName.Contains("level1"))
+        {
+            return LevelOrderMode.Level1_PizzaHotdogOneBeer;
+        }
+
+        if (sceneName.Contains("level2"))
+        {
+            return LevelOrderMode.Level2_BurgerPancakeCocktail;
+        }
+
+        Debug.LogWarning("Scene name does not contain Level1 or Level2. Allowing all orders.");
+        return LevelOrderMode.AllOrders;
     }
 
     private string GetOrderName(OrderDefinition order)
@@ -270,53 +341,29 @@ public class CustomerOrderUI : MonoBehaviour
         return NormalizeName(GetOrderName(order));
     }
 
-    private bool IsOrderAllowedInCurrentLevel(string orderName)
+    private bool IsBurgerOrder(string cleanName)
     {
-        LevelOrderMode activeMode = GetActiveLevelOrderMode();
-        string cleanName = NormalizeName(orderName);
-
-        switch (activeMode)
-        {
-            case LevelOrderMode.Level1_BeersOnly:
-                return IsBeerOrder(cleanName);
-
-            case LevelOrderMode.Level2_CocktailsOnly:
-                return IsCocktailOrder(cleanName);
-
-            case LevelOrderMode.AllOrders:
-                return true;
-
-            default:
-                return true;
-        }
+        return cleanName.StartsWith("burger");
     }
 
-    private LevelOrderMode GetActiveLevelOrderMode()
+    private bool IsHotdogOrder(string cleanName)
     {
-        if (levelOrderMode != LevelOrderMode.AutoFromSceneName)
-        {
-            return levelOrderMode;
-        }
-
-        string sceneName = NormalizeName(SceneManager.GetActiveScene().name);
-
-        if (sceneName.Contains("level1"))
-        {
-            return LevelOrderMode.Level1_BeersOnly;
-        }
-
-        if (sceneName.Contains("level2"))
-        {
-            return LevelOrderMode.Level2_CocktailsOnly;
-        }
-
-        Debug.LogWarning("Scene name does not contain Level1 or Level2. Allowing all orders.");
-        return LevelOrderMode.AllOrders;
+        return cleanName.StartsWith("hotdog");
     }
 
     private bool IsBeerOrder(string cleanName)
     {
         return cleanName.Contains("beer");
+    }
+
+    private bool IsPizzaOrder(string cleanName)
+    {
+        return cleanName.StartsWith("pizza");
+    }
+
+    private bool IsPancakeOrder(string cleanName)
+    {
+        return cleanName.StartsWith("pancake");
     }
 
     private bool IsCocktailOrder(string cleanName)
@@ -347,17 +394,17 @@ public class CustomerOrderUI : MonoBehaviour
 
         if (FoodMatches(servedFood, reaction2FoodPrefab))
         {
-            Debug.Log("Matched Reaction2. Shared special food/drink served.");
+            Debug.Log("Matched Reaction2. Shared special order served.");
             return CustomerReactionType.Reaction2;
         }
 
         if (FoodMatches(servedFood, currentOrder.reaction1FoodPrefab))
         {
-            Debug.Log("Matched Reaction1. Correct food/drink served.");
+            Debug.Log("Matched Reaction1. Correct order served.");
             return CustomerReactionType.Reaction1;
         }
 
-        Debug.Log("No match. Wrong food/drink served.");
+        Debug.Log("No match. Wrong order served.");
         return CustomerReactionType.Reaction3;
     }
 

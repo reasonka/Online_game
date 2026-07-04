@@ -15,6 +15,10 @@ public class CustomerAI : MonoBehaviour
 
     public Transform exitPoint; // Spawnpoint / restaurant exit
 
+    public Seat AssignedSeat => seat;
+    public bool IsSitting => isSitting;
+    public bool IsLeaving => isLeaving;
+
     [Header("Customer Color Randomizer")]
     public Renderer customerColorRenderer;
     public int customerColorMaterialIndex = 0;
@@ -130,6 +134,9 @@ public class CustomerAI : MonoBehaviour
     public void AssignSeat(Seat targetSeat)
     {
         seat = targetSeat;
+        isSitting = false;
+        isLeaving = false;
+        isReacting = false;
 
         if (agent != null)
         {
@@ -140,12 +147,12 @@ public class CustomerAI : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("IsMoving", true);
+            animator.SetBool("IsSitting", false);
         }
     }
 
     private void Update()
     {
-        // Do not allow the customer to sit again while reacting or leaving
         if (isLeaving || isReacting)
             return;
 
@@ -313,7 +320,6 @@ public class CustomerAI : MonoBehaviour
         LeaveRestaurant();
     }
 
-    // Optional: use this with an Animation Event at the last frame of each reaction animation
     public void LeaveRestaurantFromAnimationEvent()
     {
         LeaveRestaurant();
