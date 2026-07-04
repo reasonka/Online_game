@@ -7,11 +7,39 @@ public class PlayerInteraction : MonoBehaviourPun
     [Header("References")]
     public PlayerInventory inventory;
 
+    [Tooltip("角色模型上的 Animator。")]
+    public Animator animator;
+
+    [Header("Animator Parameters")]
+    [Tooltip("Animator 中控制手持状态的 Bool 参数。")]
+    public string isCarryingParameter = "IsCarrying";
+
+    [Tooltip("Animator 中播放举手动画的 Trigger 参数。")]
+    public string raiseHandTriggerParameter = "RaiseHand";
+
     [Header("Input")]
-    public KeyCode openStorageKey = KeyCode.E;
+    [Tooltip("放置、添加食材或拿起成品。")]
     public KeyCode useHeldItemKey = KeyCode.F;
 
+    [Tooltip("靠近垃圾桶时丢弃手上的物体。")]
+    public KeyCode throwAwayKey = KeyCode.G;
+
+    [Header("Automatic Storage UI")]
+    [Tooltip("进入储物柜 Trigger 时自动打开 UI。")]
+    public bool autoOpenStorage = true;
+
+    [Tooltip("离开储物柜 Trigger 时自动关闭 UI。")]
+    public bool autoCloseStorage = true;
+
+    [Header("Raise Hand")]
+    [Tooltip("手上有物品时，鼠标右键播放举手动画。")]
+    public bool enableRaiseHand = true;
+
+    [Tooltip("0 是鼠标左键，1 是鼠标右键，2 是鼠标中键。")]
+    public int raiseHandMouseButton = 1;
+
     [Header("Photon")]
+    [Tooltip("本地测试时关闭，正式联网时开启。")]
     public bool usePhotonSync = false;
 
     [Header("Debug")]
@@ -26,22 +54,18 @@ public class PlayerInteraction : MonoBehaviourPun
     private readonly List<PlacementSurface> nearbyPlacementSurfaces =
         new List<PlacementSurface>();
 
-    private IngredientStorage NearbyStorage
-    {
-        get
-        {
-            CleanNullReferences(nearbyStorages);
+    private readonly List<TrashBin> nearbyTrashBins =
+        new List<TrashBin>();
 
-            if (nearbyStorages.Count == 0)
-            {
-                return null;
-            }
+    /*
+     * 记录每个 Storage 当前进入了多少个 Collider。
+     * 防止一个冰箱有多个 Trigger/Collider 时，
+     * 离开其中一个 Collider 就错误地关闭 UI。
+     */
+    private readonly Dictionary<IngredientStorage, int> storageOverlapCounts =
+        new Dictionary<IngredientStorage, int>();
 
-            return nearbyStorages[
-                nearbyStorages.Count - 1
-            ];
-        }
-    }
+    private IngredientStorage openedStorage;
 
     private CookingStation NearbyCookingStation
     {
@@ -77,17 +101,50 @@ public class PlayerInteraction : MonoBehaviourPun
         }
     }
 
-    private void Start()
+    private TrashBin NearbyTrashBin
+    {
+        get
+        {
+            CleanNullReferences(nearbyTrashBins);
+
+            if (nearbyTrashBins.Count == 0)
+            {
+                return null;
+            }
+
+            return nearbyTrashBins[
+                nearbyTrashBins.Count - 1
+            ];
+        }
+    }
+
+    private void Awake()
     {
         if (inventory == null)
         {
             inventory = GetComponent<PlayerInventory>();
         }
 
-        if (inventory == null)
+        if (animator == null)
         {
-            LogWarning("PlayerInventory is missing.");
+            animator = GetComponentInChildren<Animator>();
         }
+    }
+
+    private void Start()
+    {
+        UpdateAnimatorCarryingState();
+    }
+
+    private void OnDisable()
+    {
+        CloseOpenedStorage();
+
+        nearbyStorages.Clear();
+        nearbyCookingStations.Clear();
+        nearbyPlacementSurfaces.Clear();
+        nearbyTrashBins.Clear();
+        storageOverlapCounts.Clear();
     }
 
     private void Update()
@@ -97,14 +154,20 @@ public class PlayerInteraction : MonoBehaviourPun
             return;
         }
 
-        if (Input.GetKeyDown(openStorageKey))
-        {
-            TryOpenStorage();
-        }
-
         if (Input.GetKeyDown(useHeldItemKey))
         {
-            TryUseHeldItem();
+            TryUseInteraction();
+        }
+
+        if (Input.GetKeyDown(throwAwayKey))
+        {
+            TryThrowAway();
+        }
+
+        if (enableRaiseHand &&
+            Input.GetMouseButtonDown(raiseHandMouseButton))
+        {
+            TryRaiseHand();
         }
     }
 
@@ -123,228 +186,636 @@ public class PlayerInteraction : MonoBehaviourPun
         return photonView.IsMine;
     }
 
-    private void TryOpenStorage()
+    private void TryRaiseHand()
     {
-        IngredientStorage storage = NearbyStorage;
+        if (inventory == null)
+        {
+            LogWarning(
+                "Cannot raise hand because PlayerInventory is missing."
+            );
+
+            return;
+        }
+
+        if (!inventory.HasHeldItem)
+        {
+            Log(
+                "Cannot raise hand because the player is not carrying anything."
+            );
+
+            return;
+        }
+
+        if (animator == null)
+        {
+            LogWarning(
+                "Cannot raise hand because Animator is missing."
+            );
+
+            return;
+        }
+
+        animator.SetBool(
+            isCarryingParameter,
+            true
+        );
+
+        animator.ResetTrigger(
+            raiseHandTriggerParameter
+        );
+
+        animator.SetTrigger(
+            raiseHandTriggerParameter
+        );
+
+        Log("Raise-hand animation triggered.");
+    }
+
+    private void TryAutoOpenStorage(
+        IngredientStorage storage)
+    {
+        if (!autoOpenStorage)
+        {
+            return;
+        }
+
+        if (!CanUseLocalInput())
+        {
+            return;
+        }
 
         if (storage == null)
         {
-            Log("No IngredientStorage is nearby.");
             return;
         }
 
         if (inventory == null)
         {
-            LogWarning("PlayerInventory is missing.");
+            LogWarning(
+                "Cannot open Storage because PlayerInventory is missing."
+            );
+
             return;
         }
 
+        /*
+         * 保留原来的限制：
+         * 手上有东西时不打开储物柜。
+         */
         if (inventory.HasHeldItem)
         {
             Log(
-                "Cannot open storage because hand is occupied by: " +
+                "Storage UI was not opened because the hand is occupied by: " +
                 inventory.HeldItem.name
             );
 
             return;
         }
 
-        storage.OpenStorage(inventory);
+        if (openedStorage == storage)
+        {
+            return;
+        }
+
+        /*
+         * 从一个储物柜 Trigger 直接进入另一个储物柜 Trigger 时，
+         * 先关闭原来的 UI，再打开新的。
+         */
+        if (openedStorage != null)
+        {
+            CloseOpenedStorage();
+        }
+
+        openedStorage = storage;
+        openedStorage.OpenStorage(inventory);
+
+        Log(
+            "Storage UI opened automatically: " +
+            storage.name
+        );
     }
 
-    public void TryUseHeldItem()
+    private void TryAutoCloseStorage(
+        IngredientStorage storage)
+    {
+        if (!autoCloseStorage)
+        {
+            return;
+        }
+
+        if (storage == null)
+        {
+            return;
+        }
+
+        if (openedStorage != storage)
+        {
+            return;
+        }
+
+        CloseOpenedStorage();
+    }
+
+    private void CloseOpenedStorage()
+    {
+        if (openedStorage == null)
+        {
+            return;
+        }
+
+        IngredientStorage storageToClose =
+            openedStorage;
+
+        openedStorage = null;
+
+        if (storageToClose.selectionUI != null)
+        {
+            storageToClose.selectionUI.CloseStorage();
+        }
+        else
+        {
+            LogWarning(
+                "Cannot close Storage UI because Selection UI is missing on: " +
+                storageToClose.name
+            );
+        }
+
+        Log(
+            "Storage UI closed automatically: " +
+            storageToClose.name
+        );
+    }
+
+    private void TryUseInteraction()
     {
         if (inventory == null)
         {
-            LogWarning("Inventory reference is missing.");
+            LogWarning(
+                "PlayerInventory is missing."
+            );
+
+            return;
+        }
+
+        /*
+         * 手上为空时：
+         * 尝试拿起附近桌上的 FinishedFood。
+         */
+        if (!inventory.HasHeldItem)
+        {
+            TryPickupFinishedFood();
+            return;
+        }
+
+        HoldableItem heldItem =
+            inventory.HeldItem;
+
+        if (heldItem == null)
+        {
+            LogWarning("HeldItem is null.");
+            return;
+        }
+
+        /*
+         * Ingredient：
+         * 添加到附近 CookingStation。
+         */
+        if (heldItem.itemType ==
+            HoldableItemType.Ingredient)
+        {
+            TryAddIngredient(heldItem);
+            return;
+        }
+
+        /*
+         * CookingBase 或 FinishedFood：
+         * 放到附近 PlacementSurface。
+         */
+        if (heldItem.itemType ==
+                HoldableItemType.CookingBase ||
+            heldItem.itemType ==
+                HoldableItemType.FinishedFood)
+        {
+            TryPlaceOnSurface();
+            return;
+        }
+
+        Log(
+            "This held item type has no F interaction: " +
+            heldItem.itemType
+        );
+    }
+
+    private void TryPlaceOnSurface()
+    {
+        PlacementSurface surface =
+            NearbyPlacementSurface;
+
+        if (surface == null)
+        {
+            Log(
+                "No PlacementSurface is nearby."
+            );
+
+            return;
+        }
+
+        bool placed =
+            surface.TryPlaceFromInventory(
+                inventory
+            );
+
+        if (!placed)
+        {
+            Log(
+                "Could not place held item on surface."
+            );
+
+            return;
+        }
+
+        UpdateAnimatorCarryingState();
+
+        Log("Held item placed on surface.");
+    }
+
+    private void TryAddIngredient(
+        HoldableItem heldItem)
+    {
+        CookingStation station =
+            NearbyCookingStation;
+
+        if (station == null)
+        {
+            Log(
+                "Holding Ingredient, but no CookingStation is nearby."
+            );
+
+            return;
+        }
+
+        string ingredientId =
+            heldItem.GetIngredientId();
+
+        if (string.IsNullOrEmpty(
+                ingredientId))
+        {
+            LogWarning(
+                "Held Ingredient has no valid IngredientId: " +
+                heldItem.name
+            );
+
+            return;
+        }
+
+        bool accepted =
+            station.TryAddIngredient(
+                ingredientId
+            );
+
+        if (!accepted)
+        {
+            Log(
+                "CookingStation rejected Ingredient: " +
+                ingredientId
+            );
+
+            return;
+        }
+
+        inventory.ConsumeHeldItem();
+
+        UpdateAnimatorCarryingState();
+
+        Log(
+            "Ingredient added to CookingStation: " +
+            ingredientId
+        );
+    }
+
+    private void TryPickupFinishedFood()
+    {
+        PlacementSurface surface =
+            NearbyPlacementSurface;
+
+        if (surface == null)
+        {
+            Log(
+                "Hand is empty, but no PlacementSurface is nearby."
+            );
+
+            return;
+        }
+
+        bool pickedUp =
+            surface.TryPickupFinishedFood(
+                inventory
+            );
+
+        if (!pickedUp)
+        {
+            Log(
+                "There is no FinishedFood available to pick up."
+            );
+
+            return;
+        }
+
+        UpdateAnimatorCarryingState();
+
+        Log(
+            "Picked up FinishedFood from surface."
+        );
+    }
+
+    private void TryThrowAway()
+    {
+        if (inventory == null)
+        {
+            LogWarning(
+                "PlayerInventory is missing."
+            );
+
             return;
         }
 
         if (!inventory.HasHeldItem)
         {
-            Log("Player is not holding anything.");
+            Log(
+                "Player has nothing to throw away."
+            );
+
             return;
         }
 
-        HoldableItem item = inventory.HeldItem;
+        TrashBin trashBin =
+            NearbyTrashBin;
 
-        // Ingredient 必须优先进入 CookingStation。
-        if (item.itemType == HoldableItemType.Ingredient)
+        if (trashBin == null)
         {
-            CookingStation station = NearbyCookingStation;
-
-            if (station == null)
-            {
-                Log(
-                    "Holding an Ingredient, but no CookingStation is nearby."
-                );
-
-                return;
-            }
-
-            string ingredientId = item.GetIngredientId();
-
-            if (string.IsNullOrEmpty(ingredientId))
-            {
-                LogWarning(
-                    "Held Ingredient has no valid IngredientId: " +
-                    item.name
-                );
-
-                return;
-            }
-
-            bool accepted =
-                station.TryAddIngredient(ingredientId);
-
-            if (accepted)
-            {
-                Log(
-                    "Ingredient sent to CookingStation: " +
-                    ingredientId
-                );
-
-                inventory.ConsumeHeldItem();
-            }
+            Log(
+                "No TrashBin is nearby."
+            );
 
             return;
         }
 
-        // Food Base 和成品才走桌子的 PlacementPoint。
-        if (item.itemType == HoldableItemType.CookingBase ||
-            item.itemType == HoldableItemType.FinishedFood)
+        bool thrownAway =
+            trashBin.TryThrowAway(
+                inventory
+            );
+
+        if (!thrownAway)
         {
-            PlacementSurface surface =
-                NearbyPlacementSurface;
-
-            if (surface == null)
-            {
-                Log("No PlacementSurface is nearby.");
-                return;
-            }
-
-            bool placed =
-                surface.TryPlaceFromInventory(inventory);
-
-            if (!placed)
-            {
-                Log(
-                    "Could not place object on surface."
-                );
-            }
+            Log(
+                "Throw-away interaction failed."
+            );
 
             return;
         }
 
-        Log(
-            "Held item type is not supported: " +
-            item.itemType
+        UpdateAnimatorCarryingState();
+
+        Log("Held item thrown away.");
+    }
+
+    private void UpdateAnimatorCarryingState()
+    {
+        if (animator == null ||
+            inventory == null)
+        {
+            return;
+        }
+
+        animator.SetBool(
+            isCarryingParameter,
+            inventory.HasHeldItem
         );
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(
+        Collider other)
     {
         IngredientStorage storage =
-            other.GetComponent<IngredientStorage>();
-
-        if (storage == null)
-        {
-            storage =
-                other.GetComponentInParent<IngredientStorage>();
-        }
-
-        if (storage != null &&
-            !nearbyStorages.Contains(storage))
-        {
-            nearbyStorages.Add(storage);
-            Log("Entered storage zone: " + storage.name);
-        }
-
-        CookingStation station =
-            other.GetComponent<CookingStation>();
-
-        if (station == null)
-        {
-            station =
-                other.GetComponentInParent<CookingStation>();
-        }
-
-        if (station != null &&
-            !nearbyCookingStations.Contains(station))
-        {
-            nearbyCookingStations.Add(station);
-            Log("Entered CookingStation zone: " + station.name);
-        }
-
-        PlacementSurface surface =
-            other.GetComponent<PlacementSurface>();
-
-        if (surface == null)
-        {
-            surface =
-                other.GetComponentInParent<PlacementSurface>();
-        }
-
-        if (surface != null &&
-            !nearbyPlacementSurfaces.Contains(surface))
-        {
-            nearbyPlacementSurfaces.Add(surface);
-            Log("Entered PlacementSurface zone: " + surface.name);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        IngredientStorage storage =
-            other.GetComponent<IngredientStorage>();
-
-        if (storage == null)
-        {
-            storage =
-                other.GetComponentInParent<IngredientStorage>();
-        }
+            FindComponent<IngredientStorage>(
+                other
+            );
 
         if (storage != null)
         {
-            nearbyStorages.Remove(storage);
-            Log("Exited storage zone: " + storage.name);
+            RegisterStorageEnter(storage);
         }
 
-        CookingStation station =
-            other.GetComponent<CookingStation>();
+        CookingStation cookingStation =
+            FindComponent<CookingStation>(
+                other
+            );
 
-        if (station == null)
+        if (cookingStation != null &&
+            !nearbyCookingStations.Contains(
+                cookingStation
+            ))
         {
-            station =
-                other.GetComponentInParent<CookingStation>();
-        }
+            nearbyCookingStations.Add(
+                cookingStation
+            );
 
-        if (station != null)
-        {
-            nearbyCookingStations.Remove(station);
-            Log("Exited CookingStation zone: " + station.name);
+            Log(
+                "Entered CookingStation zone: " +
+                cookingStation.name
+            );
         }
 
         PlacementSurface surface =
-            other.GetComponent<PlacementSurface>();
+            FindComponent<PlacementSurface>(
+                other
+            );
 
-        if (surface == null)
+        if (surface != null &&
+            !nearbyPlacementSurfaces.Contains(
+                surface
+            ))
         {
-            surface =
-                other.GetComponentInParent<PlacementSurface>();
+            nearbyPlacementSurfaces.Add(surface);
+
+            Log(
+                "Entered PlacementSurface zone: " +
+                surface.name
+            );
         }
 
-        if (surface != null)
+        TrashBin trashBin =
+            FindComponent<TrashBin>(other);
+
+        if (trashBin != null &&
+            !nearbyTrashBins.Contains(
+                trashBin
+            ))
         {
-            nearbyPlacementSurfaces.Remove(surface);
-            Log("Exited PlacementSurface zone: " + surface.name);
+            nearbyTrashBins.Add(trashBin);
+
+            Log(
+                "Entered TrashBin zone: " +
+                trashBin.name
+            );
         }
     }
 
-    private void CleanNullReferences<T>(List<T> list)
+    private void OnTriggerExit(
+        Collider other)
+    {
+        IngredientStorage storage =
+            FindComponent<IngredientStorage>(
+                other
+            );
+
+        if (storage != null)
+        {
+            RegisterStorageExit(storage);
+        }
+
+        CookingStation cookingStation =
+            FindComponent<CookingStation>(
+                other
+            );
+
+        if (cookingStation != null)
+        {
+            nearbyCookingStations.Remove(
+                cookingStation
+            );
+        }
+
+        PlacementSurface surface =
+            FindComponent<PlacementSurface>(
+                other
+            );
+
+        if (surface != null)
+        {
+            nearbyPlacementSurfaces.Remove(
+                surface
+            );
+        }
+
+        TrashBin trashBin =
+            FindComponent<TrashBin>(other);
+
+        if (trashBin != null)
+        {
+            nearbyTrashBins.Remove(trashBin);
+        }
+    }
+
+    private void RegisterStorageEnter(
+        IngredientStorage storage)
+    {
+        if (storage == null)
+        {
+            return;
+        }
+
+        if (!storageOverlapCounts.ContainsKey(
+                storage))
+        {
+            storageOverlapCounts[storage] = 0;
+        }
+
+        storageOverlapCounts[storage]++;
+
+        /*
+         * 只有第一次进入该 Storage 时才加入列表并打开 UI。
+         */
+        if (storageOverlapCounts[storage] > 1)
+        {
+            return;
+        }
+
+        if (!nearbyStorages.Contains(storage))
+        {
+            nearbyStorages.Add(storage);
+        }
+
+        Log(
+            "Entered Storage zone: " +
+            storage.name
+        );
+
+        TryAutoOpenStorage(storage);
+    }
+
+    private void RegisterStorageExit(
+        IngredientStorage storage)
+    {
+        if (storage == null)
+        {
+            return;
+        }
+
+        if (!storageOverlapCounts.ContainsKey(
+                storage))
+        {
+            nearbyStorages.Remove(storage);
+            TryAutoCloseStorage(storage);
+            return;
+        }
+
+        storageOverlapCounts[storage]--;
+
+        /*
+         * 仍然与该 Storage 的其他 Collider 重叠，
+         * 所以不关闭 UI。
+         */
+        if (storageOverlapCounts[storage] > 0)
+        {
+            return;
+        }
+
+        storageOverlapCounts.Remove(storage);
+        nearbyStorages.Remove(storage);
+
+        Log(
+            "Exited Storage zone: " +
+            storage.name
+        );
+
+        TryAutoCloseStorage(storage);
+    }
+
+    private T FindComponent<T>(
+        Collider other)
+        where T : Component
+    {
+        if (other == null)
+        {
+            return null;
+        }
+
+        T result =
+            other.GetComponent<T>();
+
+        if (result == null)
+        {
+            result =
+                other.GetComponentInParent<T>();
+        }
+
+        if (result == null)
+        {
+            result =
+                other.GetComponentInChildren<T>();
+        }
+
+        return result;
+    }
+
+    private void CleanNullReferences<T>(
+        List<T> list)
         where T : Object
     {
-        for (int i = list.Count - 1; i >= 0; i--)
+        for (int i = list.Count - 1;
+             i >= 0;
+             i--)
         {
             if (list[i] == null)
             {
@@ -358,7 +829,8 @@ public class PlayerInteraction : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.Log(
-                "[PlayerInteraction] " + message,
+                "[PlayerInteraction] " +
+                message,
                 this
             );
         }
@@ -369,7 +841,8 @@ public class PlayerInteraction : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[PlayerInteraction] " + message,
+                "[PlayerInteraction] " +
+                message,
                 this
             );
         }

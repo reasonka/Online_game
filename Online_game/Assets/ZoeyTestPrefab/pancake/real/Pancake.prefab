@@ -950,7 +950,7 @@ Transform:
   - {fileID: 5501070729973954635}
   - {fileID: 5501070728518257053}
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-2160197351465688236
 MonoBehaviour:
@@ -1510,9 +1510,8 @@ MonoBehaviour:
       - {fileID: 5501070728639376965}
     finalProductPrefab: {fileID: 8779830565682862819, guid: dfb902b063631a147a79f0b93f002afd, type: 3}
   finalProductSpawnPoint: {fileID: 5501070728518257053}
-  failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
+  failedProductPrefab: {fileID: 3343303751383531120, guid: 092dcac992ba8914c91d8e7f599c80d8, type: 3}
   failedProductSpawnPoint: {fileID: 5501070728518257053}
-  destroyTriggerIngredientAfterAdding: 1
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
@@ -1520,7 +1519,6 @@ MonoBehaviour:
   destroyTargetObject: {fileID: 5501070729623285167}
   detachFinalProductSpawnPointBeforeDestroy: 1
   detachFailedProductSpawnPointBeforeDestroy: 1
-  detachIngredientVisualSpawnPointsBeforeDestroy: 0
 --- !u!1 &5501070729983144753
 GameObject:
   m_ObjectHideFlags: 0
