@@ -403,7 +403,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7b5f3e664ace841149acf32172c923d9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 920efda8ac8bb4b1faba74c77f9222db, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -459,25 +459,28 @@ MonoBehaviour:
   BookPanel: {fileID: 399158800}
   background: {fileID: 21300000, guid: 3c47abcf3fb3d12408efe3073b2e379f, type: 3}
   bookPages:
-  - {fileID: 21300000, guid: 7b5f3e664ace841149acf32172c923d9, type: 3}
   - {fileID: 21300000, guid: 920efda8ac8bb4b1faba74c77f9222db, type: 3}
-  - {fileID: 21300000, guid: b653d12ebf3cc4e22b44c00d16d27ed6, type: 3}
+  - {fileID: 21300000, guid: 6b51f21fbe091453984cd5ec03aaa51d, type: 3}
   - {fileID: 21300000, guid: aec695f29b65b436895eedb3b1c52739, type: 3}
   - {fileID: 21300000, guid: 54862e4227716478d87d2f3a6d92726e, type: 3}
   - {fileID: 21300000, guid: 3e73f80d96fcc4c799b83f48a189c420, type: 3}
   - {fileID: 21300000, guid: 7a8218d6f1c6042d788ec2d527e24f78, type: 3}
-  - {fileID: 21300000, guid: 0addf024ee6bc4f82bea9ffa41f45de9, type: 3}
+  - {fileID: 21300000, guid: 76a93731d7a034859b3c433161b7d3df, type: 3}
   - {fileID: 21300000, guid: d9710622892fc4036a0290eb6192ce26, type: 3}
   - {fileID: 21300000, guid: 098b7d6bea9374f3fb61c3b3d4c9536a, type: 3}
   - {fileID: 21300000, guid: 7d50a794f45c947c5b38ead30751c0f5, type: 3}
-  - {fileID: 21300000, guid: ce63d63d866ba446781f1c39bddae7f5, type: 3}
+  - {fileID: 21300000, guid: 79fa7a25b095e456a898888f279f9430, type: 3}
   - {fileID: 21300000, guid: 445c2f3724d2946fcb2d89ad73bebe5a, type: 3}
   - {fileID: 21300000, guid: cfe961121b99340d49a8cd961ef21b8e, type: 3}
   - {fileID: 21300000, guid: 3700e7f41d86e491ba108d6344b12031, type: 3}
   - {fileID: 21300000, guid: 79fa7a25b095e456a898888f279f9430, type: 3}
   - {fileID: 21300000, guid: 67e535db1b3594c9c9343b1842f8fb22, type: 3}
   - {fileID: 21300000, guid: d3df4210560674472b1c0f9abacd5515, type: 3}
-  - {fileID: 21300000, guid: 2486e76b684cb40d98f23584b180da73, type: 3}
+  - {fileID: 21300000, guid: 8dbcea5ce75a941bf81700096c4d197d, type: 3}
+  - {fileID: 21300000, guid: 96748b71cb933447aa75bea49f0d247c, type: 3}
+  - {fileID: 21300000, guid: e342b44447e474fc785b881763081cb8, type: 3}
+  - {fileID: 21300000, guid: 9d6ee8f2b60834e2ca07ef70e8fdf8b5, type: 3}
+  - {fileID: 21300000, guid: 0eb9975f0cbcc4aa4b902f6814daa017, type: 3}
   interactable: 1
   enableShadowEffect: 1
   currentPage: 0
