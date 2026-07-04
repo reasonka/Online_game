@@ -170,14 +170,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 548783413241283944}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.5669937, y: -5.456, z: -18.428598}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2654700176894516127}
   - {fileID: 8772707523773316560}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-4556073614866373424
 MonoBehaviour:
@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemType: 0
+  itemType: 2
   ingredientIdComponent: {fileID: 0}
 --- !u!1 &619671773923842602
 GameObject:
@@ -875,8 +875,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.6193714, z: 1}
-  m_Center: {x: 0, y: 0.30142593, z: 0}
+  m_Size: {x: 2.7835112, y: 0.6193714, z: 2.3470743}
+  m_Center: {x: 0.023345768, y: 0.30142593, z: -0.008525729}
 --- !u!114 &49321702089177887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -978,7 +978,7 @@ MonoBehaviour:
       - {fileID: 9025812297540900963}
       - {fileID: 8091416192603089746}
       - {fileID: 6677052976371297378}
-    finalProductPrefab: {fileID: 8723612179399725256, guid: 5d8e65fafaa82ef4984e9dfc72878d09, type: 3}
+    finalProductPrefab: {fileID: 8723612179399725256, guid: 0d2f4288c6640bd47ad8777779fb2d97, type: 3}
   - recipeName: OasisGarden
     useOrder: 1
     requiredIngredients:
@@ -1021,11 +1021,10 @@ MonoBehaviour:
       - {fileID: 9025812297540900963}
       - {fileID: 8091416192603089746}
       - {fileID: 6677052976371297378}
-    finalProductPrefab: {fileID: 8225018416783304119, guid: ea971b14c24686646901f0d75e865521, type: 3}
+    finalProductPrefab: {fileID: 8225018416783304119, guid: 5d8e65fafaa82ef4984e9dfc72878d09, type: 3}
   finalProductSpawnPoint: {fileID: 8772707523773316560}
   failedProductPrefab: {fileID: 1231500772584458, guid: df15e8b2e122ac64a81a56102b5b862c, type: 3}
   failedProductSpawnPoint: {fileID: 8772707523773316560}
-  destroyTriggerIngredientAfterAdding: 1
   clearPlacedVisualsAfterSuccess: 1
   clearPlacedVisualsAfterFail: 1
   destroyCookingStationAfterSuccess: 1
@@ -1033,7 +1032,6 @@ MonoBehaviour:
   destroyTargetObject: {fileID: 548783413241283944}
   detachFinalProductSpawnPointBeforeDestroy: 1
   detachFailedProductSpawnPointBeforeDestroy: 1
-  detachIngredientVisualSpawnPointsBeforeDestroy: 0
 --- !u!1 &4547966214352502560
 GameObject:
   m_ObjectHideFlags: 0

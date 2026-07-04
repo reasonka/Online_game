@@ -18,20 +18,24 @@ public class PlayerInteraction : MonoBehaviourPun
     public string raiseHandTriggerParameter = "RaiseHand";
 
     [Header("Input")]
-    [Tooltip("打开附近储物柜。")]
-    public KeyCode openStorageKey = KeyCode.E;
-
     [Tooltip("放置、添加食材或拿起成品。")]
     public KeyCode useHeldItemKey = KeyCode.F;
 
     [Tooltip("靠近垃圾桶时丢弃手上的物体。")]
     public KeyCode throwAwayKey = KeyCode.G;
 
+    [Header("Automatic Storage UI")]
+    [Tooltip("进入储物柜 Trigger 时自动打开 UI。")]
+    public bool autoOpenStorage = true;
+
+    [Tooltip("离开储物柜 Trigger 时自动关闭 UI。")]
+    public bool autoCloseStorage = true;
+
     [Header("Raise Hand")]
     [Tooltip("手上有物品时，鼠标右键播放举手动画。")]
     public bool enableRaiseHand = true;
 
-    [Tooltip("0 代表鼠标左键，1 代表鼠标右键，2 代表鼠标中键。")]
+    [Tooltip("0 是鼠标左键，1 是鼠标右键，2 是鼠标中键。")]
     public int raiseHandMouseButton = 1;
 
     [Header("Photon")]
@@ -53,30 +57,21 @@ public class PlayerInteraction : MonoBehaviourPun
     private readonly List<TrashBin> nearbyTrashBins =
         new List<TrashBin>();
 
-    private IngredientStorage NearbyStorage
-    {
-        get
-        {
-            CleanNullReferences(nearbyStorages);
+    /*
+     * 记录每个 Storage 当前进入了多少个 Collider。
+     * 防止一个冰箱有多个 Trigger/Collider 时，
+     * 离开其中一个 Collider 就错误地关闭 UI。
+     */
+    private readonly Dictionary<IngredientStorage, int> storageOverlapCounts =
+        new Dictionary<IngredientStorage, int>();
 
-            if (nearbyStorages.Count == 0)
-            {
-                return null;
-            }
-
-            return nearbyStorages[
-                nearbyStorages.Count - 1
-            ];
-        }
-    }
+    private IngredientStorage openedStorage;
 
     private CookingStation NearbyCookingStation
     {
         get
         {
-            CleanNullReferences(
-                nearbyCookingStations
-            );
+            CleanNullReferences(nearbyCookingStations);
 
             if (nearbyCookingStations.Count == 0)
             {
@@ -93,9 +88,7 @@ public class PlayerInteraction : MonoBehaviourPun
     {
         get
         {
-            CleanNullReferences(
-                nearbyPlacementSurfaces
-            );
+            CleanNullReferences(nearbyPlacementSurfaces);
 
             if (nearbyPlacementSurfaces.Count == 0)
             {
@@ -129,14 +122,12 @@ public class PlayerInteraction : MonoBehaviourPun
     {
         if (inventory == null)
         {
-            inventory =
-                GetComponent<PlayerInventory>();
+            inventory = GetComponent<PlayerInventory>();
         }
 
         if (animator == null)
         {
-            animator =
-                GetComponentInChildren<Animator>();
+            animator = GetComponentInChildren<Animator>();
         }
     }
 
@@ -145,16 +136,22 @@ public class PlayerInteraction : MonoBehaviourPun
         UpdateAnimatorCarryingState();
     }
 
+    private void OnDisable()
+    {
+        CloseOpenedStorage();
+
+        nearbyStorages.Clear();
+        nearbyCookingStations.Clear();
+        nearbyPlacementSurfaces.Clear();
+        nearbyTrashBins.Clear();
+        storageOverlapCounts.Clear();
+    }
+
     private void Update()
     {
         if (!CanUseLocalInput())
         {
             return;
-        }
-
-        if (Input.GetKeyDown(openStorageKey))
-        {
-            TryOpenStorage();
         }
 
         if (Input.GetKeyDown(useHeldItemKey))
@@ -168,9 +165,7 @@ public class PlayerInteraction : MonoBehaviourPun
         }
 
         if (enableRaiseHand &&
-            Input.GetMouseButtonDown(
-                raiseHandMouseButton
-            ))
+            Input.GetMouseButtonDown(raiseHandMouseButton))
         {
             TryRaiseHand();
         }
@@ -202,9 +197,6 @@ public class PlayerInteraction : MonoBehaviourPun
             return;
         }
 
-        /*
-         * 只有玩家正在拿东西时才允许播放举手动画。
-         */
         if (!inventory.HasHeldItem)
         {
             Log(
@@ -223,17 +215,11 @@ public class PlayerInteraction : MonoBehaviourPun
             return;
         }
 
-        /*
-         * 保证 Animator 当前的手持状态正确。
-         */
         animator.SetBool(
             isCarryingParameter,
             true
         );
 
-        /*
-         * 防止快速点击右键导致旧 Trigger 残留。
-         */
         animator.ResetTrigger(
             raiseHandTriggerParameter
         );
@@ -245,40 +231,119 @@ public class PlayerInteraction : MonoBehaviourPun
         Log("Raise-hand animation triggered.");
     }
 
-    private void TryOpenStorage()
+    private void TryAutoOpenStorage(
+        IngredientStorage storage)
     {
-        if (inventory == null)
+        if (!autoOpenStorage)
         {
-            LogWarning(
-                "PlayerInventory is missing."
-            );
-
             return;
         }
 
-        IngredientStorage storage =
-            NearbyStorage;
+        if (!CanUseLocalInput())
+        {
+            return;
+        }
 
         if (storage == null)
         {
-            Log(
-                "No IngredientStorage is nearby."
+            return;
+        }
+
+        if (inventory == null)
+        {
+            LogWarning(
+                "Cannot open Storage because PlayerInventory is missing."
             );
 
             return;
         }
 
+        /*
+         * 保留原来的限制：
+         * 手上有东西时不打开储物柜。
+         */
         if (inventory.HasHeldItem)
         {
             Log(
-                "Cannot open storage because hand is occupied by: " +
+                "Storage UI was not opened because the hand is occupied by: " +
                 inventory.HeldItem.name
             );
 
             return;
         }
 
-        storage.OpenStorage(inventory);
+        if (openedStorage == storage)
+        {
+            return;
+        }
+
+        /*
+         * 从一个储物柜 Trigger 直接进入另一个储物柜 Trigger 时，
+         * 先关闭原来的 UI，再打开新的。
+         */
+        if (openedStorage != null)
+        {
+            CloseOpenedStorage();
+        }
+
+        openedStorage = storage;
+        openedStorage.OpenStorage(inventory);
+
+        Log(
+            "Storage UI opened automatically: " +
+            storage.name
+        );
+    }
+
+    private void TryAutoCloseStorage(
+        IngredientStorage storage)
+    {
+        if (!autoCloseStorage)
+        {
+            return;
+        }
+
+        if (storage == null)
+        {
+            return;
+        }
+
+        if (openedStorage != storage)
+        {
+            return;
+        }
+
+        CloseOpenedStorage();
+    }
+
+    private void CloseOpenedStorage()
+    {
+        if (openedStorage == null)
+        {
+            return;
+        }
+
+        IngredientStorage storageToClose =
+            openedStorage;
+
+        openedStorage = null;
+
+        if (storageToClose.selectionUI != null)
+        {
+            storageToClose.selectionUI.CloseStorage();
+        }
+        else
+        {
+            LogWarning(
+                "Cannot close Storage UI because Selection UI is missing on: " +
+                storageToClose.name
+            );
+        }
+
+        Log(
+            "Storage UI closed automatically: " +
+            storageToClose.name
+        );
     }
 
     private void TryUseInteraction()
@@ -293,8 +358,8 @@ public class PlayerInteraction : MonoBehaviourPun
         }
 
         /*
-         * 手上为空：
-         * 尝试从附近桌子拿起 FinishedFood。
+         * 手上为空时：
+         * 尝试拿起附近桌上的 FinishedFood。
          */
         if (!inventory.HasHeldItem)
         {
@@ -536,15 +601,9 @@ public class PlayerInteraction : MonoBehaviourPun
                 other
             );
 
-        if (storage != null &&
-            !nearbyStorages.Contains(storage))
+        if (storage != null)
         {
-            nearbyStorages.Add(storage);
-
-            Log(
-                "Entered Storage zone: " +
-                storage.name
-            );
+            RegisterStorageEnter(storage);
         }
 
         CookingStation cookingStation =
@@ -612,7 +671,7 @@ public class PlayerInteraction : MonoBehaviourPun
 
         if (storage != null)
         {
-            nearbyStorages.Remove(storage);
+            RegisterStorageExit(storage);
         }
 
         CookingStation cookingStation =
@@ -646,6 +705,81 @@ public class PlayerInteraction : MonoBehaviourPun
         {
             nearbyTrashBins.Remove(trashBin);
         }
+    }
+
+    private void RegisterStorageEnter(
+        IngredientStorage storage)
+    {
+        if (storage == null)
+        {
+            return;
+        }
+
+        if (!storageOverlapCounts.ContainsKey(
+                storage))
+        {
+            storageOverlapCounts[storage] = 0;
+        }
+
+        storageOverlapCounts[storage]++;
+
+        /*
+         * 只有第一次进入该 Storage 时才加入列表并打开 UI。
+         */
+        if (storageOverlapCounts[storage] > 1)
+        {
+            return;
+        }
+
+        if (!nearbyStorages.Contains(storage))
+        {
+            nearbyStorages.Add(storage);
+        }
+
+        Log(
+            "Entered Storage zone: " +
+            storage.name
+        );
+
+        TryAutoOpenStorage(storage);
+    }
+
+    private void RegisterStorageExit(
+        IngredientStorage storage)
+    {
+        if (storage == null)
+        {
+            return;
+        }
+
+        if (!storageOverlapCounts.ContainsKey(
+                storage))
+        {
+            nearbyStorages.Remove(storage);
+            TryAutoCloseStorage(storage);
+            return;
+        }
+
+        storageOverlapCounts[storage]--;
+
+        /*
+         * 仍然与该 Storage 的其他 Collider 重叠，
+         * 所以不关闭 UI。
+         */
+        if (storageOverlapCounts[storage] > 0)
+        {
+            return;
+        }
+
+        storageOverlapCounts.Remove(storage);
+        nearbyStorages.Remove(storage);
+
+        Log(
+            "Exited Storage zone: " +
+            storage.name
+        );
+
+        TryAutoCloseStorage(storage);
     }
 
     private T FindComponent<T>(

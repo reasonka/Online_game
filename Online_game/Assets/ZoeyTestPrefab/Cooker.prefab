@@ -1138,7 +1138,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3214671997706781812}
   m_LocalRotation: {x: 0.16739684, y: 0, z: 0, w: 0.9858896}
-  m_LocalPosition: {x: 0, y: 2.98, z: -2.1800003}
+  m_LocalPosition: {x: 0.05, y: 0.4, z: -0.93}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1375,9 +1375,10 @@ MonoBehaviour:
   animator: {fileID: 0}
   isCarryingParameter: IsCarrying
   raiseHandTriggerParameter: RaiseHand
-  openStorageKey: 101
-  useHeldItemKey: 102
-  throwAwayKey: 103
+  useHeldItemKey: 101
+  throwAwayKey: 101
+  autoOpenStorage: 1
+  autoCloseStorage: 1
   enableRaiseHand: 1
   raiseHandMouseButton: 1
   usePhotonSync: 0

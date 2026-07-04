@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8584677274691523657
+--- !u!1 &411699620446589229
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,13 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 23222030609716948}
-  - component: {fileID: 2465877282603297}
-  - component: {fileID: 153858657616744947}
-  - component: {fileID: -6294476242289988196}
-  - component: {fileID: -7804317209393766192}
-  - component: {fileID: -8962992997539019625}
-  - component: {fileID: -7089448099830180248}
+  - component: {fileID: 2476505615357405607}
   m_Layer: 0
   m_Name: pizza_sauce_bottle
   m_TagString: Untagged
@@ -22,36 +16,74 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &23222030609716948
+--- !u!4 &2476505615357405607
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 411699620446589229}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.000079601, y: 0.0094407, z: 0.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1641060944023530688}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &2465877282603297
+--- !u!1 &7040918511314923101
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1641060944023530688}
+  - component: {fileID: 1629312234427775797}
+  - component: {fileID: 1492421875008269287}
+  - component: {fileID: 4481432779335522184}
+  - component: {fileID: 370921017799039684}
+  - component: {fileID: 1515941971030523523}
+  - component: {fileID: 795308544440364156}
+  m_Layer: 0
+  m_Name: pizza_sauce_bottle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1641060944023530688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7040918511314923101}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.4055907, y: 0.4055907, z: 0.4055907}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2476505615357405607}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!33 &1629312234427775797
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 7040918511314923101}
   m_Mesh: {fileID: 7428263798691540097, guid: 9652813af10ecd042b00fe1925aec729, type: 3}
---- !u!23 &153858657616744947
+--- !u!23 &1492421875008269287
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 7040918511314923101}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -87,26 +119,26 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-6294476242289988196
+--- !u!114 &4481432779335522184
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 7040918511314923101}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3845f60d7388a384d934a511c990ca6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientId: PizzaSauceBottle
---- !u!54 &-7804317209393766192
+--- !u!54 &370921017799039684
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 7040918511314923101}
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
@@ -116,30 +148,30 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &-8962992997539019625
+--- !u!65 &1515941971030523523
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 7040918511314923101}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.45869297, y: 0.7965027, z: 0.26807353}
   m_Center: {x: 0.00013391674, y: 0.015882432, z: 0.000000014901161}
---- !u!114 &-7089448099830180248
+--- !u!114 &795308544440364156
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8584677274691523657}
+  m_GameObject: {fileID: 7040918511314923101}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemType: 1
-  ingredientIdComponent: {fileID: -6294476242289988196}
+  ingredientIdComponent: {fileID: 4481432779335522184}
