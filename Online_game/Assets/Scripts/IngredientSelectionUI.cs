@@ -12,16 +12,16 @@ public class IngredientSelectionUI : MonoBehaviour
     public TMP_Text storageNameText;
 
     [Header("Dynamic Button List")]
-    [Tooltip("所有动态按钮生成到这里。")]
+    [Tooltip("动态生成的按钮会放到这里。")]
     public Transform buttonContainer;
 
-    [Tooltip("带有 StorageItemButton 的按钮 prefab。")]
+    [Tooltip("带有 StorageItemButton 的按钮 Prefab。")]
     public StorageItemButton itemButtonPrefab;
 
     [Header("Behaviour")]
     public bool closeAfterSelectingItem = true;
 
-    [Tooltip("打开 UI 时是否显示鼠标并解锁。")]
+    [Tooltip("打开 UI 时是否显示和解锁鼠标。")]
     public bool manageCursor = true;
 
     [Header("Debug")]
@@ -34,7 +34,8 @@ public class IngredientSelectionUI : MonoBehaviour
     private PlayerInventory currentInventory;
 
     public bool IsOpen =>
-        panelRoot != null && panelRoot.activeSelf;
+        panelRoot != null &&
+        panelRoot.activeSelf;
 
     private void Awake()
     {
@@ -63,20 +64,26 @@ public class IngredientSelectionUI : MonoBehaviour
     {
         if (storage == null)
         {
-            LogWarning("Storage is null.");
+            LogWarning(
+                "Storage is null."
+            );
+
             return;
         }
 
         if (inventory == null)
         {
-            LogWarning("PlayerInventory is null.");
+            LogWarning(
+                "PlayerInventory is null."
+            );
+
             return;
         }
 
         if (inventory.HasHeldItem)
         {
             LogWarning(
-                "Cannot open storage while the player is holding: " +
+                "Cannot open storage while player is holding: " +
                 inventory.HeldItem.name
             );
 
@@ -88,11 +95,15 @@ public class IngredientSelectionUI : MonoBehaviour
 
         if (storageNameText != null)
         {
-            storageNameText.text = storage.storageName;
+            storageNameText.text =
+                storage.storageName;
         }
 
         ClearButtons();
-        CreateButtons(storage.availableItems);
+
+        CreateButtons(
+            storage.availableItems
+        );
 
         if (panelRoot != null)
         {
@@ -102,10 +113,14 @@ public class IngredientSelectionUI : MonoBehaviour
         if (manageCursor)
         {
             Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            Cursor.lockState =
+                CursorLockMode.None;
         }
 
-        Log("Opened storage: " + storage.storageName);
+        Log(
+            "Opened storage: " +
+            storage.storageName
+        );
     }
 
     private void CreateButtons(
@@ -113,13 +128,19 @@ public class IngredientSelectionUI : MonoBehaviour
     {
         if (buttonContainer == null)
         {
-            LogWarning("Button Container is missing.");
+            LogWarning(
+                "Button Container is missing."
+            );
+
             return;
         }
 
         if (itemButtonPrefab == null)
         {
-            LogWarning("Item Button Prefab is missing.");
+            LogWarning(
+                "Item Button Prefab is missing."
+            );
+
             return;
         }
 
@@ -130,7 +151,8 @@ public class IngredientSelectionUI : MonoBehaviour
 
         foreach (StorageItemEntry entry in entries)
         {
-            if (entry == null || entry.itemPrefab == null)
+            if (entry == null ||
+                entry.itemPrefab == null)
             {
                 continue;
             }
@@ -141,22 +163,36 @@ public class IngredientSelectionUI : MonoBehaviour
                     buttonContainer
                 );
 
-            newButton.Setup(entry, this);
-            spawnedButtons.Add(newButton);
+            newButton.Setup(
+                entry,
+                this
+            );
+
+            spawnedButtons.Add(
+                newButton
+            );
         }
     }
 
-    public void SelectItem(StorageItemEntry entry)
+    public void SelectItem(
+        StorageItemEntry entry)
     {
-        if (entry == null || entry.itemPrefab == null)
+        if (entry == null ||
+            entry.itemPrefab == null)
         {
-            LogWarning("Selected storage entry is invalid.");
+            LogWarning(
+                "Selected storage entry is invalid."
+            );
+
             return;
         }
 
         if (currentInventory == null)
         {
-            LogWarning("Current PlayerInventory is missing.");
+            LogWarning(
+                "Current PlayerInventory is missing."
+            );
+
             return;
         }
 
@@ -170,7 +206,8 @@ public class IngredientSelectionUI : MonoBehaviour
         }
 
         HoldableItem holdable =
-            entry.itemPrefab.GetComponent<HoldableItem>();
+            entry.itemPrefab
+                .GetComponent<HoldableItem>();
 
         if (holdable == null)
         {
@@ -189,22 +226,33 @@ public class IngredientSelectionUI : MonoBehaviour
             return;
         }
 
+        /*
+         * 现在储物柜支持三种类型：
+         * Ingredient、CookingBase、Drink。
+         */
         bool supportedType =
-            holdable.itemType == HoldableItemType.Ingredient ||
-            holdable.itemType == HoldableItemType.CookingBase;
+            holdable.itemType ==
+                HoldableItemType.Ingredient ||
+            holdable.itemType ==
+                HoldableItemType.CookingBase ||
+            holdable.itemType ==
+                HoldableItemType.Drink;
 
         if (!supportedType)
         {
             LogWarning(
-                "Storage only supports Ingredient or CookingBase. " +
-                "Selected type: " + holdable.itemType
+                "Storage only supports Ingredient, CookingBase or Drink. " +
+                "Selected type: " +
+                holdable.itemType
             );
 
             return;
         }
 
         GameObject spawnedObject =
-            currentInventory.SpawnAndHold(entry.itemPrefab);
+            currentInventory.SpawnAndHold(
+                entry.itemPrefab
+            );
 
         if (spawnedObject == null)
         {
@@ -218,7 +266,9 @@ public class IngredientSelectionUI : MonoBehaviour
 
         Log(
             "Spawned and held item: " +
-            entry.itemPrefab.name
+            entry.itemPrefab.name +
+            ", type: " +
+            holdable.itemType
         );
 
         if (closeAfterSelectingItem)
@@ -242,7 +292,8 @@ public class IngredientSelectionUI : MonoBehaviour
         if (manageCursor)
         {
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.lockState =
+                CursorLockMode.Locked;
         }
 
         Log("Storage UI closed.");
@@ -250,11 +301,16 @@ public class IngredientSelectionUI : MonoBehaviour
 
     private void ClearButtons()
     {
-        for (int i = spawnedButtons.Count - 1; i >= 0; i--)
+        for (int i =
+                 spawnedButtons.Count - 1;
+             i >= 0;
+             i--)
         {
             if (spawnedButtons[i] != null)
             {
-                Destroy(spawnedButtons[i].gameObject);
+                Destroy(
+                    spawnedButtons[i].gameObject
+                );
             }
         }
 
@@ -266,7 +322,8 @@ public class IngredientSelectionUI : MonoBehaviour
         if (showDebugLog)
         {
             Debug.Log(
-                "[IngredientSelectionUI] " + message,
+                "[IngredientSelectionUI] " +
+                message,
                 this
             );
         }
@@ -277,7 +334,8 @@ public class IngredientSelectionUI : MonoBehaviour
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[IngredientSelectionUI] " + message,
+                "[IngredientSelectionUI] " +
+                message,
                 this
             );
         }

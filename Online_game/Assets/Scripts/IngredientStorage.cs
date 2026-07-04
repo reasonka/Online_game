@@ -8,7 +8,9 @@ public class StorageItemEntry
     public string displayName;
 
     [Header("Item Prefab")]
-    [Tooltip("可以是 Ingredient，也可以是 CookingBase。")]
+    [Tooltip(
+        "可以放 Ingredient、CookingBase 或 Drink 类型的 Prefab。"
+    )]
     public GameObject itemPrefab;
 
     [Header("Optional UI Icon")]
@@ -21,12 +23,14 @@ public class IngredientStorage : MonoBehaviour
     public string storageName = "Storage";
 
     [Header("Available Items")]
-    [Tooltip("这个储物柜能够提供的食材或 Food Base。")]
+    [Tooltip(
+        "这个储物柜可以提供 Ingredient、CookingBase 或 Drink。"
+    )]
     public List<StorageItemEntry> availableItems =
         new List<StorageItemEntry>();
 
     [Header("UI")]
-    [Tooltip("玩家打开储物柜时使用的 UI Manager。")]
+    [Tooltip("玩家进入储物柜区域时使用的选择 UI。")]
     public IngredientSelectionUI selectionUI;
 
     [Header("Debug")]
@@ -34,7 +38,8 @@ public class IngredientStorage : MonoBehaviour
 
     private void Start()
     {
-        Collider storageCollider = GetComponent<Collider>();
+        Collider storageCollider =
+            GetComponent<Collider>();
 
         if (storageCollider == null)
         {
@@ -54,26 +59,38 @@ public class IngredientStorage : MonoBehaviour
 
     private void ValidateStorageItems()
     {
-        for (int i = 0; i < availableItems.Count; i++)
+        for (int i = 0;
+             i < availableItems.Count;
+             i++)
         {
-            StorageItemEntry entry = availableItems[i];
+            StorageItemEntry entry =
+                availableItems[i];
 
             if (entry == null)
             {
-                LogWarning("Storage item index " + i + " is null.");
+                LogWarning(
+                    "Storage item index " +
+                    i +
+                    " is null."
+                );
+
                 continue;
             }
 
             if (entry.itemPrefab == null)
             {
                 LogWarning(
-                    "Storage item [" + i + "] has no prefab."
+                    "Storage item [" +
+                    i +
+                    "] has no prefab."
                 );
+
                 continue;
             }
 
             HoldableItem holdable =
-                entry.itemPrefab.GetComponent<HoldableItem>();
+                entry.itemPrefab
+                    .GetComponent<HoldableItem>();
 
             if (holdable == null)
             {
@@ -85,35 +102,69 @@ public class IngredientStorage : MonoBehaviour
             if (holdable == null)
             {
                 LogWarning(
-                    "Prefab [" + entry.itemPrefab.name +
+                    "Prefab [" +
+                    entry.itemPrefab.name +
                     "] has no HoldableItem component."
                 );
+
+                continue;
             }
-            else
+
+            bool supported =
+                holdable.itemType ==
+                    HoldableItemType.Ingredient ||
+                holdable.itemType ==
+                    HoldableItemType.CookingBase ||
+                holdable.itemType ==
+                    HoldableItemType.Drink;
+
+            if (!supported)
             {
-                Log(
-                    "Storage item [" + entry.itemPrefab.name +
-                    "] type: " + holdable.itemType
+                LogWarning(
+                    "Storage item [" +
+                    entry.itemPrefab.name +
+                    "] has unsupported type: " +
+                    holdable.itemType +
+                    ". Allowed types are Ingredient, CookingBase and Drink."
                 );
+
+                continue;
             }
+
+            Log(
+                "Valid storage item [" +
+                entry.itemPrefab.name +
+                "] type: " +
+                holdable.itemType
+            );
         }
     }
 
-    public void OpenStorage(PlayerInventory inventory)
+    public void OpenStorage(
+        PlayerInventory inventory)
     {
         if (selectionUI == null)
         {
-            LogWarning("IngredientSelectionUI is missing.");
+            LogWarning(
+                "IngredientSelectionUI is missing."
+            );
+
             return;
         }
 
         if (inventory == null)
         {
-            LogWarning("PlayerInventory is missing.");
+            LogWarning(
+                "PlayerInventory is missing."
+            );
+
             return;
         }
 
-        selectionUI.OpenStorage(this, inventory);
+        selectionUI.OpenStorage(
+            this,
+            inventory
+        );
     }
 
     public void Log(string message)
@@ -121,7 +172,8 @@ public class IngredientStorage : MonoBehaviour
         if (showDebugLog)
         {
             Debug.Log(
-                "[IngredientStorage] " + message,
+                "[IngredientStorage] " +
+                message,
                 this
             );
         }
@@ -132,7 +184,8 @@ public class IngredientStorage : MonoBehaviour
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[IngredientStorage] " + message,
+                "[IngredientStorage] " +
+                message,
                 this
             );
         }

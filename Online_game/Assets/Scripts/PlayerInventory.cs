@@ -5,14 +5,14 @@ using Photon.Pun;
 public class PlayerInventory : MonoBehaviourPun
 {
     [Header("Hand")]
-    [Tooltip("手持物品挂载的位置。")]
+    [Tooltip("物品拿在手上时所挂载的位置。")]
     public Transform handPoint;
 
     [Header("Animator")]
     [Tooltip("角色模型上的 Animator。")]
     public Animator animator;
 
-    [Tooltip("Animator 中控制手持状态的 Bool 参数。")]
+    [Tooltip("Animator 中表示是否拿着物品的 Bool 参数。")]
     public string isCarryingParameter = "IsCarrying";
 
     [Header("Photon")]
@@ -25,8 +25,13 @@ public class PlayerInventory : MonoBehaviourPun
     private HoldableItem heldItem;
 
     public HoldableItem HeldItem => heldItem;
+
     public bool HasHeldItem => heldItem != null;
 
+    /// <summary>
+    /// 当手上物品状态变化时触发。
+    /// true 表示现在拿着物品，false 表示手为空。
+    /// </summary>
     public event Action<bool> HeldItemChanged;
 
     private void Awake()
@@ -42,11 +47,17 @@ public class PlayerInventory : MonoBehaviourPun
         UpdateCarryingAnimator();
     }
 
+    /// <summary>
+    /// 生成一个 Prefab，并立刻拿到手上。
+    /// </summary>
     public GameObject SpawnAndHold(GameObject prefab)
     {
         if (prefab == null)
         {
-            LogWarning("SpawnAndHold received a null prefab.");
+            LogWarning(
+                "SpawnAndHold received a null prefab."
+            );
+
             return null;
         }
 
@@ -62,13 +73,17 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (handPoint == null)
         {
-            LogWarning("Hand Point is missing.");
+            LogWarning(
+                "Hand Point is missing."
+            );
+
             return null;
         }
 
         GameObject spawnedObject;
 
-        if (usePhotonSync && PhotonNetwork.IsConnected)
+        if (usePhotonSync &&
+            PhotonNetwork.IsConnected)
         {
             spawnedObject = PhotonNetwork.Instantiate(
                 prefab.name,
@@ -87,11 +102,18 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (spawnedObject == null)
         {
-            LogWarning("Failed to spawn item: " + prefab.name);
+            LogWarning(
+                "Failed to spawn item: " +
+                prefab.name
+            );
+
             return null;
         }
 
-        if (!TryHoldObject(spawnedObject))
+        bool heldSuccessfully =
+            TryHoldObject(spawnedObject);
+
+        if (!heldSuccessfully)
         {
             DestroyObject(spawnedObject);
             return null;
@@ -100,23 +122,35 @@ public class PlayerInventory : MonoBehaviourPun
         return spawnedObject;
     }
 
+    /// <summary>
+    /// 把场景中已有的物体拿到手上。
+    /// </summary>
     public bool TryHoldObject(GameObject targetObject)
     {
         if (targetObject == null)
         {
-            LogWarning("TryHoldObject received a null object.");
+            LogWarning(
+                "TryHoldObject received a null object."
+            );
+
             return false;
         }
 
         if (HasHeldItem)
         {
-            LogWarning("Player is already holding an item.");
+            LogWarning(
+                "Cannot hold another object because hand is occupied."
+            );
+
             return false;
         }
 
         if (handPoint == null)
         {
-            LogWarning("Hand Point is missing.");
+            LogWarning(
+                "Hand Point is missing."
+            );
+
             return false;
         }
 
@@ -147,24 +181,42 @@ public class PlayerInventory : MonoBehaviourPun
 
         heldItem = holdable;
 
-        Transform itemTransform = heldItem.transform;
+        Transform itemTransform =
+            heldItem.transform;
 
-        itemTransform.SetParent(handPoint, false);
-        itemTransform.localPosition = Vector3.zero;
-        itemTransform.localRotation = Quaternion.identity;
+        itemTransform.SetParent(
+            handPoint,
+            false
+        );
+
+        itemTransform.localPosition =
+            Vector3.zero;
+
+        itemTransform.localRotation =
+            Quaternion.identity;
 
         /*
-         * 你的 HoldableItem 版本需要 bool 参数。
-         * true 表示进入手持状态。
+         * true 表示物品进入手持状态：
+         * Collider 关闭；
+         * Rigidbody 变为 Kinematic；
+         * 重力关闭。
          */
         heldItem.SetHeldState(true);
 
         NotifyHeldItemChanged();
 
-        Log("Now holding: " + heldItem.name);
+        Log(
+            "Now holding: " +
+            heldItem.name
+        );
+
         return true;
     }
 
+    /// <summary>
+    /// 把手上的物品放到指定位置。
+    /// keepFixed 为 true 时，物品放下后保持固定。
+    /// </summary>
     public bool PlaceHeldItem(
         Transform parentTransform,
         Transform placementTransform,
@@ -172,70 +224,217 @@ public class PlayerInventory : MonoBehaviourPun
     {
         if (!HasHeldItem)
         {
-            LogWarning("There is no held item to place.");
+            LogWarning(
+                "There is no held item to place."
+            );
+
             return false;
         }
 
         if (placementTransform == null)
         {
-            LogWarning("Placement Transform is missing.");
+            LogWarning(
+                "Placement Transform is missing."
+            );
+
             return false;
         }
 
-        HoldableItem itemToPlace = heldItem;
+        HoldableItem itemToPlace =
+            heldItem;
+
         heldItem = null;
 
-        Transform itemTransform = itemToPlace.transform;
+        Transform itemTransform =
+            itemToPlace.transform;
 
-        itemTransform.SetParent(parentTransform, true);
+        itemTransform.SetParent(
+            parentTransform,
+            true
+        );
 
         itemTransform.SetPositionAndRotation(
             placementTransform.position,
             placementTransform.rotation
         );
 
-        itemToPlace.SetPlacedState(keepFixed);
+        itemToPlace.SetPlacedState(
+            keepFixed
+        );
 
         NotifyHeldItemChanged();
 
-        Log("Placed item: " + itemToPlace.name);
+        Log(
+            "Placed item: " +
+            itemToPlace.name
+        );
+
         return true;
     }
 
+    /// <summary>
+    /// 把手上的物品移动到指定位置并释放。
+    /// 物品不会固定，也不会销毁。
+    /// Rigidbody、Collider 和重力会恢复。
+    /// </summary>
+    public Rigidbody ReleaseHeldItemAt(
+        Transform releasePoint)
+    {
+        if (!HasHeldItem)
+        {
+            LogWarning(
+                "There is no held item to release."
+            );
+
+            return null;
+        }
+
+        if (releasePoint == null)
+        {
+            LogWarning(
+                "Release Point is missing."
+            );
+
+            return null;
+        }
+
+        HoldableItem itemToRelease =
+            heldItem;
+
+        heldItem = null;
+
+        Transform itemTransform =
+            itemToRelease.transform;
+
+        /*
+         * 先脱离玩家的 HandPoint。
+         */
+        itemTransform.SetParent(
+            null,
+            true
+        );
+
+        /*
+         * 移动到空中的 Throw Point。
+         */
+        itemTransform.SetPositionAndRotation(
+            releasePoint.position,
+            releasePoint.rotation
+        );
+
+        /*
+         * false 表示不固定物品。
+         * Collider、Rigidbody 和原来的物理状态会恢复。
+         */
+        itemToRelease.SetPlacedState(false);
+
+        /*
+         * 通知 Animator：
+         * IsCarrying 变成 false。
+         */
+        NotifyHeldItemChanged();
+
+        Rigidbody releasedRigidbody =
+            itemToRelease.GetComponent<Rigidbody>();
+
+        if (releasedRigidbody == null)
+        {
+            releasedRigidbody =
+                itemToRelease.GetComponentInChildren<Rigidbody>();
+        }
+
+        if (releasedRigidbody != null)
+        {
+            /*
+             * 确保物品能够根据物理和重力下落。
+             */
+            releasedRigidbody.isKinematic = false;
+            releasedRigidbody.useGravity = true;
+
+            /*
+             * 清除之前可能残留的速度。
+             * 必须先把 Is Kinematic 关闭，
+             * 再修改 velocity 和 angularVelocity。
+             */
+            releasedRigidbody.velocity =
+                Vector3.zero;
+
+            releasedRigidbody.angularVelocity =
+                Vector3.zero;
+
+            releasedRigidbody.WakeUp();
+        }
+        else
+        {
+            LogWarning(
+                "Released item has no Rigidbody: " +
+                itemToRelease.name
+            );
+        }
+
+        Log(
+            "Released held item at point: " +
+            itemToRelease.name
+        );
+
+        return releasedRigidbody;
+    }
+
+    /// <summary>
+    /// 销毁当前手上的物品。
+    /// 用于添加 Ingredient 或扔进垃圾桶。
+    /// </summary>
     public void ConsumeHeldItem()
     {
         if (!HasHeldItem)
         {
-            Log("There is no held item to consume.");
+            Log(
+                "There is no held item to consume."
+            );
+
             return;
         }
 
-        GameObject objectToDestroy = heldItem.gameObject;
-        string itemName = objectToDestroy.name;
+        GameObject objectToDestroy =
+            heldItem.gameObject;
+
+        string itemName =
+            objectToDestroy.name;
 
         heldItem = null;
 
         NotifyHeldItemChanged();
 
-        DestroyObject(objectToDestroy);
+        DestroyObject(
+            objectToDestroy
+        );
 
-        Log("Consumed held item: " + itemName);
+        Log(
+            "Consumed held item: " +
+            itemName
+        );
     }
 
+    /// <summary>
+    /// 只清除手持引用，不销毁物体。
+    /// </summary>
     public void ForceClearHeldReference()
     {
         heldItem = null;
+
         NotifyHeldItemChanged();
     }
 
-    private void DestroyObject(GameObject targetObject)
+    private void DestroyObject(
+        GameObject targetObject)
     {
         if (targetObject == null)
         {
             return;
         }
 
-        if (usePhotonSync && PhotonNetwork.IsConnected)
+        if (usePhotonSync &&
+            PhotonNetwork.IsConnected)
         {
             PhotonView targetView =
                 targetObject.GetComponent<PhotonView>();
@@ -246,12 +445,24 @@ public class PlayerInventory : MonoBehaviourPun
                     targetObject.GetComponentInParent<PhotonView>();
             }
 
+            if (targetView == null)
+            {
+                targetView =
+                    targetObject.GetComponentInChildren<PhotonView>();
+            }
+
             if (targetView != null)
             {
-                PhotonNetwork.Destroy(targetView.gameObject);
+                PhotonNetwork.Destroy(
+                    targetView.gameObject
+                );
             }
             else
             {
+                /*
+                 * 没有 PhotonView 的普通物体，
+                 * 只能在当前客户端本地销毁。
+                 */
                 Destroy(targetObject);
             }
         }
@@ -265,7 +476,9 @@ public class PlayerInventory : MonoBehaviourPun
     {
         UpdateCarryingAnimator();
 
-        HeldItemChanged?.Invoke(HasHeldItem);
+        HeldItemChanged?.Invoke(
+            HasHeldItem
+        );
     }
 
     public void UpdateCarryingAnimator()
@@ -286,7 +499,8 @@ public class PlayerInventory : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.Log(
-                "[PlayerInventory] " + message,
+                "[PlayerInventory] " +
+                message,
                 this
             );
         }
@@ -297,7 +511,8 @@ public class PlayerInventory : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[PlayerInventory] " + message,
+                "[PlayerInventory] " +
+                message,
                 this
             );
         }

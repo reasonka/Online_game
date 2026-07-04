@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 562913734495268809}
   - component: {fileID: 2568334042722282613}
   - component: {fileID: 2615891705992247806}
+  - component: {fileID: 2728111396516323325}
   m_Layer: 0
   m_Name: Raspberry Cocktail
   m_TagString: Untagged
@@ -146,3 +147,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.3, y: 0.5, z: 0.3}
   m_Center: {x: 0.0009968281, y: 0.25, z: 0.0005886158}
+--- !u!114 &2728111396516323325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2501075752162828839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 4
+  ingredientIdComponent: {fileID: 0}
