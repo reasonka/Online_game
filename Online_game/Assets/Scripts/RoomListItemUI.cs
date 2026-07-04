@@ -5,27 +5,29 @@ using UnityEngine.UI;
 
 public class RoomListItemUI : MonoBehaviour
 {
-    public TMP_Text roomNameText;
-    public TMP_Text playerCountText;
-    public Button joinButton;
+    public TMP_Text roomInfoText;
+    public Button roomButton;
 
     private string roomName;
-    private Action<string> onJoinClicked;
+    private Action<string> onRoomClicked;
 
-    public void SetRoom(string newRoomName, int currentPlayers, int maxPlayers, Action<string> joinAction)
+    public void SetRoom(string newRoomName, int currentPlayers, int maxPlayers, Action<string> clickAction)
     {
         roomName = newRoomName;
-        onJoinClicked = joinAction;
+        onRoomClicked = clickAction;
 
-        roomNameText.text = roomName;
-        playerCountText.text = currentPlayers + "/" + maxPlayers;
+        if (roomInfoText != null)
+            roomInfoText.text = roomName + "    " + currentPlayers + "/" + maxPlayers;
 
-        joinButton.onClick.RemoveAllListeners();
-        joinButton.onClick.AddListener(JoinRoom);
+        if (roomButton != null)
+        {
+            roomButton.onClick.RemoveAllListeners();
+            roomButton.onClick.AddListener(ClickRoom);
+        }
     }
 
-    private void JoinRoom()
+    private void ClickRoom()
     {
-        onJoinClicked?.Invoke(roomName);
+        onRoomClicked?.Invoke(roomName);
     }
 }

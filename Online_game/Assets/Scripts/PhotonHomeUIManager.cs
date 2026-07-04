@@ -42,13 +42,13 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     [Header("Room UI")]
     public TMP_Text roomNameText;
     public TMP_Text[] playerNameTexts;
+    public GameObject[] playerYouLabels;
     public Button startGameButton;
     public Button leaveRoomButton;
     public TMP_Text roomPromptText;
 
     [Header("Room List UI")]
-    public Transform roomListContent;
-    public RoomListItemUI roomListItemPrefab;
+    public RoomListItemUI[] roomListItems;
     public Button roomListBackButton;
 
     [Header("Character Select UI")]
@@ -221,9 +221,21 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         for (int i = 0; i < playerNameTexts.Length; i++)
         {
             if (i < PhotonNetwork.PlayerList.Length)
-                playerNameTexts[i].text = PhotonNetwork.PlayerList[i].NickName;
+            {
+                Player player = PhotonNetwork.PlayerList[i];
+
+                playerNameTexts[i].text = player.NickName;
+
+                if (i < playerYouLabels.Length && playerYouLabels[i] != null)
+                    playerYouLabels[i].SetActive(player == PhotonNetwork.LocalPlayer);
+            }
             else
+            {
                 playerNameTexts[i].text = "Waiting...";
+
+                if (i < playerYouLabels.Length && playerYouLabels[i] != null)
+                    playerYouLabels[i].SetActive(false);
+            }
         }
 
         if (roomPromptText != null)
@@ -260,16 +272,25 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
     private void RefreshRoomListUI()
     {
-        foreach (Transform child in roomListContent)
-            Destroy(child.gameObject);
+        int index = 0;
 
         foreach (RoomInfo room in cachedRoomList.Values)
         {
             if (!room.IsOpen || !room.IsVisible || room.PlayerCount >= room.MaxPlayers)
                 continue;
 
-            RoomListItemUI item = Instantiate(roomListItemPrefab, roomListContent);
-            item.SetRoom(room.Name, room.PlayerCount, room.MaxPlayers, JoinRoomByName);
+            if (index >= roomListItems.Length)
+                break;
+
+            roomListItems[index].gameObject.SetActive(true);
+            roomListItems[index].SetRoom(room.Name, room.PlayerCount, room.MaxPlayers, JoinRoomByName);
+
+            index++;
+        }
+
+        for (int i = index; i < roomListItems.Length; i++)
+        {
+            roomListItems[i].gameObject.SetActive(false);
         }
     }
 
