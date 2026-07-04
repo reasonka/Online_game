@@ -1,13 +1,22 @@
+using System;
 using UnityEngine;
 using Photon.Pun;
 
 public class PlayerInventory : MonoBehaviourPun
 {
     [Header("Hand")]
+    [Tooltip("手持物品挂载的位置。")]
     public Transform handPoint;
 
+    [Header("Animator")]
+    [Tooltip("角色模型上的 Animator。")]
+    public Animator animator;
+
+    [Tooltip("Animator 中控制手持状态的 Bool 参数。")]
+    public string isCarryingParameter = "IsCarrying";
+
     [Header("Photon")]
-    [Tooltip("目前单机测试时关闭。以后连接 Photon 后打开。")]
+    [Tooltip("本地测试时关闭，正式联网时开启。")]
     public bool usePhotonSync = false;
 
     [Header("Debug")]
@@ -15,98 +24,39 @@ public class PlayerInventory : MonoBehaviourPun
 
     private HoldableItem heldItem;
 
-    public bool HasHeldItem => heldItem != null;
     public HoldableItem HeldItem => heldItem;
+    public bool HasHeldItem => heldItem != null;
+
+    public event Action<bool> HeldItemChanged;
+
+    private void Awake()
+    {
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+    }
 
     private void Start()
     {
-        if (handPoint == null)
-        {
-            Debug.LogWarning("[PlayerInventory] Hand Point is missing.", this);
-        }
-    }
-
-    public bool CanUseLocalInput()
-    {
-        if (!usePhotonSync)
-        {
-            return true;
-        }
-
-        if (!PhotonNetwork.IsConnected)
-        {
-            return true;
-        }
-
-        return photonView.IsMine;
-    }
-
-    public bool TryHoldObject(GameObject targetObject)
-    {
-        if (!CanUseLocalInput())
-        {
-            return false;
-        }
-
-        if (targetObject == null)
-        {
-            LogWarning("TryHoldObject target is null.");
-            return false;
-        }
-
-        if (HasHeldItem)
-        {
-            LogWarning("Player is already holding: " + heldItem.name);
-            return false;
-        }
-
-        if (handPoint == null)
-        {
-            LogWarning("Hand Point is missing.");
-            return false;
-        }
-
-        HoldableItem item = targetObject.GetComponent<HoldableItem>();
-
-        if (item == null)
-        {
-            item = targetObject.GetComponentInParent<HoldableItem>();
-        }
-
-        if (item == null)
-        {
-            LogWarning("Object has no HoldableItem: " + targetObject.name);
-            return false;
-        }
-
-        heldItem = item;
-
-        heldItem.transform.SetParent(handPoint);
-        heldItem.transform.localPosition = Vector3.zero;
-        heldItem.transform.localRotation = Quaternion.identity;
-
-        heldItem.SetHeldState(true);
-
-        Log("Now holding: " + heldItem.name);
-        return true;
+        UpdateCarryingAnimator();
     }
 
     public GameObject SpawnAndHold(GameObject prefab)
     {
-        if (!CanUseLocalInput())
-        {
-            return null;
-        }
-
         if (prefab == null)
         {
-            LogWarning("Spawn prefab is null.");
+            LogWarning("SpawnAndHold received a null prefab.");
             return null;
         }
 
         if (HasHeldItem)
         {
-            LogWarning("Cannot spawn because hand is occupied.");
+            LogWarning(
+                "Cannot spawn item because hand is occupied by: " +
+                heldItem.name
+            );
+
             return null;
         }
 
@@ -137,59 +87,118 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (spawnedObject == null)
         {
-            LogWarning("Failed to spawn: " + prefab.name);
+            LogWarning("Failed to spawn item: " + prefab.name);
             return null;
         }
 
-        TryHoldObject(spawnedObject);
+        if (!TryHoldObject(spawnedObject))
+        {
+            DestroyObject(spawnedObject);
+            return null;
+        }
+
         return spawnedObject;
     }
 
-    public HoldableItem ReleaseHeldItem()
+    public bool TryHoldObject(GameObject targetObject)
     {
-        if (!HasHeldItem)
+        if (targetObject == null)
         {
-            return null;
+            LogWarning("TryHoldObject received a null object.");
+            return false;
         }
 
-        HoldableItem releasedItem = heldItem;
-        heldItem = null;
+        if (HasHeldItem)
+        {
+            LogWarning("Player is already holding an item.");
+            return false;
+        }
 
-        releasedItem.transform.SetParent(null);
+        if (handPoint == null)
+        {
+            LogWarning("Hand Point is missing.");
+            return false;
+        }
 
-        Log("Released held item: " + releasedItem.name);
-        return releasedItem;
+        HoldableItem holdable =
+            targetObject.GetComponent<HoldableItem>();
+
+        if (holdable == null)
+        {
+            holdable =
+                targetObject.GetComponentInChildren<HoldableItem>();
+        }
+
+        if (holdable == null)
+        {
+            holdable =
+                targetObject.GetComponentInParent<HoldableItem>();
+        }
+
+        if (holdable == null)
+        {
+            LogWarning(
+                "Object has no HoldableItem component: " +
+                targetObject.name
+            );
+
+            return false;
+        }
+
+        heldItem = holdable;
+
+        Transform itemTransform = heldItem.transform;
+
+        itemTransform.SetParent(handPoint, false);
+        itemTransform.localPosition = Vector3.zero;
+        itemTransform.localRotation = Quaternion.identity;
+
+        /*
+         * 你的 HoldableItem 版本需要 bool 参数。
+         * true 表示进入手持状态。
+         */
+        heldItem.SetHeldState(true);
+
+        NotifyHeldItemChanged();
+
+        Log("Now holding: " + heldItem.name);
+        return true;
     }
 
     public bool PlaceHeldItem(
-        Transform targetPoint,
-        Transform newParent,
+        Transform parentTransform,
+        Transform placementTransform,
         bool keepFixed)
     {
         if (!HasHeldItem)
         {
-            LogWarning("No held item to place.");
+            LogWarning("There is no held item to place.");
             return false;
         }
 
-        if (targetPoint == null)
+        if (placementTransform == null)
         {
-            LogWarning("Target point is null.");
+            LogWarning("Placement Transform is missing.");
             return false;
         }
 
-        HoldableItem item = heldItem;
+        HoldableItem itemToPlace = heldItem;
         heldItem = null;
 
-        item.transform.SetParent(newParent);
-        item.transform.SetPositionAndRotation(
-            targetPoint.position,
-            targetPoint.rotation
+        Transform itemTransform = itemToPlace.transform;
+
+        itemTransform.SetParent(parentTransform, true);
+
+        itemTransform.SetPositionAndRotation(
+            placementTransform.position,
+            placementTransform.rotation
         );
 
-        item.SetPlacedState(keepFixed);
+        itemToPlace.SetPlacedState(keepFixed);
 
-        Log("Placed item: " + item.name);
+        NotifyHeldItemChanged();
+
+        Log("Placed item: " + itemToPlace.name);
         return true;
     }
 
@@ -197,49 +206,89 @@ public class PlayerInventory : MonoBehaviourPun
     {
         if (!HasHeldItem)
         {
+            Log("There is no held item to consume.");
             return;
         }
 
         GameObject objectToDestroy = heldItem.gameObject;
-
-        Log("Consuming held item: " + objectToDestroy.name);
+        string itemName = objectToDestroy.name;
 
         heldItem = null;
 
+        NotifyHeldItemChanged();
+
+        DestroyObject(objectToDestroy);
+
+        Log("Consumed held item: " + itemName);
+    }
+
+    public void ForceClearHeldReference()
+    {
+        heldItem = null;
+        NotifyHeldItemChanged();
+    }
+
+    private void DestroyObject(GameObject targetObject)
+    {
+        if (targetObject == null)
+        {
+            return;
+        }
+
         if (usePhotonSync && PhotonNetwork.IsConnected)
         {
-            PhotonView itemView = objectToDestroy.GetComponent<PhotonView>();
+            PhotonView targetView =
+                targetObject.GetComponent<PhotonView>();
 
-            if (itemView == null)
+            if (targetView == null)
             {
-                itemView = objectToDestroy.GetComponentInParent<PhotonView>();
+                targetView =
+                    targetObject.GetComponentInParent<PhotonView>();
             }
 
-            if (itemView != null && itemView.IsMine)
+            if (targetView != null)
             {
-                PhotonNetwork.Destroy(itemView.gameObject);
+                PhotonNetwork.Destroy(targetView.gameObject);
             }
             else
             {
-                LogWarning(
-                    "Held network item has no owned PhotonView. " +
-                    "Using local Destroy temporarily."
-                );
-
-                Destroy(objectToDestroy);
+                Destroy(targetObject);
             }
         }
         else
         {
-            Destroy(objectToDestroy);
+            Destroy(targetObject);
         }
+    }
+
+    private void NotifyHeldItemChanged()
+    {
+        UpdateCarryingAnimator();
+
+        HeldItemChanged?.Invoke(HasHeldItem);
+    }
+
+    public void UpdateCarryingAnimator()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        animator.SetBool(
+            isCarryingParameter,
+            HasHeldItem
+        );
     }
 
     private void Log(string message)
     {
         if (showDebugLog)
         {
-            Debug.Log("[PlayerInventory] " + message, this);
+            Debug.Log(
+                "[PlayerInventory] " + message,
+                this
+            );
         }
     }
 
@@ -247,7 +296,10 @@ public class PlayerInventory : MonoBehaviourPun
     {
         if (showDebugLog)
         {
-            Debug.LogWarning("[PlayerInventory] " + message, this);
+            Debug.LogWarning(
+                "[PlayerInventory] " + message,
+                this
+            );
         }
     }
 }
