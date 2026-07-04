@@ -50,6 +50,7 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     [Header("Room List UI")]
     public RoomListItemUI[] roomListItems;
     public Button roomListBackButton;
+    public TMP_Text roomListPromptText;
 
     [Header("Character Select UI")]
     public Button characterButton1;
@@ -291,6 +292,16 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         for (int i = index; i < roomListItems.Length; i++)
         {
             roomListItems[i].gameObject.SetActive(false);
+        }
+
+        if (roomListPromptText != null)
+        {
+            if (index == 0)
+                roomListPromptText.text = "NO ROOMS FOUND!";
+            else if (index >= roomListItems.Length)
+                roomListPromptText.text = "ONLY SHOWING FIRST 3 ROOMS!";
+            else
+                roomListPromptText.text = "";
         }
     }
 
