@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -6452641649274771326}
   - component: {fileID: -8662490587372038571}
   - component: {fileID: 4263669771652007814}
+  - component: {fileID: -4312570516293110629}
   m_Layer: 0
   m_Name: cheese_pack
   m_TagString: Untagged
@@ -129,6 +130,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.49520147, y: 0.99916106, z: 0.49831998}
   m_Center: {x: 0.00031669438, y: -0.05597946, z: 0.00027430803}
+--- !u!114 &-4312570516293110629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6614629222898091602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: -6452641649274771326}
 --- !u!1001 &3908822248803313770
 PrefabInstance:
   m_ObjectHideFlags: 0

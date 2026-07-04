@@ -10,10 +10,14 @@ public class CustomerAI : MonoBehaviour
     private Seat seat;
 
     private bool isSitting = false;
-
-    public Transform exitPoint; // spawnpoint, which is the restaurant exit!!
-
     private bool isLeaving = false;
+    private bool isReacting = false;
+
+    public Transform exitPoint; // Spawnpoint / restaurant exit
+
+    public Seat AssignedSeat => seat;
+    public bool IsSitting => isSitting;
+    public bool IsLeaving => isLeaving;
 
     [Header("Customer Color Randomizer")]
     public Renderer customerColorRenderer;
@@ -37,6 +41,14 @@ public class CustomerAI : MonoBehaviour
     public string angryTrigger = "Angry";
     public string deadTrigger = "Dead";
 
+    [Header("Reaction Leave Timing")]
+    public bool leaveAutomaticallyAfterReaction = true;
+    public float happyReactionDuration = 2f;
+    public float angryReactionDuration = 2f;
+    public float deathReactionDuration = 2.5f;
+
+    private Coroutine leaveAfterReactionCoroutine;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -59,7 +71,6 @@ public class CustomerAI : MonoBehaviour
             return;
         }
 
-        // Refill the pool with colors that are not currently being used
         if (availableColorPool.Count == 0)
         {
             foreach (Material mat in customerColorMaterials)
@@ -71,7 +82,6 @@ public class CustomerAI : MonoBehaviour
             }
         }
 
-        // If all colors are already being used, repeats become unavoidable
         if (availableColorPool.Count == 0)
         {
             Debug.LogWarning("No unused customer colors left. Add more colors if you want zero repeats.");
@@ -110,7 +120,6 @@ public class CustomerAI : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Return the color back into the available pool when this customer disappears
         if (assignedColorMaterial != null && colorTakenFromPool)
         {
             activeColors.Remove(assignedColorMaterial);
@@ -125,26 +134,32 @@ public class CustomerAI : MonoBehaviour
     public void AssignSeat(Seat targetSeat)
     {
         seat = targetSeat;
+        isSitting = false;
+        isLeaving = false;
+        isReacting = false;
 
-        // Walk towards seat
-        agent.SetDestination(seat.transform.position);
+        if (agent != null)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(seat.transform.position);
+        }
 
         if (animator != null)
+        {
             animator.SetBool("IsMoving", true);
+            animator.SetBool("IsSitting", false);
+        }
     }
 
     private void Update()
     {
-        // If leaving, do nothing
-        if (isLeaving)
+        if (isLeaving || isReacting)
             return;
 
-        // If no seat or already sitting, stop
         if (seat == null || isSitting)
             return;
 
-        // Sitting detection ONLY for initial seating
-        if (!agent.pathPending && agent.remainingDistance <= 0.1f)
+        if (agent != null && !agent.pathPending && agent.remainingDistance <= 0.1f)
         {
             SitInstantly();
         }
@@ -153,51 +168,67 @@ public class CustomerAI : MonoBehaviour
     private void SitInstantly()
     {
         isSitting = true;
-        agent.isStopped = true;
-        agent.ResetPath();
 
-        // Snap position to exact seat location
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+
         transform.position = seat.transform.position;
-
-        // Snap rotation to seat rotation
         transform.rotation = seat.transform.rotation;
 
-        // Switch to sitting animation
         if (animator != null)
         {
             animator.SetBool("IsMoving", false);
             animator.SetBool("IsSitting", true);
         }
 
-        Debug.Log("Customer is now sitting (instant sit).");
+        Debug.Log("Customer is now sitting.");
     }
 
     public void StandAndLeave()
     {
         isSitting = false;
+        isReacting = false;
 
         if (animator != null)
+        {
             animator.SetBool("IsSitting", false);
+        }
 
-        seat.isOccupied = false;
+        if (seat != null)
+        {
+            seat.isOccupied = false;
+        }
+
         Destroy(gameObject);
     }
 
     public void LeaveRestaurant()
     {
-        Debug.Log("Customer leaving restaurant");
+        if (isLeaving)
+            return;
 
-        if (agent == null) return;
+        Debug.Log("Customer leaving restaurant.");
+
+        if (leaveAfterReactionCoroutine != null)
+        {
+            StopCoroutine(leaveAfterReactionCoroutine);
+            leaveAfterReactionCoroutine = null;
+        }
 
         isSitting = false;
+        isReacting = false;
         isLeaving = true;
 
         Seat oldSeat = seat;
-
         seat = null;
 
         if (oldSeat != null)
+        {
             oldSeat.isOccupied = false;
+        }
 
         if (animator != null)
         {
@@ -205,59 +236,104 @@ public class CustomerAI : MonoBehaviour
             animator.SetBool("IsMoving", true);
         }
 
+        if (agent == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         agent.isStopped = false;
 
         if (exitPoint != null)
+        {
             agent.SetDestination(exitPoint.position);
-
-        StartCoroutine(DestroyAfterReachingExit());
+            StartCoroutine(DestroyAfterReachingExit());
+        }
+        else
+        {
+            Debug.LogWarning("Exit point is not assigned. Destroying customer instead.");
+            Destroy(gameObject);
+        }
     }
 
     private IEnumerator DestroyAfterReachingExit()
     {
-        while (agent.pathPending)
+        while (agent != null && agent.pathPending)
+        {
             yield return null;
+        }
 
-        while (agent.remainingDistance > 0.2f)
+        while (agent != null && agent.remainingDistance > 0.2f)
+        {
             yield return null;
+        }
 
         yield return new WaitForSeconds(0.2f);
-
-        if (seat != null)
-            seat.isOccupied = false;
 
         Destroy(gameObject);
     }
 
     public void PlayHappyReaction()
     {
-        PrepareForReaction();
-        SetFaceMaterial(happyFace);
-        animator.SetTrigger(happyTrigger);
+        PlayReaction(happyFace, happyTrigger, happyReactionDuration);
     }
 
     public void PlayAngryReaction()
     {
-        PrepareForReaction();
-        SetFaceMaterial(angryFace);
-        animator.SetTrigger(angryTrigger);
+        PlayReaction(angryFace, angryTrigger, angryReactionDuration);
     }
 
     public void PlayDeathReaction()
     {
+        PlayReaction(deadFace, deadTrigger, deathReactionDuration);
+    }
+
+    private void PlayReaction(Material faceMaterial, string triggerName, float reactionDuration)
+    {
         PrepareForReaction();
-        SetFaceMaterial(deadFace);
-        animator.SetTrigger(deadTrigger);
+        SetFaceMaterial(faceMaterial);
+
+        if (animator != null)
+        {
+            animator.ResetTrigger(happyTrigger);
+            animator.ResetTrigger(angryTrigger);
+            animator.ResetTrigger(deadTrigger);
+
+            animator.SetTrigger(triggerName);
+        }
+
+        if (leaveAutomaticallyAfterReaction)
+        {
+            if (leaveAfterReactionCoroutine != null)
+            {
+                StopCoroutine(leaveAfterReactionCoroutine);
+            }
+
+            leaveAfterReactionCoroutine = StartCoroutine(LeaveAfterReactionDuration(reactionDuration));
+        }
+    }
+
+    private IEnumerator LeaveAfterReactionDuration(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        LeaveRestaurant();
+    }
+
+    public void LeaveRestaurantFromAnimationEvent()
+    {
+        LeaveRestaurant();
     }
 
     private void SetFaceMaterial(Material mat)
     {
         if (faceRenderer != null && mat != null)
         {
-            var mats = faceRenderer.materials;
+            Material[] mats = faceRenderer.materials;
+
             if (mats.Length > 1)
             {
-                mats[1] = mat;   // FACE is Element 1
+                mats[1] = mat; // FACE is Element 1
                 faceRenderer.materials = mats;
             }
         }
@@ -265,6 +341,7 @@ public class CustomerAI : MonoBehaviour
 
     private void PrepareForReaction()
     {
+        isReacting = true;
         isSitting = false;
 
         if (agent != null)

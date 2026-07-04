@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7102701250627720553}
   - component: {fileID: 4359958037357721541}
   - component: {fileID: 6422454859743263078}
+  - component: {fileID: 8725450726172961543}
   m_Layer: 0
   m_Name: red_pepper_slice
   m_TagString: Untagged
@@ -128,3 +129,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.22336572, y: 0.025182985, z: 0.2243596}
   m_Center: {x: -0.001813598, y: -0.0016099662, z: 0.0013603717}
+--- !u!114 &8725450726172961543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2332644779445944472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 1
+  ingredientIdComponent: {fileID: 7102701250627720553}

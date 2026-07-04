@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 6022961709835956318}
   - component: {fileID: 8390536553874441364}
   - component: {fileID: 7183445002712733714}
+  - component: {fileID: 3135828746641360759}
+  - component: {fileID: -2134509170549934691}
+  - component: {fileID: -483771262659372003}
   m_Layer: 0
   m_Name: Creamsicle Cocktail
   m_TagString: Untagged
@@ -28,11 +31,11 @@ Transform:
   m_GameObject: {fileID: 8030429383916414273}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.29066896, y: 0, z: 0.39264137}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6022961709835956318
 MeshFilter:
@@ -98,3 +101,48 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7946640388725014115, guid: 7879f6fa144759f48bcc33dcff587831, type: 3}
+--- !u!114 &3135828746641360759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8030429383916414273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ead727ff8c760c4d8edf403992a0391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  foodType: 17
+  foodPrefabId: {fileID: 8030429383916414273}
+  canBePickedUp: 1
+  isHeld: 0
+--- !u!54 &-2134509170549934691
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8030429383916414273}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &-483771262659372003
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8030429383916414273}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.3, y: 0.5, z: 0.3}
+  m_Center: {x: 0.0009968281, y: 0.25, z: 0.0005886158}
