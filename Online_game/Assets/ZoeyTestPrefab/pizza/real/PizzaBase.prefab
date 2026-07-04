@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemType: 2
+  itemType: 0
   ingredientIdComponent: {fileID: 0}
 --- !u!1 &619671773923842602
 GameObject:
@@ -657,7 +657,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4273009430012850436}
-  - component: {fileID: 1450669946526821912}
   - component: {fileID: 703150684414863664}
   m_Layer: 0
   m_Name: pizza_sauce_
@@ -681,14 +680,6 @@ Transform:
   m_Father: {fileID: 2654700176894516127}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &1450669946526821912
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3816249934900014638}
-  m_Mesh: {fileID: 6468780655693050454, guid: 9652813af10ecd042b00fe1925aec729, type: 3}
 --- !u!23 &703150684414863664
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -896,6 +887,14 @@ MonoBehaviour:
   - recipeName: NilePepperoni
     useOrder: 1
     requiredIngredients:
+    - ingredientPrefab: {fileID: 411699620446589229, guid: 0879f9f04382ecc449adefc5e102fc48, type: 3}
+      visualPrefabOnDish: {fileID: 8517037720438258755, guid: fdb74aa74e22be34ca5c3738ca2e2b44, type: 3}
+      visualSpawnPoints:
+      - {fileID: 4273009430012850436}
+    - ingredientPrefab: {fileID: 557276095564262549, guid: 4795afd4916cef245b191b570ad61995, type: 3}
+      visualPrefabOnDish: {fileID: 6842445340047376032, guid: c18107fefde87154f8e07530a22e32de, type: 3}
+      visualSpawnPoints:
+      - {fileID: 8662010679007180555}
     - ingredientPrefab: {fileID: 7684580298511113062, guid: 5c85307f35c2610488dcc557baff1f7d, type: 3}
       visualPrefabOnDish: {fileID: 7684580298511113062, guid: eebb25497b4a2b54aacb820208ad4954, type: 3}
       visualSpawnPoints:
@@ -939,6 +938,14 @@ MonoBehaviour:
   - recipeName: PharaohSausage
     useOrder: 1
     requiredIngredients:
+    - ingredientPrefab: {fileID: 411699620446589229, guid: 0879f9f04382ecc449adefc5e102fc48, type: 3}
+      visualPrefabOnDish: {fileID: 8517037720438258755, guid: fdb74aa74e22be34ca5c3738ca2e2b44, type: 3}
+      visualSpawnPoints:
+      - {fileID: 4273009430012850436}
+    - ingredientPrefab: {fileID: 557276095564262549, guid: 4795afd4916cef245b191b570ad61995, type: 3}
+      visualPrefabOnDish: {fileID: 6842445340047376032, guid: c18107fefde87154f8e07530a22e32de, type: 3}
+      visualSpawnPoints:
+      - {fileID: 8662010679007180555}
     - ingredientPrefab: {fileID: 2332644779445944472, guid: 6827dce0d908d2249a40a046b01cb263, type: 3}
       visualPrefabOnDish: {fileID: 2332644779445944472, guid: 348b4d249c1071b4f8a1b3041b7a7690, type: 3}
       visualSpawnPoints:
@@ -982,6 +989,14 @@ MonoBehaviour:
   - recipeName: OasisGarden
     useOrder: 1
     requiredIngredients:
+    - ingredientPrefab: {fileID: 411699620446589229, guid: 0879f9f04382ecc449adefc5e102fc48, type: 3}
+      visualPrefabOnDish: {fileID: 8517037720438258755, guid: fdb74aa74e22be34ca5c3738ca2e2b44, type: 3}
+      visualSpawnPoints:
+      - {fileID: 4273009430012850436}
+    - ingredientPrefab: {fileID: 557276095564262549, guid: 4795afd4916cef245b191b570ad61995, type: 3}
+      visualPrefabOnDish: {fileID: 6842445340047376032, guid: c18107fefde87154f8e07530a22e32de, type: 3}
+      visualSpawnPoints:
+      - {fileID: 8662010679007180555}
     - ingredientPrefab: {fileID: 8090104815436266790, guid: 2404dc4867b93d14b998ac3152b32827, type: 3}
       visualPrefabOnDish: {fileID: 8090104815436266790, guid: 5e1940618423a3144898864204644da0, type: 3}
       visualSpawnPoints:
@@ -1103,7 +1118,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8662010679007180555}
-  - component: {fileID: 105264877120940826}
   - component: {fileID: 5572415153070073248}
   m_Layer: 0
   m_Name: pizza_cheese
@@ -1127,14 +1141,6 @@ Transform:
   m_Father: {fileID: 2654700176894516127}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &105264877120940826
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4918994941661388262}
-  m_Mesh: {fileID: -6617382681675964289, guid: 9652813af10ecd042b00fe1925aec729, type: 3}
 --- !u!23 &5572415153070073248
 MeshRenderer:
   m_ObjectHideFlags: 0
