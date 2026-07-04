@@ -6353,7 +6353,7 @@ MonoBehaviour:
   doodleBuddyCutsceneText: {fileID: 1726926184}
   chefCutsceneText: {fileID: 927510747}
   promptText: {fileID: 236548839}
-  gameSceneName: Lobby Scene
+  gameSceneName: Level1
 --- !u!4 &1068504560
 Transform:
   m_ObjectHideFlags: 0
