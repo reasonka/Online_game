@@ -2319,6 +2319,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIndex: 1
   playerIndexPropertyKey: CharacterIndex
+  pushToTalkKey: 118
   recorder: {fileID: 0}
   speaker: {fileID: 153037787}
 --- !u!82 &153037788

@@ -39,6 +39,12 @@ MonoBehaviour:
   - ClickRpc
   - DestroyRpc
   - HeresWhy
+  - DestroySpaceship
+  - Fire
+  - RespawnSpaceship
+  - RPC_AddIngredient
+  - RPC_Clear
+  - RPC_DrawPoint
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

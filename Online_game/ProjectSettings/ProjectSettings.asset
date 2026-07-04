@@ -572,9 +572,11 @@ PlayerSettings:
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
-  cameraUsageDescription: 
+  cameraUsageDescription: This game does not use the camera, but this permission
+    is required by the voice plugin.
   locationUsageDescription: 
-  microphoneUsageDescription: 
+  microphoneUsageDescription: This game uses the microphone so the Order Taker can
+    speak to teammates.
   bluetoothUsageDescription: 
   macOSTargetOSVersion: 10.13.0
   switchNMETAOverride: 
