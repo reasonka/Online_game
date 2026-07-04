@@ -50,15 +50,16 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
             !PhotonNetwork.IsConnected ||
             photonView.IsMine;
 
-        bool isBlackWhitePlayer =
-            playerIndex == 2;
+        Debug.Log(gameObject.name + " IsMine: " + photonView.IsMine + " Local: " + isLocalPlayer);
 
-        bool isLocalBlackWhitePlayer =
-            isLocalPlayer &&
-            isBlackWhitePlayer;
+        if (playerCamera == null)
+        {
+            Debug.LogError(gameObject.name + " has no Player Camera assigned!");
+            return;
+        }
 
-        if (playerCamera != null)
-            playerCamera.enabled = isLocalPlayer;
+        playerCamera.gameObject.SetActive(true);
+        playerCamera.enabled = isLocalPlayer;
 
         if (audioListener != null)
             audioListener.enabled = isLocalPlayer;
@@ -68,6 +69,8 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
             if (inputScript != null)
                 inputScript.enabled = isLocalPlayer;
         }
+
+        bool isLocalBlackWhitePlayer = isLocalPlayer && playerIndex == 2;
 
         if (grayscaleVolumeObject != null)
             grayscaleVolumeObject.SetActive(isLocalBlackWhitePlayer);
@@ -106,41 +109,5 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
         }
 
         return null;
-    }
-
-    private void SetupLocalPlayer()
-    {
-        bool isLocalPlayer =
-            !usePhotonSync ||
-            !PhotonNetwork.IsConnected ||
-            photonView.IsMine;
-
-        Debug.Log(gameObject.name + " IsMine: " + photonView.IsMine + " Local: " + isLocalPlayer);
-
-        if (playerCamera == null)
-        {
-            Debug.LogError(gameObject.name + " has no Player Camera assigned!");
-            return;
-        }
-
-        playerCamera.gameObject.SetActive(true);
-        playerCamera.enabled = isLocalPlayer;
-
-        if (audioListener != null)
-            audioListener.enabled = isLocalPlayer;
-
-        foreach (MonoBehaviour inputScript in localOnlyInputScripts)
-        {
-            if (inputScript != null)
-                inputScript.enabled = isLocalPlayer;
-        }
-
-        bool isLocalBlackWhitePlayer = isLocalPlayer && playerIndex == 2;
-
-        if (grayscaleVolumeObject != null)
-            grayscaleVolumeObject.SetActive(isLocalBlackWhitePlayer);
-
-        if (isLocalBlackWhitePlayer)
-            BindBlackWhiteCanvas();
     }
 }
