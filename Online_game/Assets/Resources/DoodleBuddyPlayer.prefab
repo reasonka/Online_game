@@ -2971,6 +2971,7 @@ GameObject:
   - component: {fileID: 153037787}
   - component: {fileID: 6265339709458477794}
   - component: {fileID: 7504842891760759042}
+  - component: {fileID: 2708073737697709971}
   m_Layer: 0
   m_Name: DoodleBuddyPlayer
   m_TagString: Player
@@ -3268,6 +3269,21 @@ MonoBehaviour:
   happyEffect: {fileID: 571251906883415400}
   cryingEffect: {fileID: 0}
   emotionDuration: 10
+--- !u!114 &2708073737697709971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7162782686724899874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de78dff9937ad7144bf6079607a81a89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bookUIPrefab: {fileID: 8702126135276584534, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
+  openBookKey: 101
+  closeBookKey: 27
 --- !u!1 &7166388598513136377
 GameObject:
   m_ObjectHideFlags: 0
