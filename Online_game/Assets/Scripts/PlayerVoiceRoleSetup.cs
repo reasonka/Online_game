@@ -6,12 +6,12 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
 {
     public int playerIndex;
     public string playerIndexPropertyKey = "CharacterIndex";
-    public KeyCode pushToTalkKey = KeyCode.V;
 
     public Recorder recorder;
     public Speaker speaker;
 
     private int localPlayerIndex = -1;
+    private bool micButtonHeld = false;
 
     private void Start()
     {
@@ -29,7 +29,7 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
 
     private void Update()
     {
-        UpdatePushToTalk();
+        UpdateMic();
     }
 
     private void ReadThisPlayerIndex()
@@ -65,7 +65,7 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
         }
     }
 
-    private void UpdatePushToTalk()
+    private void UpdateMic()
     {
         if (recorder == null)
             return;
@@ -76,9 +76,19 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
 
         bool micOn =
             thisIsLocalOrderTaker &&
-            Input.GetKey(pushToTalkKey);
+            micButtonHeld;
 
         recorder.RecordingEnabled = micOn;
         recorder.TransmitEnabled = micOn;
+    }
+
+    public void PressMicButton()
+    {
+        micButtonHeld = true;
+    }
+
+    public void ReleaseMicButton()
+    {
+        micButtonHeld = false;
     }
 }
