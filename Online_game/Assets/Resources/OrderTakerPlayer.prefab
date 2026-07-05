@@ -2089,10 +2089,16 @@ MonoBehaviour:
   audioListener: {fileID: 634941117862866995}
   localOnlyInputScripts:
   - {fileID: 0}
+  blackWhitePlayerIndex: 2
   blackWhiteCanvasTag: BlackWhiteCanvas
   blackWhiteCanvasName: BlackWhiteCanvas
   blackWhiteCanvasPlaneDistance: 0.6
   grayscaleVolumeObject: {fileID: 0}
+  normalTimerCanvasTag: NormalTimerCanvas
+  normalTimerCanvasName: TimerCanvas_Normal
+  chefTimerCanvasTag: ChefTimerCanvas
+  chefTimerCanvasName: TimerCanvas_ChefBW
+  chefTimerCanvasPlaneDistance: 1
 --- !u!114 &-8222913463522403758
 MonoBehaviour:
   m_ObjectHideFlags: 0
