@@ -33,7 +33,7 @@ public class BasicPlayerController : MonoBehaviourPun
 
     [Header("Cursor")]
     public bool lockCursorOnStart = true;
-    public KeyCode unlockCursorKey = KeyCode.None;
+    public KeyCode unlockCursorKey = KeyCode.LeftControl;
 
     private CharacterController controller;
 
