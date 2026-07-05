@@ -1,3 +1,4 @@
+using System.Collections;
 using Photon.Pun;
 using UnityEngine;
 
@@ -5,15 +6,17 @@ public class OrderTakerOnlyUI : MonoBehaviour
 {
     public string playerIndexPropertyKey = "CharacterIndex";
 
-    private void Start()
+    private IEnumerator Start()
     {
+        yield return null;
+        yield return new WaitForSeconds(0.2f);
+
         bool shouldShow = false;
 
         if (PhotonNetwork.LocalPlayer != null &&
             PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
         {
-            int localPlayerIndex = (int)value;
-            shouldShow = localPlayerIndex == 0;
+            shouldShow = (int)value == 0;
         }
 
         gameObject.SetActive(shouldShow);

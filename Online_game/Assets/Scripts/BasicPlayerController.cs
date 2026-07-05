@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(CharacterController))]
 public class BasicPlayerController : MonoBehaviourPun
@@ -9,7 +10,7 @@ public class BasicPlayerController : MonoBehaviourPun
     public float runSpeed = 7f;
 
     [Header("Mouse Look")]
-    [Tooltip("摄像机上下旋转的父物体。")]
+    [Tooltip("Camera pivot object for vertical mouse look.")]
     public Transform cameraPivot;
 
     public float mouseSensitivity = 2f;
@@ -20,22 +21,23 @@ public class BasicPlayerController : MonoBehaviourPun
     public float gravity = -20f;
 
     [Header("Animator")]
-    [Tooltip("角色模型上的 Animator。")]
+    [Tooltip("Animator on the character model.")]
     public Animator animator;
 
-    [Tooltip("Animator 中控制 Idle / Walk / Run 的 Float 参数。")]
+    [Tooltip("Animator float parameter used for Idle / Walk / Run.")]
     public string speedParameter = "Speed";
 
-    [Tooltip("Animator Speed 参数的平滑变化速度。")]
+    [Tooltip("Animator speed smoothing.")]
     public float animatorSpeedSmooth = 12f;
 
     [Header("Photon")]
-    [Tooltip("单机测试时关闭，Photon 联机时开启。")]
+    [Tooltip("Enable this when using Photon sync.")]
     public bool usePhotonSync = false;
 
     [Header("Cursor")]
-    [Tooltip("游戏开始时锁定并隐藏鼠标。")]
+    [Tooltip("Lock cursor when the game starts.")]
     public bool lockCursorOnStart = true;
+    public KeyCode unlockCursorKey = KeyCode.LeftControl;
 
     private CharacterController controller;
 
@@ -48,63 +50,38 @@ public class BasicPlayerController : MonoBehaviourPun
         controller = GetComponent<CharacterController>();
 
         if (animator == null)
-        {
             animator = GetComponentInChildren<Animator>();
-        }
     }
 
     private void Start()
     {
         if (!CanUseLocalInput())
-        {
             return;
-        }
 
-        if (lockCursorOnStart)
-        {
-            SetCursorLocked(true);
-        }
+        SetCursorLocked(lockCursorOnStart);
     }
 
     private void Update()
     {
         if (!CanUseLocalInput())
-        {
             return;
-        }
 
         HandleCursorInput();
 
         if (Cursor.lockState == CursorLockMode.Locked)
-        {
             HandleMouseLook();
-        }
 
         HandleMovement();
     }
 
     private bool CanUseLocalInput()
     {
-        /*
-         * 单机测试时：
-         * Use Photon Sync 关闭，直接允许输入。
-         */
         if (!usePhotonSync)
-        {
             return true;
-        }
 
-        /*
-         * Photon 还没连接时，也允许本地测试。
-         */
         if (!PhotonNetwork.IsConnected)
-        {
             return true;
-        }
 
-        /*
-         * Photon 模式下，只有本地 Owner 能读取输入。
-         */
         return photonView.IsMine;
     }
 
@@ -118,18 +95,8 @@ public class BasicPlayerController : MonoBehaviourPun
             Input.GetAxis("Mouse Y") *
             mouseSensitivity;
 
-        /*
-         * 鼠标左右移动：
-         * 旋转整个玩家根物体。
-         */
-        transform.Rotate(
-            Vector3.up * mouseX
-        );
+        transform.Rotate(Vector3.up * mouseX);
 
-        /*
-         * 鼠标上下移动：
-         * 只旋转 CameraPivot。
-         */
         cameraPitch -= mouseY;
 
         cameraPitch = Mathf.Clamp(
@@ -151,11 +118,8 @@ public class BasicPlayerController : MonoBehaviourPun
 
     private void HandleMovement()
     {
-        float horizontal =
-            Input.GetAxisRaw("Horizontal");
-
-        float vertical =
-            Input.GetAxisRaw("Vertical");
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection =
             transform.right * horizontal +
@@ -174,43 +138,28 @@ public class BasicPlayerController : MonoBehaviourPun
             Input.GetKey(KeyCode.LeftShift);
 
         float movementSpeed =
-            isRunning
-                ? runSpeed
-                : walkSpeed;
+            isRunning ? runSpeed : walkSpeed;
 
         float targetAnimatorSpeed;
 
         if (!hasMovementInput)
-        {
             targetAnimatorSpeed = 0f;
-        }
         else if (isRunning)
-        {
             targetAnimatorSpeed = 1f;
-        }
         else
-        {
             targetAnimatorSpeed = 0.5f;
-        }
 
-        UpdateAnimatorSpeed(
-            targetAnimatorSpeed
-        );
+        UpdateAnimatorSpeed(targetAnimatorSpeed);
 
-        if (controller.isGrounded &&
-            verticalVelocity < 0f)
-        {
+        if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
-        }
 
-        verticalVelocity +=
-            gravity * Time.deltaTime;
+        verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 finalMovement =
             moveDirection * movementSpeed;
 
-        finalMovement.y =
-            verticalVelocity;
+        finalMovement.y = verticalVelocity;
 
         controller.Move(
             finalMovement *
@@ -218,8 +167,7 @@ public class BasicPlayerController : MonoBehaviourPun
         );
     }
 
-    private void UpdateAnimatorSpeed(
-        float targetSpeed)
+    private void UpdateAnimatorSpeed(float targetSpeed)
     {
         currentAnimatorSpeed =
             Mathf.MoveTowards(
@@ -230,37 +178,31 @@ public class BasicPlayerController : MonoBehaviourPun
             );
 
         if (animator != null)
-        {
-            animator.SetFloat(
-                speedParameter,
-                currentAnimatorSpeed
-            );
-        }
+            animator.SetFloat(speedParameter, currentAnimatorSpeed);
     }
 
     private void HandleCursorInput()
     {
-        /*
-         * Esc 解锁并显示鼠标。
-         */
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(unlockCursorKey))
         {
             SetCursorLocked(false);
+            return;
         }
 
-        /*
-         * 左键点击 Game 窗口后重新锁定鼠标。
-         */
-        if (Cursor.lockState !=
-                CursorLockMode.Locked &&
+        if (Cursor.lockState != CursorLockMode.Locked &&
             Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current != null &&
+                EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             SetCursorLocked(true);
         }
     }
 
-    public void SetCursorLocked(
-        bool locked)
+    public void SetCursorLocked(bool locked)
     {
         Cursor.visible = !locked;
 
