@@ -4,22 +4,23 @@ using UnityEngine.UI;
 
 public class MicToggleButtonUI : MonoBehaviour
 {
-    [Header("UI")]
     public Button micButton;
     public GameObject micOffImage;
     public GameObject micOnImage;
 
-    [Header("Voice")]
-    public string playerIndexPropertyKey = "CharacterIndex";
-
     private PlayerVoiceRoleSetup localVoiceSetup;
     private bool micOn = false;
 
-    private void Start()
+    private void Awake()
     {
         if (micButton == null)
             micButton = GetComponent<Button>();
 
+        SetMicVisual(false);
+    }
+
+    private void Start()
+    {
         if (micButton != null)
             micButton.onClick.AddListener(ToggleMic);
 
@@ -29,15 +30,14 @@ public class MicToggleButtonUI : MonoBehaviour
 
     private void ToggleMic()
     {
+        micOn = !micOn;
+        SetMicVisual(micOn);
+
         if (localVoiceSetup == null)
             FindLocalOrderTakerVoiceSetup();
 
-        if (localVoiceSetup == null)
-            return;
-
-        micOn = !micOn;
-        localVoiceSetup.SetMicButton(micOn);
-        SetMicVisual(micOn);
+        if (localVoiceSetup != null)
+            localVoiceSetup.SetMicButton(micOn);
     }
 
     private void SetMicVisual(bool isOn)
@@ -55,12 +55,9 @@ public class MicToggleButtonUI : MonoBehaviour
 
         foreach (PlayerVoiceRoleSetup setup in voiceSetups)
         {
-            PhotonView photonView = setup.GetComponent<PhotonView>();
+            PhotonView view = setup.GetComponent<PhotonView>();
 
-            if (photonView == null)
-                continue;
-
-            if (photonView.IsMine && setup.playerIndex == 0)
+            if (view != null && view.IsMine && setup.playerIndex == 0)
             {
                 localVoiceSetup = setup;
                 return;
