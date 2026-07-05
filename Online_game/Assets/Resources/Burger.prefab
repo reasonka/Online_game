@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLog: 1
-  usePhotonSync: 0
+  usePhotonSync: 1
   acceptIngredientByTrigger: 0
   recipes:
   - recipeName: NileCheseBurger
@@ -769,7 +769,8 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents: []
+  ObservedComponents:
+  - {fileID: 2295168987109284806}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
