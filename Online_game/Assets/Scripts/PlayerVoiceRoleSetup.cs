@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class PlayerVoiceRoleSetup : MonoBehaviourPun
 {
+    [Header("Player Role")]
     public int playerIndex;
     public string playerIndexPropertyKey = "CharacterIndex";
 
+    [Header("Voice Components")]
     public Recorder recorder;
     public Speaker speaker;
 
     private int localPlayerIndex = -1;
-    private bool micButtonHeld = false;
+    private bool micButtonOn = false;
 
     private void Start()
     {
@@ -44,14 +46,25 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
 
     private void ReadLocalPlayerIndex()
     {
-        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+        if (PhotonNetwork.LocalPlayer != null &&
+            PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+        {
             localPlayerIndex = (int)value;
+        }
     }
 
     private void SetupVoice()
     {
-        bool thisIsOrderTaker = playerIndex == 0;
-        bool localPlayerIsDoodle = localPlayerIndex == 1;
+        bool thisPlayerCanSpeak =
+            playerIndex == 0 ||
+            playerIndex == 2;
+
+        bool localPlayerCanHear =
+            localPlayerIndex == 1;
+
+        bool thisIsRemoteSpeaker =
+            !photonView.IsMine &&
+            thisPlayerCanSpeak;
 
         if (recorder != null)
         {
@@ -61,7 +74,9 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
 
         if (speaker != null)
         {
-            speaker.enabled = thisIsOrderTaker && localPlayerIsDoodle && !photonView.IsMine;
+            speaker.enabled =
+                localPlayerCanHear &&
+                thisIsRemoteSpeaker;
         }
     }
 
@@ -70,35 +85,25 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
         if (recorder == null)
             return;
 
-        bool thisIsLocalOrderTaker =
+        bool thisIsLocalSpeaker =
             photonView.IsMine &&
-            playerIndex == 0;
+            (playerIndex == 0 || playerIndex == 2);
 
-        bool micOn =
-            thisIsLocalOrderTaker &&
-            micButtonHeld;
+        bool shouldTransmit =
+            thisIsLocalSpeaker &&
+            micButtonOn;
 
-        recorder.RecordingEnabled = micOn;
-        recorder.TransmitEnabled = micOn;
-    }
-
-    public void PressMicButton()
-    {
-        micButtonHeld = true;
-    }
-
-    public void ReleaseMicButton()
-    {
-        micButtonHeld = false;
+        recorder.RecordingEnabled = shouldTransmit;
+        recorder.TransmitEnabled = shouldTransmit;
     }
 
     public void SetMicButton(bool isOn)
     {
-        micButtonHeld = isOn;
+        micButtonOn = isOn;
     }
 
     public bool IsMicButtonOn()
     {
-        return micButtonHeld;
+        return micButtonOn;
     }
 }

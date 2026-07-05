@@ -1973,7 +1973,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7499603883371391927}
   - component: {fileID: 7158508251473883407}
-  - component: {fileID: 6011799317358588201}
+  - component: {fileID: 466942543398610527}
   - component: {fileID: 5185699603921372520}
   - component: {fileID: 7972700848450001593}
   - component: {fileID: -8222913463522403758}
@@ -2027,7 +2027,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.95, z: 0}
---- !u!114 &6011799317358588201
+--- !u!114 &466942543398610527
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2036,7 +2036,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7158508251473883405}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b8ca06d0d43640429d55dc48ec31dee, type: 3}
+  m_Script: {fileID: 11500000, guid: 452f67f84fab17b4abf26995fa80d825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 4
@@ -2089,7 +2089,7 @@ MonoBehaviour:
   playerCamera: {fileID: 634941117862866994}
   audioListener: {fileID: 634941117862866995}
   localOnlyInputScripts:
-  - {fileID: 6011799317358588201}
+  - {fileID: 0}
   blackWhiteCanvasTag: BlackWhiteCanvas
   blackWhiteCanvasName: BlackWhiteCanvas
   blackWhiteCanvasPlaneDistance: 0.6

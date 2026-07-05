@@ -1002,7 +1002,8 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents: []
+  ObservedComponents:
+  - {fileID: 2411748826190018912}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -1405,7 +1406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLog: 1
-  usePhotonSync: 0
+  usePhotonSync: 1
   acceptIngredientByTrigger: 0
   recipes:
   - recipeName: NIleStrawberryPancake

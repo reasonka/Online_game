@@ -600,11 +600,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1904021e4960e4939b3fa8d65885517e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recipeButton: {fileID: 1363565338}
   currentLevel: 1
   level1RecipeUI: {fileID: 320251035}
   level2RecipeUI: {fileID: 1527738854}
-  recipeCategoryMenuUI: {fileID: 701757710}
+  recipeButton: {fileID: 1363565338}
 --- !u!4 &62517016
 Transform:
   m_ObjectHideFlags: 0
@@ -7462,6 +7461,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1451772996}
   m_CullTransparentMesh: 1
+--- !u!1 &1468425547
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1468425549}
+  - component: {fileID: 1468425548}
+  m_Layer: 0
+  m_Name: SettingsPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1468425548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1468425547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56031e849c3ea45518ee66b16d3a04de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settingsPanel: {fileID: 0}
+  openSettingsButton: {fileID: 0}
+  closeSettingsButton: {fileID: 0}
+  masterVolumeSlider: {fileID: 0}
+  musicVolumeSlider: {fileID: 0}
+  sfxVolumeSlider: {fileID: 0}
+  voiceVolumeSlider: {fileID: 0}
+  mouseSensitivitySlider: {fileID: 0}
+  mouseSensitivityValueText: {fileID: 0}
+  fullscreenToggle: {fileID: 0}
+  controlsPanel: {fileID: 0}
+  controlsButton: {fileID: 0}
+  closeControlsButton: {fileID: 0}
+  musicSources: []
+  sfxSources: []
+  defaultMasterVolume: 1
+  defaultMusicVolume: 0.7
+  defaultSfxVolume: 0.8
+  defaultVoiceVolume: 1
+  defaultMouseSensitivity: 2
+--- !u!4 &1468425549
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1468425547}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.493221, y: -3.7312906, z: -17.42693}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1473364697
 GameObject:
   m_ObjectHideFlags: 0

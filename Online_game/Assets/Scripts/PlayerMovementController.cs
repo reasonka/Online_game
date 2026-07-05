@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovementController : MonoBehaviourPun
@@ -9,7 +10,7 @@ public class PlayerMovementController : MonoBehaviourPun
     public float runSpeed = 7f;
 
     [Header("Mouse Look")]
-    [Tooltip("摄像机上下旋转的父物体。")]
+    [Tooltip("Camera pivot object for vertical mouse look.")]
     public Transform cameraPivot;
 
     public float mouseSensitivity = 2f;
@@ -20,17 +21,17 @@ public class PlayerMovementController : MonoBehaviourPun
     public float gravity = -20f;
 
     [Header("Animator")]
-    [Tooltip("角色模型上的 Animator。")]
+    [Tooltip("Animator on the character model.")]
     public Animator animator;
 
-    [Tooltip("Animator 中的 Float 参数名称。")]
+    [Tooltip("Animator float parameter used for Idle / Walk / Run.")]
     public string speedParameter = "Speed";
 
-    [Tooltip("动画速度参数平滑变化的速度。")]
+    [Tooltip("Animator speed smoothing.")]
     public float animatorSpeedSmooth = 12f;
 
     [Header("Photon")]
-    [Tooltip("本地测试时关闭，正式联网时开启。")]
+    [Tooltip("Disable for local testing. Enable when using Photon.")]
     public bool usePhotonSync = false;
 
     [Header("Control")]
@@ -38,6 +39,7 @@ public class PlayerMovementController : MonoBehaviourPun
 
     [Header("Cursor")]
     public bool lockCursorOnStart = true;
+    public KeyCode unlockCursorKey = KeyCode.LeftControl;
 
     private CharacterController controller;
 
@@ -111,16 +113,10 @@ public class PlayerMovementController : MonoBehaviourPun
             Input.GetAxis("Mouse Y") *
             mouseSensitivity;
 
-        /*
-         * 鼠标左右移动时，旋转整个玩家根物体。
-         */
         transform.Rotate(
             Vector3.up * mouseX
         );
 
-        /*
-         * 鼠标上下移动时，只旋转 CameraPivot。
-         */
         cameraPitch -= mouseY;
 
         cameraPitch = Mathf.Clamp(
@@ -244,15 +240,22 @@ public class PlayerMovementController : MonoBehaviourPun
 
     private void HandleCursorInput()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(unlockCursorKey))
         {
             SetCursorLocked(false);
+            return;
         }
 
         if (!cursorLocked &&
             canMove &&
             Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current != null &&
+                EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             SetCursorLocked(true);
         }
     }
