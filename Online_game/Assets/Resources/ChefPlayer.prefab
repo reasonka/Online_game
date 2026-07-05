@@ -1512,6 +1512,7 @@ MonoBehaviour:
   usePhotonSync: 1
   canMove: 1
   lockCursorOnStart: 1
+  unlockCursorKey: 306
 --- !u!114 &2616776877306809346
 MonoBehaviour:
   m_ObjectHideFlags: 0
