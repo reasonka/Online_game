@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLog: 1
-  usePhotonSync: 0
+  usePhotonSync: 1
   acceptIngredientByTrigger: 0
   recipes:
   - recipeName: NileMustardHotdog
