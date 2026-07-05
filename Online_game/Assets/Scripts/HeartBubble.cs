@@ -2,58 +2,91 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-/// <summary>
-/// Spawns a small ring of hearts that orbit around the character's head for a
-/// given duration, then fade out. Attach to a world-space Canvas positioned
-/// at/above the head bone (parent it to the Head bone in the rig for best results).
-/// </summary>
 public class HeartBubble : MonoBehaviour
 {
     [Header("Setup")]
-    public RectTransform heartPrefab;   // a small heart Image prefab (UI)
-    public RectTransform orbitCenter;   // usually this object itself
+    public RectTransform heartPrefab;
+    public RectTransform orbitCenter;
 
     [Header("Orbit")]
     public int heartCount = 4;
-    public float orbitRadius = 60f;     // local UI units
-    public float orbitSpeed = 90f;      // degrees per second
-    public float bobAmount = 8f;        // small vertical wobble for a livelier feel
+    public float orbitRadius = 60f;
+    public float orbitSpeed = 90f;
+    public float bobAmount = 8f;
     public float bobSpeed = 2f;
 
     [Header("Timing")]
     public float fadeInDuration = 0.3f;
     public float fadeOutDuration = 0.5f;
 
-    private Coroutine _running;
-    private List<RectTransform> _activeHearts = new List<RectTransform>();
+    private Coroutine runningCoroutine;
+    private readonly List<RectTransform> activeHearts = new List<RectTransform>();
 
-    /// <summary>Plays an orbiting heart ring for the given total duration (e.g. 10 seconds).</summary>
+    private void Awake()
+    {
+        if (orbitCenter == null)
+            orbitCenter = GetComponent<RectTransform>();
+
+        if (heartPrefab != null)
+            heartPrefab.gameObject.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        ClearHearts();
+    }
+
     public void Play(float duration)
     {
-        if (_running != null) StopCoroutine(_running);
-        _running = StartCoroutine(RunOrbit(duration));
+        gameObject.SetActive(true);
+
+        if (runningCoroutine != null)
+            StopCoroutine(runningCoroutine);
+
+        ClearHearts();
+
+        runningCoroutine = StartCoroutine(RunOrbit(duration));
     }
 
     public void Stop()
     {
-        if (_running != null) StopCoroutine(_running);
-        _running = null;
-        foreach (var h in _activeHearts)
-            if (h != null) Destroy(h.gameObject);
-        _activeHearts.Clear();
+        if (runningCoroutine != null)
+            StopCoroutine(runningCoroutine);
+
+        runningCoroutine = null;
+        ClearHearts();
     }
 
-    IEnumerator RunOrbit(float duration)
+    private IEnumerator RunOrbit(float duration)
     {
-        if (heartPrefab == null || orbitCenter == null) yield break;
+        if (heartPrefab == null)
+        {
+            Debug.LogWarning("HeartBubble: Heart Prefab is missing.");
+            yield break;
+        }
 
-        // Spawn the hearts, evenly spaced around the circle
-        _activeHearts.Clear();
+        if (orbitCenter == null)
+        {
+            Debug.LogWarning("HeartBubble: Orbit Center is missing.");
+            yield break;
+        }
+
         for (int i = 0; i < heartCount; i++)
         {
             RectTransform heart = Instantiate(heartPrefab, orbitCenter);
-            heart.localScale = Vector3.zero; // start invisible, pop in below
-            _activeHearts.Add(heart);
+            heart.gameObject.SetActive(true);
+
+            heart.localPosition = Vector3.zero;
+            heart.localRotation = Quaternion.identity;
+            heart.localScale = Vector3.zero;
+
+            CanvasGroup canvasGroup = heart.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = heart.gameObject.AddComponent<CanvasGroup>();
+
+            canvasGroup.alpha = 0f;
+
+            activeHearts.Add(heart);
         }
 
         float angleStep = 360f / heartCount;
@@ -63,36 +96,70 @@ public class HeartBubble : MonoBehaviour
         {
             t += Time.deltaTime;
 
-            // Fade in at the start, fade out near the end
             float scale = 1f;
-            if (t < fadeInDuration) scale = Mathf.SmoothStep(0f, 1f, t / fadeInDuration);
-            else if (t > duration - fadeOutDuration) scale = Mathf.SmoothStep(1f, 0f, (t - (duration - fadeOutDuration)) / fadeOutDuration);
+            float alpha = 1f;
 
-            for (int i = 0; i < _activeHearts.Count; i++)
+            if (t < fadeInDuration)
             {
-                RectTransform heart = _activeHearts[i];
-                if (heart == null) continue;
+                float value = t / fadeInDuration;
+                scale = Mathf.SmoothStep(0f, 1f, value);
+                alpha = Mathf.SmoothStep(0f, 1f, value);
+            }
+            else if (t > duration - fadeOutDuration)
+            {
+                float value = (t - (duration - fadeOutDuration)) / fadeOutDuration;
+                scale = Mathf.SmoothStep(1f, 0f, value);
+                alpha = Mathf.SmoothStep(1f, 0f, value);
+            }
 
-                float angle = (t * orbitSpeed) + (angleStep * i);
+            for (int i = 0; i < activeHearts.Count; i++)
+            {
+                RectTransform heart = activeHearts[i];
+
+                if (heart == null)
+                    continue;
+
+                float angle = t * orbitSpeed + angleStep * i;
                 float rad = angle * Mathf.Deg2Rad;
+
                 float bob = Mathf.Sin(t * bobSpeed + i) * bobAmount;
 
-                // Horizontal halo: X/Z form the circle, Y just wobbles gently.
-                Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * orbitRadius;
+                // OLD STYLE DIRECTION:
+                // Circle uses X/Z.
+                // Y only goes up/down slightly.
+                Vector3 offset =
+                    new Vector3(
+                        Mathf.Cos(rad),
+                        0f,
+                        Mathf.Sin(rad)
+                    ) * orbitRadius;
+
                 heart.localPosition = offset + new Vector3(0f, bob, 0f);
                 heart.localScale = Vector3.one * scale;
 
-                // Keep the heart upright/facing forward in world space, regardless
-                // of any tilt on the parent Canvas used to angle the orbit plane.
+                // keep heart upright
                 heart.rotation = Quaternion.identity;
+
+                CanvasGroup canvasGroup = heart.GetComponent<CanvasGroup>();
+                if (canvasGroup != null)
+                    canvasGroup.alpha = alpha;
             }
 
             yield return null;
         }
 
-        foreach (var h in _activeHearts)
-            if (h != null) Destroy(h.gameObject);
-        _activeHearts.Clear();
-        _running = null;
+        ClearHearts();
+        runningCoroutine = null;
+    }
+
+    private void ClearHearts()
+    {
+        for (int i = 0; i < activeHearts.Count; i++)
+        {
+            if (activeHearts[i] != null)
+                Destroy(activeHearts[i].gameObject);
+        }
+
+        activeHearts.Clear();
     }
 }

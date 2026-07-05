@@ -1,33 +1,94 @@
 using UnityEngine;
 
-/// <summary>
-/// Receives the chosen emotion from EmojiWheelController and plays the matching
-/// effect for a fixed duration (default 10 seconds).
-/// </summary>
 public class PlayerEmotionController : MonoBehaviour
 {
     [Header("Effects")]
-    public CussBubble angryEffect;   // cussing symbols from the mouth
-    public HeartBubble happyEffect;  // small hearts above the head
-    public CryBubble cryingEffect;   // falling tears
+    public CussBubble angryEffect;
+    public HeartBubble happyEffect;
+    public CryBubble cryingEffect;
 
     [Header("Timing")]
     public float emotionDuration = 10f;
 
+    private void Awake()
+    {
+        if (angryEffect == null)
+            angryEffect = GetComponentInChildren<CussBubble>(true);
+
+        if (happyEffect == null)
+            happyEffect = GetComponentInChildren<HeartBubble>(true);
+
+        if (cryingEffect == null)
+            cryingEffect = GetComponentInChildren<CryBubble>(true);
+
+        HideAllEffects();
+    }
+
+    private void Start()
+    {
+        HideAllEffects();
+    }
+
+    private void HideAllEffects()
+    {
+        if (angryEffect != null)
+        {
+            angryEffect.Stop();
+            angryEffect.gameObject.SetActive(false);
+        }
+
+        if (happyEffect != null)
+        {
+            happyEffect.Stop();
+            happyEffect.gameObject.SetActive(false);
+        }
+
+        if (cryingEffect != null)
+        {
+            cryingEffect.gameObject.SetActive(false);
+        }
+    }
+
     public void PlayEmotion(EmotionType emotion)
     {
+        HideAllEffects();
+
         switch (emotion)
         {
-            case EmotionType.Angry:
-                if (angryEffect != null) angryEffect.ShowCuss(emotionDuration);
+            case EmotionType.Happy:
+                if (happyEffect != null)
+                {
+                    happyEffect.gameObject.SetActive(true);
+                    happyEffect.Play(emotionDuration);
+                }
+                else
+                {
+                    Debug.LogWarning("Happy effect missing.");
+                }
                 break;
 
-            case EmotionType.Happy:
-                if (happyEffect != null) happyEffect.Play(emotionDuration);
+            case EmotionType.Angry:
+                if (angryEffect != null)
+                {
+                    angryEffect.gameObject.SetActive(true);
+                    angryEffect.ShowCuss(emotionDuration);
+                }
+                else
+                {
+                    Debug.LogWarning("Angry effect missing.");
+                }
                 break;
 
             case EmotionType.Crying:
-                if (cryingEffect != null) cryingEffect.Play(emotionDuration);
+                if (cryingEffect != null)
+                {
+                    cryingEffect.gameObject.SetActive(true);
+                    cryingEffect.Play(emotionDuration);
+                }
+                else
+                {
+                    Debug.LogWarning("Crying effect missing.");
+                }
                 break;
         }
     }
