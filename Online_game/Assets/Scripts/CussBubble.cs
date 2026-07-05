@@ -1,27 +1,61 @@
 using UnityEngine;
+using System.Collections;
 
-/// <summary>
-/// Fires a Particle System burst (cuss symbols) from the character's mouth to
-/// express anger without needing voice/text — good fit for a mute character.
-/// Call ShowCuss() from anywhere (input, game event, etc.) to trigger it.
-/// Assign a Particle System configured with your cuss sprite as its texture.
-/// </summary>
 public class CussBubble : MonoBehaviour
 {
     [Header("Setup")]
     public ParticleSystem particles;
 
-    /// <summary>Call this to make her "cuss" — fires the particle burst.</summary>
-    public void ShowCuss()
+    private Coroutine stopCoroutine;
+
+    private void Awake()
     {
-        ShowCuss(0f); // duration ignored; the Particle System's own settings control lifetime
+        if (particles == null)
+            particles = GetComponentInChildren<ParticleSystem>(true);
     }
 
-    /// <summary>Same as ShowCuss(), kept for compatibility with existing callers that pass a duration.</summary>
-    public void ShowCuss(float customHoldDuration)
+    public void ShowCuss()
     {
-        if (particles == null) return;
+        ShowCuss(2f);
+    }
+
+    public void ShowCuss(float duration)
+    {
+        gameObject.SetActive(true);
+
+        if (particles == null)
+        {
+            Debug.LogWarning("CussBubble: ParticleSystem is missing.");
+            return;
+        }
+
+        particles.gameObject.SetActive(true);
+
         particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        particles.Play();
+        particles.Clear(true);
+        particles.Play(true);
+
+        if (stopCoroutine != null)
+            StopCoroutine(stopCoroutine);
+
+        if (duration > 0f)
+            stopCoroutine = StartCoroutine(StopAfter(duration));
+    }
+
+    private IEnumerator StopAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Stop();
+    }
+
+    public void Stop()
+    {
+        if (stopCoroutine != null)
+            StopCoroutine(stopCoroutine);
+
+        stopCoroutine = null;
+
+        if (particles != null)
+            particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 }

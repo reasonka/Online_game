@@ -10,7 +10,6 @@ public class BasicPlayerController : MonoBehaviourPun
     public float runSpeed = 7f;
 
     [Header("Mouse Look")]
-    [Tooltip("Camera pivot object for vertical mouse look.")]
     public Transform cameraPivot;
 
     public float mouseSensitivity = 2f;
@@ -21,23 +20,20 @@ public class BasicPlayerController : MonoBehaviourPun
     public float gravity = -20f;
 
     [Header("Animator")]
-    [Tooltip("Animator on the character model.")]
     public Animator animator;
-
-    [Tooltip("Animator float parameter used for Idle / Walk / Run.")]
     public string speedParameter = "Speed";
-
-    [Tooltip("Animator speed smoothing.")]
     public float animatorSpeedSmooth = 12f;
 
+    [Header("Emotions")]
+    public PlayerEmotionController emotionController;
+    public bool syncEmotionsOverPhoton = false;
+
     [Header("Photon")]
-    [Tooltip("Enable this when using Photon sync.")]
     public bool usePhotonSync = false;
 
     [Header("Cursor")]
-    [Tooltip("Lock cursor when the game starts.")]
     public bool lockCursorOnStart = true;
-    public KeyCode unlockCursorKey = KeyCode.LeftControl;
+    public KeyCode unlockCursorKey = KeyCode.None;
 
     private CharacterController controller;
 
@@ -45,12 +41,23 @@ public class BasicPlayerController : MonoBehaviourPun
     private float cameraPitch;
     private float currentAnimatorSpeed;
 
+    private bool emojiInputBlocked;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
+
+        if (emotionController == null)
+            emotionController = GetComponentInChildren<PlayerEmotionController>(true);
+
+        if (cameraPivot == null && Camera.main != null)
+        {
+            if (Camera.main.transform.IsChildOf(transform))
+                cameraPivot = Camera.main.transform;
+        }
     }
 
     private void Start()
@@ -68,13 +75,20 @@ public class BasicPlayerController : MonoBehaviourPun
 
         HandleCursorInput();
 
+        if (emojiInputBlocked)
+        {
+            UpdateAnimatorSpeed(0f);
+            ApplyGravityOnly();
+            return;
+        }
+
         if (Cursor.lockState == CursorLockMode.Locked)
             HandleMouseLook();
 
         HandleMovement();
     }
 
-    private bool CanUseLocalInput()
+    public bool CanUseLocalInput()
     {
         if (!usePhotonSync)
             return true;
@@ -85,35 +99,26 @@ public class BasicPlayerController : MonoBehaviourPun
         return photonView.IsMine;
     }
 
+    public void SetEmojiInputBlocked(bool blocked)
+    {
+        emojiInputBlocked = blocked;
+
+        if (blocked)
+            UpdateAnimatorSpeed(0f);
+    }
+
     private void HandleMouseLook()
     {
-        float mouseX =
-            Input.GetAxis("Mouse X") *
-            mouseSensitivity;
-
-        float mouseY =
-            Input.GetAxis("Mouse Y") *
-            mouseSensitivity;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         transform.Rotate(Vector3.up * mouseX);
 
         cameraPitch -= mouseY;
-
-        cameraPitch = Mathf.Clamp(
-            cameraPitch,
-            minPitch,
-            maxPitch
-        );
+        cameraPitch = Mathf.Clamp(cameraPitch, minPitch, maxPitch);
 
         if (cameraPivot != null)
-        {
-            cameraPivot.localRotation =
-                Quaternion.Euler(
-                    cameraPitch,
-                    0f,
-                    0f
-                );
-        }
+            cameraPivot.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
     }
 
     private void HandleMovement()
@@ -125,20 +130,15 @@ public class BasicPlayerController : MonoBehaviourPun
             transform.right * horizontal +
             transform.forward * vertical;
 
-        moveDirection = Vector3.ClampMagnitude(
-            moveDirection,
-            1f
-        );
+        moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
 
-        bool hasMovementInput =
-            moveDirection.sqrMagnitude > 0.01f;
+        bool hasMovementInput = moveDirection.sqrMagnitude > 0.01f;
 
         bool isRunning =
             hasMovementInput &&
             Input.GetKey(KeyCode.LeftShift);
 
-        float movementSpeed =
-            isRunning ? runSpeed : walkSpeed;
+        float movementSpeed = isRunning ? runSpeed : walkSpeed;
 
         float targetAnimatorSpeed;
 
@@ -156,26 +156,30 @@ public class BasicPlayerController : MonoBehaviourPun
 
         verticalVelocity += gravity * Time.deltaTime;
 
-        Vector3 finalMovement =
-            moveDirection * movementSpeed;
-
+        Vector3 finalMovement = moveDirection * movementSpeed;
         finalMovement.y = verticalVelocity;
 
-        controller.Move(
-            finalMovement *
-            Time.deltaTime
-        );
+        controller.Move(finalMovement * Time.deltaTime);
+    }
+
+    private void ApplyGravityOnly()
+    {
+        if (controller.isGrounded && verticalVelocity < 0f)
+            verticalVelocity = -2f;
+
+        verticalVelocity += gravity * Time.deltaTime;
+
+        Vector3 gravityMovement = new Vector3(0f, verticalVelocity, 0f);
+        controller.Move(gravityMovement * Time.deltaTime);
     }
 
     private void UpdateAnimatorSpeed(float targetSpeed)
     {
-        currentAnimatorSpeed =
-            Mathf.MoveTowards(
-                currentAnimatorSpeed,
-                targetSpeed,
-                animatorSpeedSmooth *
-                Time.deltaTime
-            );
+        currentAnimatorSpeed = Mathf.MoveTowards(
+            currentAnimatorSpeed,
+            targetSpeed,
+            animatorSpeedSmooth * Time.deltaTime
+        );
 
         if (animator != null)
             animator.SetFloat(speedParameter, currentAnimatorSpeed);
@@ -183,6 +187,9 @@ public class BasicPlayerController : MonoBehaviourPun
 
     private void HandleCursorInput()
     {
+        if (unlockCursorKey == KeyCode.None)
+            return;
+
         if (Input.GetKeyDown(unlockCursorKey))
         {
             SetCursorLocked(false);
@@ -194,9 +201,7 @@ public class BasicPlayerController : MonoBehaviourPun
         {
             if (EventSystem.current != null &&
                 EventSystem.current.IsPointerOverGameObject())
-            {
                 return;
-            }
 
             SetCursorLocked(true);
         }
@@ -209,5 +214,40 @@ public class BasicPlayerController : MonoBehaviourPun
         Cursor.lockState = locked
             ? CursorLockMode.Locked
             : CursorLockMode.None;
+    }
+
+    public void PlayEmotion(EmotionType emotion)
+    {
+        if (!CanUseLocalInput())
+            return;
+
+        if (emotionController == null)
+            emotionController = GetComponentInChildren<PlayerEmotionController>(true);
+
+        if (syncEmotionsOverPhoton && usePhotonSync && PhotonNetwork.IsConnected)
+        {
+            photonView.RPC(nameof(RPC_PlayEmotion), RpcTarget.All, (int)emotion);
+        }
+        else
+        {
+            PlayEmotionLocal(emotion);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_PlayEmotion(int emotionValue)
+    {
+        PlayEmotionLocal((EmotionType)emotionValue);
+    }
+
+    private void PlayEmotionLocal(EmotionType emotion)
+    {
+        if (emotionController == null)
+            emotionController = GetComponentInChildren<PlayerEmotionController>(true);
+
+        if (emotionController != null)
+            emotionController.PlayEmotion(emotion);
+        else
+            Debug.LogWarning("No PlayerEmotionController found on player.");
     }
 }

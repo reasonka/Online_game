@@ -2049,6 +2049,8 @@ MonoBehaviour:
   animator: {fileID: 634941118564190841}
   speedParameter: Speed2
   animatorSpeedSmooth: 12
+  emotionController: {fileID: 0}
+  syncEmotionsOverPhoton: 0
   usePhotonSync: 1
   lockCursorOnStart: 1
   unlockCursorKey: 306
