@@ -2047,7 +2047,7 @@ MonoBehaviour:
   maxPitch: 75
   gravity: -20
   animator: {fileID: 634941118564190841}
-  speedParameter: Speed
+  speedParameter: Speed2
   animatorSpeedSmooth: 12
   usePhotonSync: 1
   lockCursorOnStart: 1
