@@ -4,49 +4,91 @@ using UnityEngine;
 
 public class PlayerVoiceRoleSetup : MonoBehaviourPun
 {
-    [Header("Role")]
     public int playerIndex;
     public string playerIndexPropertyKey = "CharacterIndex";
 
-    [Header("Photon Voice")]
     public Recorder recorder;
     public Speaker speaker;
 
+    private int localPlayerIndex = -1;
+    private bool micButtonHeld = false;
+
     private void Start()
     {
-        ReadPlayerIndex();
+        ReadThisPlayerIndex();
+        ReadLocalPlayerIndex();
+
+        if (recorder == null)
+            recorder = GetComponent<Recorder>();
+
+        if (speaker == null)
+            speaker = GetComponent<Speaker>();
+
         SetupVoice();
     }
 
-    private void ReadPlayerIndex()
+    private void Update()
     {
-        if (!PhotonNetwork.IsConnected || photonView == null || photonView.Owner == null)
-            return;
+        UpdateMic();
+    }
 
-        if (photonView.Owner.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+    private void ReadThisPlayerIndex()
+    {
+        if (photonView != null &&
+            photonView.Owner != null &&
+            photonView.Owner.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+        {
             playerIndex = (int)value;
+        }
+    }
+
+    private void ReadLocalPlayerIndex()
+    {
+        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+            localPlayerIndex = (int)value;
     }
 
     private void SetupVoice()
     {
-        bool isLocalPlayer = !PhotonNetwork.IsConnected || photonView.IsMine;
-
-        bool isOrderTaker = playerIndex == 0;
-        bool isDoodleBuddy = playerIndex == 1;
-
-        bool canSpeak = isLocalPlayer && isOrderTaker;
-        bool canHear = isLocalPlayer && isDoodleBuddy;
+        bool thisIsOrderTaker = playerIndex == 0;
+        bool localPlayerIsDoodle = localPlayerIndex == 1;
 
         if (recorder != null)
         {
-            recorder.RecordingEnabled = canSpeak;
-            recorder.TransmitEnabled = canSpeak;
+            recorder.RecordingEnabled = false;
+            recorder.TransmitEnabled = false;
         }
 
         if (speaker != null)
         {
-            speaker.enabled = canHear;
-            speaker.gameObject.SetActive(canHear);
+            speaker.enabled = thisIsOrderTaker && localPlayerIsDoodle && !photonView.IsMine;
         }
+    }
+
+    private void UpdateMic()
+    {
+        if (recorder == null)
+            return;
+
+        bool thisIsLocalOrderTaker =
+            photonView.IsMine &&
+            playerIndex == 0;
+
+        bool micOn =
+            thisIsLocalOrderTaker &&
+            micButtonHeld;
+
+        recorder.RecordingEnabled = micOn;
+        recorder.TransmitEnabled = micOn;
+    }
+
+    public void PressMicButton()
+    {
+        micButtonHeld = true;
+    }
+
+    public void ReleaseMicButton()
+    {
+        micButtonHeld = false;
     }
 }
