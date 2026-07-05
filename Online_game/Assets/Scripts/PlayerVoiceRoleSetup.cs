@@ -91,4 +91,14 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
     {
         micButtonHeld = false;
     }
+
+    public void SetMicButton(bool isOn)
+    {
+        micButtonHeld = isOn;
+    }
+
+    public bool IsMicButtonOn()
+    {
+        return micButtonHeld;
+    }
 }
