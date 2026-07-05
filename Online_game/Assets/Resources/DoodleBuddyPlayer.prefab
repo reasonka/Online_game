@@ -3040,7 +3040,7 @@ MonoBehaviour:
   syncEmotionsOverPhoton: 1
   usePhotonSync: 1
   lockCursorOnStart: 1
-  unlockCursorKey: 0
+  unlockCursorKey: 306
 --- !u!114 &3814668506593818470
 MonoBehaviour:
   m_ObjectHideFlags: 0
