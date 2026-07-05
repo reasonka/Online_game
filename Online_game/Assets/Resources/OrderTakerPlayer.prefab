@@ -1951,6 +1951,11 @@ GameObject:
   - component: {fileID: 146155571138090202}
   - component: {fileID: 2529144136459627300}
   - component: {fileID: 8914198863210917187}
+  - component: {fileID: 2837764616899804233}
+  - component: {fileID: 4655573853329012610}
+  - component: {fileID: 6048268224946057058}
+  - component: {fileID: 2842773293773629948}
+  - component: {fileID: 1321461364332440000}
   m_Layer: 0
   m_Name: OrderTakerPlayer
   m_TagString: Untagged
@@ -2285,6 +2290,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126494ae2a10a34499272ed97a6c9f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2837764616899804233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6fbae7a5cdb36b4fae32b97134a6567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactKey: 101
+  dropKey: 113
+  pickupRange: 2
+  interactMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  holdPoint: {fileID: 0}
+  holdLocalPosition: {x: 0, y: 1.2, z: 1}
+  holdLocalRotation: {x: 0, y: 0, z: 0}
+  dropForwardDistance: 1
+  dropUpOffset: 0.5
+  dropPushForce: 1.5
+  requireCustomerWithOrderToPlace: 1
+--- !u!169 &4655573853329012610
+AudioLowPassFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_LowpassResonanceQ: 1
+  lowpassLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.022282856
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!165 &6048268224946057058
+AudioHighPassFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_CutoffFrequency: 3500
+  m_HighpassResonanceQ: 1
+--- !u!168 &2842773293773629948
+AudioEchoFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_Delay: 500
+  m_DecayRatio: 0.5
+  m_WetMix: 1
+  m_DryMix: 1
+--- !u!170 &1321461364332440000
+AudioDistortionFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_DistortionLevel: 0.15
 --- !u!1 &7442378397244450868
 GameObject:
   m_ObjectHideFlags: 0
