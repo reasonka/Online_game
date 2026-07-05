@@ -1552,10 +1552,16 @@ MonoBehaviour:
   - {fileID: 3532879911916447148}
   - {fileID: 3532879911916447149}
   - {fileID: 3532879911916447150}
+  blackWhitePlayerIndex: 2
   blackWhiteCanvasTag: BlackWhiteCanvas
   blackWhiteCanvasName: BlackWhiteCanvas
   blackWhiteCanvasPlaneDistance: 0.6
   grayscaleVolumeObject: {fileID: 1606519753}
+  normalTimerCanvasTag: NormalTimerCanvas
+  normalTimerCanvasName: TimerCanvas_Normal
+  chefTimerCanvasTag: ChefTimerCanvas
+  chefTimerCanvasName: TimerCanvas_ChefBW
+  chefTimerCanvasPlaneDistance: 0.6
 --- !u!114 &-3346268692422133189
 MonoBehaviour:
   m_ObjectHideFlags: 0
