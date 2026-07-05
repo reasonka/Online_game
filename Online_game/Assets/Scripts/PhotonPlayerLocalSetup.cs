@@ -1,6 +1,5 @@
 using Photon.Pun;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PhotonPlayerLocalSetup : MonoBehaviourPun
 {
@@ -18,10 +17,19 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
     public MonoBehaviour[] localOnlyInputScripts;
 
     [Header("Black White Player")]
+    public int blackWhitePlayerIndex = 2;
     public string blackWhiteCanvasTag = "BlackWhiteCanvas";
     public string blackWhiteCanvasName = "BlackWhiteCanvas";
     public float blackWhiteCanvasPlaneDistance = 1f;
     public GameObject grayscaleVolumeObject;
+
+    [Header("Level 2 Timer")]
+    public string normalTimerCanvasTag = "NormalTimerCanvas";
+    public string normalTimerCanvasName = "TimerCanvas_Normal";
+
+    public string chefTimerCanvasTag = "ChefTimerCanvas";
+    public string chefTimerCanvasName = "TimerCanvas_ChefBW";
+    public float chefTimerCanvasPlaneDistance = 1f;
 
     private void Start()
     {
@@ -70,18 +78,31 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
                 inputScript.enabled = isLocalPlayer;
         }
 
-        bool isLocalBlackWhitePlayer = isLocalPlayer && playerIndex == 2;
+        if (!isLocalPlayer)
+            return;
+
+        bool isLocalBlackWhitePlayer = playerIndex == blackWhitePlayerIndex;
 
         if (grayscaleVolumeObject != null)
             grayscaleVolumeObject.SetActive(isLocalBlackWhitePlayer);
 
         if (isLocalBlackWhitePlayer)
+        {
             BindBlackWhiteCanvas();
+
+            SetCanvasActive(normalTimerCanvasTag, normalTimerCanvasName, false);
+            BindChefTimerCanvas();
+        }
+        else
+        {
+            SetCanvasActive(normalTimerCanvasTag, normalTimerCanvasName, true);
+            SetCanvasActive(chefTimerCanvasTag, chefTimerCanvasName, false);
+        }
     }
 
     private void BindBlackWhiteCanvas()
     {
-        Canvas blackWhiteCanvas = FindBlackWhiteCanvas();
+        Canvas blackWhiteCanvas = FindCanvas(blackWhiteCanvasTag, blackWhiteCanvasName);
 
         if (blackWhiteCanvas == null)
         {
@@ -95,16 +116,51 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
         blackWhiteCanvas.planeDistance = blackWhiteCanvasPlaneDistance;
     }
 
-    private Canvas FindBlackWhiteCanvas()
+    private void BindChefTimerCanvas()
+    {
+        Canvas timerCanvas = FindCanvas(chefTimerCanvasTag, chefTimerCanvasName);
+
+        if (timerCanvas == null)
+        {
+            Debug.LogWarning("Chef timer canvas not found. Check its name or tag.");
+            return;
+        }
+
+        timerCanvas.gameObject.SetActive(true);
+        timerCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+        timerCanvas.worldCamera = playerCamera;
+        timerCanvas.planeDistance = chefTimerCanvasPlaneDistance;
+    }
+
+    private void SetCanvasActive(string tagName, string objectName, bool active)
+    {
+        Canvas canvas = FindCanvas(tagName, objectName);
+
+        if (canvas != null)
+            canvas.gameObject.SetActive(active);
+    }
+
+    private Canvas FindCanvas(string tagName, string objectName)
     {
         Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
 
         foreach (Canvas canvas in canvases)
         {
+            if (canvas == null)
+                continue;
+
             if (!canvas.gameObject.scene.IsValid())
                 continue;
 
-            if (canvas.CompareTag(blackWhiteCanvasTag) || canvas.gameObject.name == blackWhiteCanvasName)
+            bool tagMatches =
+                !string.IsNullOrEmpty(tagName) &&
+                canvas.gameObject.tag == tagName;
+
+            bool nameMatches =
+                !string.IsNullOrEmpty(objectName) &&
+                canvas.gameObject.name == objectName;
+
+            if (tagMatches || nameMatches)
                 return canvas;
         }
 
