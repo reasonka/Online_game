@@ -1711,8 +1711,9 @@ MonoBehaviour:
     reaction1FoodPrefab: {fileID: 6810890745821023649, guid: 7ae15e25071124aa3ba05b743d4300cc, type: 3}
   reaction2FoodPrefab: {fileID: 5206792262948863992, guid: aa0b932f2bd4f9d43877e5815a9625aa, type: 3}
   levelOrderMode: 0
-  preventRepeatedOrdersInLevel: 1
-  resetOrderPoolWhenAllFoodsUsed: 0
+  level1CustomerLimit: 5
+  level2FirstFoodOnlyOrders: 3
+  reactionDelayBeforeCounting: 2.5
   completed: 0
   currentOrderIndex: -1
 --- !u!1 &4907001753822002528

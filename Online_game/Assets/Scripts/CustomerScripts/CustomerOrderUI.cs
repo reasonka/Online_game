@@ -538,15 +538,21 @@ public class CustomerOrderUI : MonoBehaviour
                 break;
         }
 
-        ReportServedToLevelAfterReaction(reactionDelayBeforeCounting);
+        ReportServedToLevelAfterReaction(reaction, reactionDelayBeforeCounting);
     }
 
-    public void ReportServedToLevelAfterReaction(float reactionDelay)
+    public void ReportServedToLevelAfterReaction(CustomerReactionType reaction, float reactionDelay)
     {
         if (hasReportedServedToLevel) return;
 
         hasReportedServedToLevel = true;
 
+        if (LevelPerformanceTracker.Instance != null)
+        {
+            LevelPerformanceTracker.Instance.ReportCustomerReaction(reaction, reactionDelay);
+        }
+
+        // Keep your old Level 1 completion system working.
         if (Level1ObjectiveManager.Instance != null)
         {
             Level1ObjectiveManager.Instance.CustomerServedAfterReaction(reactionDelay);

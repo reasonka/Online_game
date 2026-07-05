@@ -3,16 +3,17 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Put this on the RawImage that shows the shared canvas texture inside your popup panel.
-/// Handles pointer drawing input locally and forwards points to NetworkedDrawBoard,
-/// which syncs them to every client (inner + outer screens both update live).
+/// Draw panel UI. Only the local player currently in the trigger zone has
+/// this panel open, so only their clicks/drags reach OnPointerDown/OnDrag -
+/// but every stroke they make gets broadcast by NetworkedDrawBoard so all
+/// players see the result on the shared in-world screens.
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class DrawCanvasUI : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [Header("Setup")]
-    public GameObject panelRoot;      // whole popup, toggled by Open/Close
-    public RawImage drawSurface;      // RawImage displaying drawBoard's texture
+    public GameObject panelRoot;
+    public RawImage drawSurface;
     public NetworkedDrawBoard drawBoard;
     public DrawTriggerZone triggerZone;
 
@@ -28,13 +29,37 @@ public class DrawCanvasUI : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     void Awake()
     {
         _rect = drawSurface.rectTransform;
-        drawSurface.texture = drawBoard.CanvasTexture;
         if (panelRoot != null) panelRoot.SetActive(false);
+    }
+
+    void Update()
+    {
+        // Guaranteed way out: since movement is disabled while drawing,
+        // the player can't physically walk out of the trigger zone to
+        // fire OnTriggerExit. Escape always works regardless of whether
+        // the Exit button is correctly wired in the Inspector.
+        if (panelRoot != null && panelRoot.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            OnExitButtonPressed();
+        }
     }
 
     public void Open()
     {
+        // Bind here (not in Awake) so it's guaranteed drawBoard has already
+        // created its texture, regardless of script execution order.
+        if (drawSurface.texture == null)
+            drawSurface.texture = drawBoard.CanvasTexture;
+
         if (panelRoot != null) panelRoot.SetActive(true);
+
+        // Force the OS cursor free so the player can actually click/drag
+        // on the panel. Some player controllers re-lock the cursor on the
+        // next left-click if they're not disabled - make sure this
+        // GameObject's DrawTriggerZone has the player's movement script
+        // listed in "Scripts To Disable While Drawing" (see setup notes).
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void Close()
@@ -43,13 +68,11 @@ public class DrawCanvasUI : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         _isDragging = false;
     }
 
-    /// <summary>Hook this up to the Exit button's OnClick.</summary>
     public void OnExitButtonPressed()
     {
         triggerZone.ExitDrawMode();
     }
 
-    /// <summary>Optional: hook up to a Clear button (wipes the whole canvas).</summary>
     public void OnClearButtonPressed()
     {
         drawBoard.RequestClear();
@@ -57,7 +80,7 @@ public class DrawCanvasUI : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Middle) return; // ignore middle click
+        if (eventData.button == PointerEventData.InputButton.Middle) return;
 
         if (TryGetUV(eventData, out Vector2 uv))
         {
@@ -81,7 +104,6 @@ public class DrawCanvasUI : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
             Color color = erasing ? drawBoard.backgroundColor : brushColor;
             int size = erasing ? eraserSize : brushSize;
 
-            // Interpolate between last and current point so fast drags don't leave gaps
             float dist = Vector2.Distance(_lastUV, uv);
             int steps = Mathf.Max(1, Mathf.CeilToInt(dist * drawBoard.textureSize / 4f));
             for (int i = 1; i <= steps; i++)
