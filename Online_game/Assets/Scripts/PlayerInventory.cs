@@ -16,8 +16,8 @@ public class PlayerInventory : MonoBehaviourPun
     public string isCarryingParameter = "IsCarrying";
 
     [Header("Photon")]
-    [Tooltip("本地测试时关闭，正式联网时开启。")]
-    public bool usePhotonSync = false;
+    [Tooltip("联网时强制使用 PhotonNetwork.Instantiate。")]
+    public bool usePhotonSync = true;
 
     [Header("Debug")]
     public bool showDebugLog = true;
@@ -28,10 +28,6 @@ public class PlayerInventory : MonoBehaviourPun
 
     public bool HasHeldItem => heldItem != null;
 
-    /// <summary>
-    /// 当手上物品状态变化时触发。
-    /// true 表示现在拿着物品，false 表示手为空。
-    /// </summary>
     public event Action<bool> HeldItemChanged;
 
     private void Awake()
@@ -47,176 +43,180 @@ public class PlayerInventory : MonoBehaviourPun
         UpdateCarryingAnimator();
     }
 
-    /// <summary>
-    /// 生成一个 Prefab，并立刻拿到手上。
-    /// </summary>
     public GameObject SpawnAndHold(GameObject prefab)
     {
         if (prefab == null)
         {
-            LogWarning(
-                "SpawnAndHold received a null prefab."
-            );
+            LogWarning("SpawnAndHold received a null prefab.");
+            return null;
+        }
 
+        if (!CanUseThisInventory())
+        {
+            LogWarning("Only the local owner can spawn items from this inventory.");
             return null;
         }
 
         if (HasHeldItem)
         {
-            LogWarning(
-                "Cannot spawn item because hand is occupied by: " +
-                heldItem.name
-            );
-
+            LogWarning("Cannot spawn item because hand is occupied by: " + heldItem.name);
             return null;
         }
 
         if (handPoint == null)
         {
-            LogWarning(
-                "Hand Point is missing."
-            );
-
+            LogWarning("Hand Point is missing.");
             return null;
         }
 
         GameObject spawnedObject;
 
-        if (usePhotonSync &&
-            PhotonNetwork.IsConnected)
+        if (usePhotonSync && PhotonNetwork.InRoom)
         {
             spawnedObject = PhotonNetwork.Instantiate(
                 prefab.name,
                 handPoint.position,
                 handPoint.rotation
             );
-        }
-        else
-        {
-            spawnedObject = Instantiate(
-                prefab,
-                handPoint.position,
-                handPoint.rotation
+
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(spawnedObject);
+
+            if (itemView == null)
+            {
+                LogWarning("Spawned network item has no PhotonView: " + prefab.name);
+                PhotonNetwork.Destroy(spawnedObject);
+                return null;
+            }
+
+            photonView.RPC(
+                nameof(RPC_HoldObject),
+                RpcTarget.All,
+                itemView.ViewID
             );
+
+            return spawnedObject;
         }
 
-        if (spawnedObject == null)
-        {
-            LogWarning(
-                "Failed to spawn item: " +
-                prefab.name
-            );
+        spawnedObject = Instantiate(
+            prefab,
+            handPoint.position,
+            handPoint.rotation
+        );
 
-            return null;
-        }
-
-        bool heldSuccessfully =
-            TryHoldObject(spawnedObject);
+        bool heldSuccessfully = HoldObjectLocally(spawnedObject);
 
         if (!heldSuccessfully)
         {
-            DestroyObject(spawnedObject);
+            Destroy(spawnedObject);
             return null;
         }
 
         return spawnedObject;
     }
 
-    /// <summary>
-    /// 把场景中已有的物体拿到手上。
-    /// </summary>
     public bool TryHoldObject(GameObject targetObject)
     {
         if (targetObject == null)
         {
-            LogWarning(
-                "TryHoldObject received a null object."
+            LogWarning("TryHoldObject received a null object.");
+            return false;
+        }
+
+        if (!CanUseThisInventory())
+        {
+            LogWarning("Only the local owner can hold items with this inventory.");
+            return false;
+        }
+
+        if (usePhotonSync && PhotonNetwork.InRoom)
+        {
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(targetObject);
+
+            if (itemView == null)
+            {
+                LogWarning("Cannot network-hold object without PhotonView: " + targetObject.name);
+                return false;
+            }
+
+            photonView.RPC(
+                nameof(RPC_HoldObject),
+                RpcTarget.All,
+                itemView.ViewID
             );
 
+            return true;
+        }
+
+        return HoldObjectLocally(targetObject);
+    }
+
+    private bool HoldObjectLocally(GameObject targetObject)
+    {
+        if (targetObject == null)
+        {
             return false;
         }
 
         if (HasHeldItem)
         {
-            LogWarning(
-                "Cannot hold another object because hand is occupied."
-            );
+            if (heldItem.gameObject == targetObject)
+            {
+                return true;
+            }
 
+            LogWarning("Cannot hold another object because hand is occupied.");
             return false;
         }
 
         if (handPoint == null)
         {
-            LogWarning(
-                "Hand Point is missing."
-            );
-
+            LogWarning("Hand Point is missing.");
             return false;
         }
 
-        HoldableItem holdable =
-            targetObject.GetComponent<HoldableItem>();
+        HoldableItem holdable = targetObject.GetComponent<HoldableItem>();
 
         if (holdable == null)
         {
-            holdable =
-                targetObject.GetComponentInChildren<HoldableItem>();
+            holdable = targetObject.GetComponentInChildren<HoldableItem>();
         }
 
         if (holdable == null)
         {
-            holdable =
-                targetObject.GetComponentInParent<HoldableItem>();
-        }
-
-        if (holdable == null)
-        {
-            LogWarning(
-                "Object has no HoldableItem component: " +
-                targetObject.name
-            );
-
+            LogWarning("Object has no HoldableItem component: " + targetObject.name);
             return false;
         }
 
         heldItem = holdable;
 
-        Transform itemTransform =
-            heldItem.transform;
+        Transform itemTransform = targetObject.transform;
+        itemTransform.SetParent(handPoint, false);
+        itemTransform.localPosition = Vector3.zero;
+        itemTransform.localRotation = Quaternion.identity;
 
-        itemTransform.SetParent(
-            handPoint,
-            false
-        );
-
-        itemTransform.localPosition =
-            Vector3.zero;
-
-        itemTransform.localRotation =
-            Quaternion.identity;
-
-        /*
-         * true 表示物品进入手持状态：
-         * Collider 关闭；
-         * Rigidbody 变为 Kinematic；
-         * 重力关闭。
-         */
         heldItem.SetHeldState(true);
 
         NotifyHeldItemChanged();
 
-        Log(
-            "Now holding: " +
-            heldItem.name
-        );
+        Log("Now holding: " + heldItem.name);
 
         return true;
     }
 
-    /// <summary>
-    /// 把手上的物品放到指定位置。
-    /// keepFixed 为 true 时，物品放下后保持固定。
-    /// </summary>
+    [PunRPC]
+    private void RPC_HoldObject(int itemViewId)
+    {
+        PhotonView itemView = PhotonView.Find(itemViewId);
+
+        if (itemView == null)
+        {
+            LogWarning("RPC_HoldObject could not find PhotonView ID: " + itemViewId);
+            return;
+        }
+
+        HoldObjectLocally(itemView.gameObject);
+    }
+
     public bool PlaceHeldItem(
         Transform parentTransform,
         Transform placementTransform,
@@ -224,261 +224,389 @@ public class PlayerInventory : MonoBehaviourPun
     {
         if (!HasHeldItem)
         {
-            LogWarning(
-                "There is no held item to place."
-            );
-
+            LogWarning("There is no held item to place.");
             return false;
         }
 
         if (placementTransform == null)
         {
-            LogWarning(
-                "Placement Transform is missing."
-            );
-
+            LogWarning("Placement Transform is missing.");
             return false;
         }
 
-        HoldableItem itemToPlace =
-            heldItem;
+        HoldableItem itemToPlace = heldItem;
 
-        heldItem = null;
+        if (usePhotonSync && PhotonNetwork.InRoom)
+        {
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(itemToPlace.gameObject);
 
-        Transform itemTransform =
-            itemToPlace.transform;
+            if (itemView != null)
+            {
+                photonView.RPC(
+                    nameof(RPC_PlaceHeldObject),
+                    RpcTarget.All,
+                    itemView.ViewID,
+                    placementTransform.position,
+                    placementTransform.rotation,
+                    keepFixed
+                );
 
-        itemTransform.SetParent(
+                return true;
+            }
+        }
+
+        PlaceHeldObjectLocally(
             parentTransform,
-            true
-        );
-
-        itemTransform.SetPositionAndRotation(
             placementTransform.position,
-            placementTransform.rotation
-        );
-
-        itemToPlace.SetPlacedState(
+            placementTransform.rotation,
             keepFixed
-        );
-
-        NotifyHeldItemChanged();
-
-        Log(
-            "Placed item: " +
-            itemToPlace.name
         );
 
         return true;
     }
 
-    /// <summary>
-    /// 把手上的物品移动到指定位置并释放。
-    /// 物品不会固定，也不会销毁。
-    /// Rigidbody、Collider 和重力会恢复。
-    /// </summary>
-    public Rigidbody ReleaseHeldItemAt(
-        Transform releasePoint)
+    private void PlaceHeldObjectLocally(
+        Transform parentTransform,
+        Vector3 position,
+        Quaternion rotation,
+        bool keepFixed)
     {
         if (!HasHeldItem)
         {
-            LogWarning(
-                "There is no held item to release."
-            );
+            return;
+        }
 
+        HoldableItem itemToPlace = heldItem;
+        heldItem = null;
+
+        Transform itemTransform = itemToPlace.transform;
+
+        itemTransform.SetParent(parentTransform, true);
+        itemTransform.SetPositionAndRotation(position, rotation);
+
+        itemToPlace.SetPlacedState(keepFixed);
+
+        NotifyHeldItemChanged();
+
+        Log("Placed item: " + itemToPlace.name);
+    }
+
+    [PunRPC]
+    private void RPC_PlaceHeldObject(
+        int itemViewId,
+        Vector3 position,
+        Quaternion rotation,
+        bool keepFixed)
+    {
+        PhotonView itemView = PhotonView.Find(itemViewId);
+
+        if (itemView == null)
+        {
+            LogWarning("RPC_PlaceHeldObject could not find PhotonView ID: " + itemViewId);
+            return;
+        }
+
+        HoldableItem item = itemView.GetComponent<HoldableItem>();
+
+        if (item == null)
+        {
+            item = itemView.GetComponentInChildren<HoldableItem>();
+        }
+
+        if (item == null)
+        {
+            return;
+        }
+
+        heldItem = item;
+
+        PlaceHeldObjectLocally(
+            null,
+            position,
+            rotation,
+            keepFixed
+        );
+    }
+
+    public Rigidbody ReleaseHeldItemAt(Transform releasePoint)
+    {
+        if (!HasHeldItem)
+        {
+            LogWarning("There is no held item to release.");
             return null;
         }
 
         if (releasePoint == null)
         {
-            LogWarning(
-                "Release Point is missing."
-            );
-
+            LogWarning("Release Point is missing.");
             return null;
         }
 
-        HoldableItem itemToRelease =
-            heldItem;
+        HoldableItem itemToRelease = heldItem;
 
-        heldItem = null;
-
-        Transform itemTransform =
-            itemToRelease.transform;
-
-        /*
-         * 先脱离玩家的 HandPoint。
-         */
-        itemTransform.SetParent(
-            null,
-            true
-        );
-
-        /*
-         * 移动到空中的 Throw Point。
-         */
-        itemTransform.SetPositionAndRotation(
-            releasePoint.position,
-            releasePoint.rotation
-        );
-
-        /*
-         * false 表示不固定物品。
-         * Collider、Rigidbody 和原来的物理状态会恢复。
-         */
-        itemToRelease.SetPlacedState(false);
-
-        /*
-         * 通知 Animator：
-         * IsCarrying 变成 false。
-         */
-        NotifyHeldItemChanged();
-
-        Rigidbody releasedRigidbody =
-            itemToRelease.GetComponent<Rigidbody>();
-
-        if (releasedRigidbody == null)
+        if (usePhotonSync && PhotonNetwork.InRoom)
         {
-            releasedRigidbody =
-                itemToRelease.GetComponentInChildren<Rigidbody>();
-        }
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(itemToRelease.gameObject);
 
-        if (releasedRigidbody != null)
-        {
-            /*
-             * 确保物品能够根据物理和重力下落。
-             */
-            releasedRigidbody.isKinematic = false;
-            releasedRigidbody.useGravity = true;
-
-            /*
-             * 清除之前可能残留的速度。
-             * 必须先把 Is Kinematic 关闭，
-             * 再修改 velocity 和 angularVelocity。
-             */
-            releasedRigidbody.velocity =
-                Vector3.zero;
-
-            releasedRigidbody.angularVelocity =
-                Vector3.zero;
-
-            releasedRigidbody.WakeUp();
+            if (itemView != null)
+            {
+                photonView.RPC(
+                    nameof(RPC_ReleaseHeldObject),
+                    RpcTarget.All,
+                    itemView.ViewID,
+                    releasePoint.position,
+                    releasePoint.rotation
+                );
+            }
         }
         else
         {
-            LogWarning(
-                "Released item has no Rigidbody: " +
-                itemToRelease.name
+            ReleaseHeldObjectLocally(
+                releasePoint.position,
+                releasePoint.rotation
             );
         }
 
-        Log(
-            "Released held item at point: " +
-            itemToRelease.name
-        );
+        Rigidbody releasedRigidbody = itemToRelease.GetComponent<Rigidbody>();
+
+        if (releasedRigidbody == null)
+        {
+            releasedRigidbody = itemToRelease.GetComponentInChildren<Rigidbody>();
+        }
 
         return releasedRigidbody;
     }
 
-    /// <summary>
-    /// 销毁当前手上的物品。
-    /// 用于添加 Ingredient 或扔进垃圾桶。
-    /// </summary>
+    private void ReleaseHeldObjectLocally(Vector3 position, Quaternion rotation)
+    {
+        if (!HasHeldItem)
+        {
+            return;
+        }
+
+        HoldableItem itemToRelease = heldItem;
+        heldItem = null;
+
+        Transform itemTransform = itemToRelease.transform;
+
+        itemTransform.SetParent(null, true);
+        itemTransform.SetPositionAndRotation(position, rotation);
+
+        itemToRelease.SetPlacedState(false);
+
+        NotifyHeldItemChanged();
+
+        Rigidbody releasedRigidbody = itemToRelease.GetComponent<Rigidbody>();
+
+        if (releasedRigidbody == null)
+        {
+            releasedRigidbody = itemToRelease.GetComponentInChildren<Rigidbody>();
+        }
+
+        if (releasedRigidbody != null)
+        {
+            releasedRigidbody.isKinematic = false;
+            releasedRigidbody.useGravity = true;
+            releasedRigidbody.velocity = Vector3.zero;
+            releasedRigidbody.angularVelocity = Vector3.zero;
+            releasedRigidbody.WakeUp();
+        }
+
+        Log("Released held item: " + itemToRelease.name);
+    }
+
+    [PunRPC]
+    private void RPC_ReleaseHeldObject(
+        int itemViewId,
+        Vector3 position,
+        Quaternion rotation)
+    {
+        PhotonView itemView = PhotonView.Find(itemViewId);
+
+        if (itemView == null)
+        {
+            LogWarning("RPC_ReleaseHeldObject could not find PhotonView ID: " + itemViewId);
+            return;
+        }
+
+        HoldableItem item = itemView.GetComponent<HoldableItem>();
+
+        if (item == null)
+        {
+            item = itemView.GetComponentInChildren<HoldableItem>();
+        }
+
+        if (item == null)
+        {
+            return;
+        }
+
+        heldItem = item;
+
+        ReleaseHeldObjectLocally(position, rotation);
+    }
+
     public void ConsumeHeldItem()
     {
         if (!HasHeldItem)
         {
-            Log(
-                "There is no held item to consume."
-            );
-
+            Log("There is no held item to consume.");
             return;
         }
 
-        GameObject objectToDestroy =
-            heldItem.gameObject;
+        GameObject objectToDestroy = heldItem.gameObject;
+        string itemName = objectToDestroy.name;
 
-        string itemName =
-            objectToDestroy.name;
+        PhotonView itemView = FindPhotonViewOnObjectOrChildren(objectToDestroy);
 
-        heldItem = null;
+        if (usePhotonSync &&
+            PhotonNetwork.InRoom &&
+            itemView != null)
+        {
+            photonView.RPC(
+                nameof(RPC_ClearHeldObject),
+                RpcTarget.All,
+                itemView.ViewID
+            );
+        }
+        else
+        {
+            ClearHeldObjectLocally();
+        }
 
-        NotifyHeldItemChanged();
+        DestroyObject(objectToDestroy);
 
-        DestroyObject(
-            objectToDestroy
-        );
-
-        Log(
-            "Consumed held item: " +
-            itemName
-        );
+        Log("Consumed held item: " + itemName);
     }
 
-    /// <summary>
-    /// 只清除手持引用，不销毁物体。
-    /// </summary>
-    public void ForceClearHeldReference()
+    [PunRPC]
+    private void RPC_ClearHeldObject(int itemViewId)
+    {
+        PhotonView itemView = PhotonView.Find(itemViewId);
+
+        if (itemView == null)
+        {
+            ClearHeldObjectLocally();
+            return;
+        }
+
+        if (heldItem == null)
+        {
+            NotifyHeldItemChanged();
+            return;
+        }
+
+        PhotonView heldView =
+            FindPhotonViewOnObjectOrChildren(heldItem.gameObject);
+
+        if (heldView != null &&
+            heldView.ViewID == itemViewId)
+        {
+            ClearHeldObjectLocally();
+            return;
+        }
+
+        if (heldItem.gameObject == itemView.gameObject)
+        {
+            ClearHeldObjectLocally();
+        }
+    }
+
+    private void ClearHeldObjectLocally()
     {
         heldItem = null;
-
         NotifyHeldItemChanged();
     }
 
-    private void DestroyObject(
-        GameObject targetObject)
+    public void ForceClearHeldReference()
+    {
+        ClearHeldObjectLocally();
+    }
+
+    private void DestroyObject(GameObject targetObject)
     {
         if (targetObject == null)
         {
             return;
         }
 
+        PhotonView targetView =
+            FindPhotonViewOnObjectOrChildren(targetObject);
+
         if (usePhotonSync &&
-            PhotonNetwork.IsConnected)
+            PhotonNetwork.InRoom &&
+            targetView != null)
         {
-            PhotonView targetView =
-                targetObject.GetComponent<PhotonView>();
-
-            if (targetView == null)
-            {
-                targetView =
-                    targetObject.GetComponentInParent<PhotonView>();
-            }
-
-            if (targetView == null)
-            {
-                targetView =
-                    targetObject.GetComponentInChildren<PhotonView>();
-            }
-
-            if (targetView != null)
-            {
-                PhotonNetwork.Destroy(
-                    targetView.gameObject
-                );
-            }
-            else
-            {
-                /*
-                 * 没有 PhotonView 的普通物体，
-                 * 只能在当前客户端本地销毁。
-                 */
-                Destroy(targetObject);
-            }
+            PhotonNetwork.Destroy(targetView.gameObject);
+            return;
         }
-        else
+
+        Destroy(targetObject);
+    }
+
+    private PhotonView FindPhotonViewOnObjectOrChildren(GameObject targetObject)
+    {
+        if (targetObject == null)
         {
-            Destroy(targetObject);
+            return null;
         }
+
+        PhotonView view = targetObject.GetComponent<PhotonView>();
+
+        if (view != null)
+        {
+            return view;
+        }
+
+        view = targetObject.GetComponentInChildren<PhotonView>();
+
+        if (view != null)
+        {
+            return view;
+        }
+
+        Transform current = targetObject.transform.parent;
+
+        while (current != null)
+        {
+            if (handPoint != null && current == handPoint)
+            {
+                break;
+            }
+
+            view = current.GetComponent<PhotonView>();
+
+            if (view != null)
+            {
+                return view;
+            }
+
+            current = current.parent;
+        }
+
+        return null;
+    }
+
+    private bool CanUseThisInventory()
+    {
+        if (!usePhotonSync)
+        {
+            return true;
+        }
+
+        if (!PhotonNetwork.InRoom)
+        {
+            return true;
+        }
+
+        return photonView.IsMine;
     }
 
     private void NotifyHeldItemChanged()
     {
         UpdateCarryingAnimator();
 
-        HeldItemChanged?.Invoke(
-            HasHeldItem
-        );
+        HeldItemChanged?.Invoke(HasHeldItem);
     }
 
     public void UpdateCarryingAnimator()
@@ -499,8 +627,7 @@ public class PlayerInventory : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.Log(
-                "[PlayerInventory] " +
-                message,
+                "[PlayerInventory] " + message,
                 this
             );
         }
@@ -511,8 +638,7 @@ public class PlayerInventory : MonoBehaviourPun
         if (showDebugLog)
         {
             Debug.LogWarning(
-                "[PlayerInventory] " +
-                message,
+                "[PlayerInventory] " + message,
                 this
             );
         }

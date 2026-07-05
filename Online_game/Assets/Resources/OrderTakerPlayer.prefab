@@ -903,6 +903,7 @@ Transform:
   - {fileID: 6001173906038134447}
   - {fileID: 6724468688596541340}
   - {fileID: 3636298120005352096}
+  - {fileID: 6778212466097444348}
   m_Father: {fileID: 357038677500822670}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1319,6 +1320,37 @@ Transform:
   - {fileID: 1271763418666120307}
   m_Father: {fileID: 1012402686880601524}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4284150825019912505
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6778212466097444348}
+  m_Layer: 0
+  m_Name: FoodPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6778212466097444348
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4284150825019912505}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.00034, y: -0.01452, z: 0.00074}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5136187440590828386}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4356573695853893530
 GameObject:
@@ -1951,6 +1983,8 @@ GameObject:
   - component: {fileID: 146155571138090202}
   - component: {fileID: 2529144136459627300}
   - component: {fileID: 8914198863210917187}
+  - component: {fileID: 2837764616899804233}
+  - component: {fileID: 1321461364332440000}
   m_Layer: 0
   m_Name: OrderTakerPlayer
   m_TagString: Untagged
@@ -2017,6 +2051,7 @@ MonoBehaviour:
   animatorSpeedSmooth: 12
   usePhotonSync: 1
   lockCursorOnStart: 1
+  unlockCursorKey: 306
 --- !u!114 &5185699603921372520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2284,6 +2319,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126494ae2a10a34499272ed97a6c9f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2837764616899804233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6fbae7a5cdb36b4fae32b97134a6567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactKey: 101
+  dropKey: 113
+  pickupRange: 2
+  interactMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  holdPoint: {fileID: 6778212466097444348}
+  holdLocalPosition: {x: 0, y: 1.2, z: 1}
+  holdLocalRotation: {x: 0, y: 0, z: 0}
+  dropForwardDistance: 1
+  dropUpOffset: 0.5
+  dropPushForce: 1.5
+  requireCustomerWithOrderToPlace: 1
+--- !u!170 &1321461364332440000
+AudioDistortionFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_DistortionLevel: 0.2
 --- !u!1 &7442378397244450868
 GameObject:
   m_ObjectHideFlags: 0

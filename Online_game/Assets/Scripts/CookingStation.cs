@@ -49,9 +49,7 @@ public class CookingStation : MonoBehaviourPun
     public bool usePhotonSync = false;
 
     [Header("Input Method")]
-    [Tooltip(
-        "使用玩家按 F 放食材时保持关闭。"
-    )]
+    [Tooltip("使用玩家按 F 放食材时保持关闭。")]
     public bool acceptIngredientByTrigger = false;
 
     [Header("Recipes")]
@@ -102,14 +100,11 @@ public class CookingStation : MonoBehaviourPun
         }
         else if (!col.isTrigger)
         {
-            LogWarning(
-                "CookingStation Collider should use Is Trigger."
-            );
+            LogWarning("CookingStation Collider should use Is Trigger.");
         }
     }
 
-    public void SetPlacementSurface(
-        PlacementSurface surface)
+    public void SetPlacementSurface(PlacementSurface surface)
     {
         placementSurface = surface;
 
@@ -147,24 +142,12 @@ public class CookingStation : MonoBehaviourPun
             return;
         }
 
-        if (usePhotonSync &&
-            PhotonNetwork.IsConnected)
-        {
-            photonView.RPC(
-                nameof(RPC_AddIngredient),
-                RpcTarget.All,
-                ingredientId
-            );
-        }
-        else
-        {
-            LocalAddIngredient(ingredientId);
-        }
-    }
-
-    [PunRPC]
-    private void RPC_AddIngredient(string ingredientId)
-    {
+        /*
+         * 不再 RpcTarget.All。
+         * 谁操作 CookingStation，谁本地计算 recipe。
+         * 生成出来的 visual / final product 会用 PhotonNetwork.Instantiate，
+         * 所以所有玩家都能看到结果。
+         */
         LocalAddIngredient(ingredientId);
     }
 
@@ -333,11 +316,10 @@ public class CookingStation : MonoBehaviourPun
         return RecipeMatchState.Possible;
     }
 
-    private IngredientRequirement
-        FindRequirementForCurrentAdd(
-            CookingRecipe recipe,
-            string ingredientId,
-            List<string> currentIds)
+    private IngredientRequirement FindRequirementForCurrentAdd(
+        CookingRecipe recipe,
+        string ingredientId,
+        List<string> currentIds)
     {
         if (recipe.useOrder)
         {
@@ -435,10 +417,6 @@ public class CookingStation : MonoBehaviourPun
         GameObject finalObject =
             SpawnFinalProduct(recipe);
 
-        /*
-         * 先让桌子清掉 CookingBase 的占用记录，
-         * 再登记新生成的 FinishedFood。
-         */
         if (placementSurface != null)
         {
             placementSurface.ClearOccupiedReference();
@@ -470,10 +448,7 @@ public class CookingStation : MonoBehaviourPun
         if (recipe == null ||
             recipe.finalProductPrefab == null)
         {
-            LogWarning(
-                "Final Product Prefab is missing."
-            );
-
+            LogWarning("Final Product Prefab is missing.");
             return null;
         }
 
@@ -528,10 +503,6 @@ public class CookingStation : MonoBehaviourPun
         {
             placementSurface.ClearOccupiedReference();
 
-            /*
-             * 失败物如果也想允许拿取，
-             * 它必须挂 HoldableItem 且类型为 FinishedFood。
-             */
             if (failedObject != null)
             {
                 HoldableItem item =
@@ -560,9 +531,7 @@ public class CookingStation : MonoBehaviourPun
             DestroyCookingStationObject();
         }
 
-        LogWarning(
-            "Recipe failed: " + reason
-        );
+        LogWarning("Recipe failed: " + reason);
     }
 
     private GameObject SpawnObject(
@@ -576,13 +545,8 @@ public class CookingStation : MonoBehaviourPun
         }
 
         if (usePhotonSync &&
-            PhotonNetwork.IsConnected)
+            PhotonNetwork.InRoom)
         {
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                return null;
-            }
-
             return PhotonNetwork.Instantiate(
                 prefab.name,
                 position,
@@ -613,15 +577,21 @@ public class CookingStation : MonoBehaviourPun
             }
 
             if (usePhotonSync &&
-                PhotonNetwork.IsConnected)
+                PhotonNetwork.InRoom)
             {
                 PhotonView view =
                     obj.GetComponent<PhotonView>();
 
-                if (view != null &&
-                    PhotonNetwork.IsMasterClient)
+                if (view == null)
                 {
-                    PhotonNetwork.Destroy(obj);
+                    view = obj.GetComponentInChildren<PhotonView>();
+                }
+
+                if (view != null)
+                {
+                    PhotonNetwork.Destroy(
+                        view.gameObject
+                    );
                 }
             }
             else
@@ -661,7 +631,7 @@ public class CookingStation : MonoBehaviourPun
                 : gameObject;
 
         if (usePhotonSync &&
-            PhotonNetwork.IsConnected)
+            PhotonNetwork.InRoom)
         {
             PhotonView view =
                 target.GetComponent<PhotonView>();
@@ -672,8 +642,7 @@ public class CookingStation : MonoBehaviourPun
                     target.GetComponentInChildren<PhotonView>();
             }
 
-            if (view != null &&
-                PhotonNetwork.IsMasterClient)
+            if (view != null)
             {
                 PhotonNetwork.Destroy(
                     view.gameObject

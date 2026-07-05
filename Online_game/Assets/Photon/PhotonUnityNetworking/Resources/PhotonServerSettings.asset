@@ -45,6 +45,10 @@ MonoBehaviour:
   - RPC_AddIngredient
   - RPC_Clear
   - RPC_DrawPoint
+  - RPC_HoldObject
+  - RPC_PlaceHeldObject
+  - RPC_ReleaseHeldObject
+  - RPC_ClearHeldObject
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

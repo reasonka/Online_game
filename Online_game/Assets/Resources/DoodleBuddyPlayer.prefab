@@ -2242,6 +2242,7 @@ MonoBehaviour:
   animatorSpeedSmooth: 12
   usePhotonSync: 1
   lockCursorOnStart: 1
+  unlockCursorKey: 306
 --- !u!114 &3814668506593818470
 MonoBehaviour:
   m_ObjectHideFlags: 0
