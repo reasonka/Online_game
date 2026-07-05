@@ -32,6 +32,8 @@ public class EmojiWheelController : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log("EmojiWheelController.Awake() ran on " + gameObject.name);
+
         if (wheelPanel != null) wheelPanel.SetActive(false);
 
         _baseColors = new Color[optionIcons.Length];
@@ -41,6 +43,10 @@ public class EmojiWheelController : MonoBehaviour
 
     void Update()
     {
+        // TEMPORARY DIAGNOSTIC - remove once the panel is confirmed working.
+        if (Input.GetKeyDown(KeyCode.R))
+            Debug.Log("R was pressed! isOpen=" + _isOpen + " wheelPanel=" + (wheelPanel != null) + " enabled=" + enabled + " activeInHierarchy=" + gameObject.activeInHierarchy);
+
         if (!_isOpen)
         {
             if (Input.GetKeyDown(openKey))
@@ -66,6 +72,7 @@ public class EmojiWheelController : MonoBehaviour
 
     void Open()
     {
+        Debug.Log("Open() called - activating wheelPanel now");
         _isOpen = true;
         _selectedIndex = 0;
         if (wheelPanel != null) wheelPanel.SetActive(true);
@@ -93,8 +100,6 @@ public class EmojiWheelController : MonoBehaviour
 
             if (!isSelected)
             {
-                // Gray out unselected icons so the selected one is unmistakable,
-                // instead of relying on a subtle alpha difference.
                 float gray = c.r * 0.3f + c.g * 0.59f + c.b * 0.11f;
                 c = new Color(gray, gray, gray, 0.6f);
             }
