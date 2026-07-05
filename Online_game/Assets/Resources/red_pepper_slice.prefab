@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5859733534401751570
+--- !u!1 &2332644779445944472
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,50 +8,74 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5978813172144200778}
-  - component: {fileID: 9019740420754686311}
-  - component: {fileID: 2613109401855328442}
-  - component: {fileID: -4220246080995918292}
-  - component: {fileID: 8132110991490858915}
-  - component: {fileID: 3006030146409841416}
-  - component: {fileID: 7084345556045255128}
+  - component: {fileID: 4470561915071428401}
+  - component: {fileID: 1382854555705121915}
+  - component: {fileID: 5714640076810053708}
+  - component: {fileID: 3581844394638719322}
+  - component: {fileID: 7102701250627720553}
+  - component: {fileID: 4359958037357721541}
+  - component: {fileID: 6422454859743263078}
+  - component: {fileID: 8725450726172961543}
+  - component: {fileID: -1116773947844433485}
   m_Layer: 0
-  m_Name: olive_slice
+  m_Name: red_pepper_slice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5978813172144200778
+--- !u!4 &4470561915071428401
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
+  m_GameObject: {fileID: 2332644779445944472}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &9019740420754686311
+--- !u!114 &1382854555705121915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2332644779445944472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!33 &5714640076810053708
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
-  m_Mesh: {fileID: 4370676431778151885, guid: 9652813af10ecd042b00fe1925aec729, type: 3}
---- !u!23 &2613109401855328442
+  m_GameObject: {fileID: 2332644779445944472}
+  m_Mesh: {fileID: -4172304713446859870, guid: 9652813af10ecd042b00fe1925aec729, type: 3}
+--- !u!23 &3581844394638719322
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
+  m_GameObject: {fileID: 2332644779445944472}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -87,13 +111,26 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &-4220246080995918292
+--- !u!114 &7102701250627720553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2332644779445944472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3845f60d7388a384d934a511c990ca6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientId: RedPepper
+--- !u!54 &4359958037357721541
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
+  m_GameObject: {fileID: 2332644779445944472}
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
@@ -103,43 +140,46 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &8132110991490858915
+--- !u!65 &6422454859743263078
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
+  m_GameObject: {fileID: 2332644779445944472}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.12236512, y: 0.030739155, z: 0.1251381}
-  m_Center: {x: -0.00030421466, y: 0.000025893096, z: 0.00002386421}
---- !u!114 &3006030146409841416
+  m_Size: {x: 0.22336572, y: 0.025182985, z: 0.2243596}
+  m_Center: {x: -0.001813598, y: -0.0016099662, z: 0.0013603717}
+--- !u!114 &8725450726172961543
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3845f60d7388a384d934a511c990ca6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ingredientId: GreenOlive
---- !u!114 &7084345556045255128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5859733534401751570}
+  m_GameObject: {fileID: 2332644779445944472}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33e9280a5468bf4408ef246afbe423fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   itemType: 1
-  ingredientIdComponent: {fileID: 3006030146409841416}
+  ingredientIdComponent: {fileID: 7102701250627720553}
+--- !u!114 &-1116773947844433485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2332644779445944472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
