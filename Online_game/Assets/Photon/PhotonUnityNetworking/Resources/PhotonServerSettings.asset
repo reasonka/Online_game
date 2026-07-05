@@ -49,6 +49,7 @@ MonoBehaviour:
   - RPC_PlaceHeldObject
   - RPC_ReleaseHeldObject
   - RPC_ClearHeldObject
+  - RPC_PlayEmotion
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -1,119 +1,184 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public enum EmotionType { Angry, Happy, Crying }
-
-/// <summary>
-/// Press R to open a 3-option emoji wheel (Angry / Happy / Crying).
-/// Left/Right arrows move the selection, Enter (or Space) confirms and
-/// closes the panel automatically, then tells PlayerEmotionController to play it.
-/// </summary>
 public class EmojiWheelController : MonoBehaviour
 {
     [Header("References")]
-    public GameObject wheelPanel;           // the whole popup panel, toggled open/closed
-    public Image[] optionIcons = new Image[3]; // exactly 3: Angry, Happy, Crying (in that order)
-    public PlayerEmotionController emotionController;
-    public MonoBehaviour[] scriptsToDisableWhileOpen; // e.g. TestPlayerMover, so arrow keys don't also move the player
+    public BasicPlayerController playerController;
+    public GameObject wheelRoot;
 
-    [Header("Visuals")]
-    public Color normalColor = new Color(1f, 1f, 1f, 0.5f);
-    public Color selectedColor = Color.white;
-    public float selectedScale = 1.2f;
+    [Header("Buttons Order")]
+    public Button[] emotionButtons;
 
     [Header("Input")]
-    public KeyCode openKey = KeyCode.R;
+    public KeyCode openWheelKey = KeyCode.R;
     public KeyCode confirmKey = KeyCode.Return;
-    public KeyCode confirmKeyAlt = KeyCode.Space;
 
-    private bool _isOpen;
-    private int _selectedIndex;
-    private Color[] _baseColors;
+    [Header("Visual Selection")]
+    public Vector3 normalScale = Vector3.one;
+    public Vector3 selectedScale = new Vector3(1.25f, 1.25f, 1.25f);
 
-    void Awake()
+    private bool isOpen;
+    private int selectedIndex;
+
+    private void Awake()
     {
-        Debug.Log("EmojiWheelController.Awake() ran on " + gameObject.name);
+        if (playerController == null)
+            playerController = GetComponentInParent<BasicPlayerController>();
 
-        if (wheelPanel != null) wheelPanel.SetActive(false);
+        if (playerController == null)
+            playerController = FindObjectOfType<BasicPlayerController>();
 
-        _baseColors = new Color[optionIcons.Length];
-        for (int i = 0; i < optionIcons.Length; i++)
-            _baseColors[i] = optionIcons[i].color;
+        if (wheelRoot == null)
+        {
+            Transform wheel = transform.Find("EmojiWheel");
+            if (wheel != null)
+                wheelRoot = wheel.gameObject;
+        }
+
+        CloseWheel();
     }
 
-    void Update()
+    private void Start()
     {
-        // TEMPORARY DIAGNOSTIC - remove once the panel is confirmed working.
-        if (Input.GetKeyDown(KeyCode.R))
-            Debug.Log("R was pressed! isOpen=" + _isOpen + " wheelPanel=" + (wheelPanel != null) + " enabled=" + enabled + " activeInHierarchy=" + gameObject.activeInHierarchy);
+        CloseWheel();
+    }
 
-        if (!_isOpen)
+    private void Update()
+    {
+        if (playerController == null)
+            return;
+
+        if (!playerController.CanUseLocalInput())
+            return;
+
+        if (!isOpen)
         {
-            if (Input.GetKeyDown(openKey))
-                Open();
+            if (Input.GetKeyDown(openWheelKey))
+                OpenWheel();
+
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        HandleKeyboardSelection();
+    }
+
+    private void OpenWheel()
+    {
+        isOpen = true;
+        selectedIndex = 0;
+
+        if (wheelRoot != null)
+            wheelRoot.SetActive(true);
+
+        playerController.SetEmojiInputBlocked(true);
+
+        UpdateSelectionVisual();
+    }
+
+    private void CloseWheel()
+    {
+        isOpen = false;
+
+        if (wheelRoot != null)
+            wheelRoot.SetActive(false);
+
+        if (playerController != null)
+            playerController.SetEmojiInputBlocked(false);
+
+        ResetSelectionVisual();
+    }
+
+    private void HandleKeyboardSelection()
+    {
+        if (emotionButtons == null || emotionButtons.Length == 0)
+            return;
+
+        if (Input.GetKeyDown(KeyCode.RightArrow) ||
+            Input.GetKeyDown(KeyCode.DownArrow))
         {
-            _selectedIndex = (_selectedIndex + 1) % optionIcons.Length;
-            RefreshVisuals();
+            selectedIndex++;
+
+            if (selectedIndex >= emotionButtons.Length)
+                selectedIndex = 0;
+
+            UpdateSelectionVisual();
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) ||
+            Input.GetKeyDown(KeyCode.UpArrow))
         {
-            _selectedIndex = (_selectedIndex - 1 + optionIcons.Length) % optionIcons.Length;
-            RefreshVisuals();
+            selectedIndex--;
+
+            if (selectedIndex < 0)
+                selectedIndex = emotionButtons.Length - 1;
+
+            UpdateSelectionVisual();
         }
-        else if (Input.GetKeyDown(confirmKey) || Input.GetKeyDown(confirmKeyAlt))
+
+        if (Input.GetKeyDown(confirmKey) ||
+            Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            Confirm();
+            ConfirmSelection();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CloseWheel();
         }
     }
 
-    void Open()
+    private void ConfirmSelection()
     {
-        Debug.Log("Open() called - activating wheelPanel now");
-        _isOpen = true;
-        _selectedIndex = 0;
-        if (wheelPanel != null) wheelPanel.SetActive(true);
-        RefreshVisuals();
+        EmotionType chosenEmotion = EmotionType.Happy;
 
-        foreach (var s in scriptsToDisableWhileOpen)
-            if (s != null) s.enabled = false;
+        if (selectedIndex == 0)
+            chosenEmotion = EmotionType.Happy;
+        else if (selectedIndex == 1)
+            chosenEmotion = EmotionType.Angry;
+        else if (selectedIndex == 2)
+            chosenEmotion = EmotionType.Crying;
+
+        playerController.PlayEmotion(chosenEmotion);
+
+        CloseWheel();
     }
 
-    void Close()
+    private void UpdateSelectionVisual()
     {
-        _isOpen = false;
-        if (wheelPanel != null) wheelPanel.SetActive(false);
+        if (emotionButtons == null)
+            return;
 
-        foreach (var s in scriptsToDisableWhileOpen)
-            if (s != null) s.enabled = true;
-    }
-
-    void RefreshVisuals()
-    {
-        for (int i = 0; i < optionIcons.Length; i++)
+        for (int i = 0; i < emotionButtons.Length; i++)
         {
-            bool isSelected = i == _selectedIndex;
-            Color c = _baseColors[i];
+            if (emotionButtons[i] == null)
+                continue;
 
-            if (!isSelected)
-            {
-                float gray = c.r * 0.3f + c.g * 0.59f + c.b * 0.11f;
-                c = new Color(gray, gray, gray, 0.6f);
-            }
+            emotionButtons[i].transform.localScale =
+                i == selectedIndex ? selectedScale : normalScale;
+        }
 
-            optionIcons[i].color = c;
-            optionIcons[i].transform.localScale = Vector3.one * (isSelected ? selectedScale : 0.85f);
+        if (EventSystem.current != null &&
+            selectedIndex >= 0 &&
+            selectedIndex < emotionButtons.Length &&
+            emotionButtons[selectedIndex] != null)
+        {
+            EventSystem.current.SetSelectedGameObject(
+                emotionButtons[selectedIndex].gameObject
+            );
         }
     }
 
-    void Confirm()
+    private void ResetSelectionVisual()
     {
-        EmotionType chosen = (EmotionType)_selectedIndex; // 0=Angry, 1=Happy, 2=Crying
-        Close();
-        if (emotionController != null)
-            emotionController.PlayEmotion(chosen);
+        if (emotionButtons == null)
+            return;
+
+        for (int i = 0; i < emotionButtons.Length; i++)
+        {
+            if (emotionButtons[i] != null)
+                emotionButtons[i].transform.localScale = normalScale;
+        }
     }
 }

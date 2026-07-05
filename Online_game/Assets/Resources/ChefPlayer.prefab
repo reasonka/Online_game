@@ -1777,7 +1777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de78dff9937ad7144bf6079607a81a89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bookUIPrefab: {fileID: 0}
+  bookUIPrefab: {fileID: 8702126135276584534, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
   openBookKey: 101
   closeBookKey: 27
 --- !u!1 &3536521007800128361

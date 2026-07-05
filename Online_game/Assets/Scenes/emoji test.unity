@@ -348,6 +348,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CUSSNEWW
       objectReference: {fileID: 0}
+    - target: {fileID: 1307269338084106413, guid: f472e4099823a48ce969fc927b0aca26, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3330003067154738397, guid: f472e4099823a48ce969fc927b0aca26, type: 3}
       propertyPath: m_RootOrder
       value: 1
