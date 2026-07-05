@@ -4,31 +4,25 @@ using UnityEngine;
 
 public class PlayerVoiceRoleSetup : MonoBehaviourPun
 {
-    [Header("Role")]
     public int playerIndex;
     public string playerIndexPropertyKey = "CharacterIndex";
-
-    [Header("Push To Talk")]
     public KeyCode pushToTalkKey = KeyCode.V;
 
-    [Header("Photon Voice")]
     public Recorder recorder;
     public Speaker speaker;
 
-    private bool isLocalPlayer;
-    private bool isOrderTaker;
-    private bool isDoodleBuddy;
+    private int localPlayerIndex = -1;
 
     private void Start()
     {
-        ReadPlayerIndex();
+        ReadThisPlayerIndex();
+        ReadLocalPlayerIndex();
 
-        isLocalPlayer =
-            !PhotonNetwork.IsConnected ||
-            photonView.IsMine;
+        if (recorder == null)
+            recorder = GetComponent<Recorder>();
 
-        isOrderTaker = playerIndex == 0;
-        isDoodleBuddy = playerIndex == 1;
+        if (speaker == null)
+            speaker = GetComponent<Speaker>();
 
         SetupVoice();
     }
@@ -38,19 +32,26 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
         UpdatePushToTalk();
     }
 
-    private void ReadPlayerIndex()
+    private void ReadThisPlayerIndex()
     {
-        if (!PhotonNetwork.IsConnected || photonView == null || photonView.Owner == null)
-            return;
-
-        if (photonView.Owner.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+        if (photonView != null &&
+            photonView.Owner != null &&
+            photonView.Owner.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+        {
             playerIndex = (int)value;
+        }
+    }
+
+    private void ReadLocalPlayerIndex()
+    {
+        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+            localPlayerIndex = (int)value;
     }
 
     private void SetupVoice()
     {
-        bool canSpeak = isLocalPlayer && isOrderTaker;
-        bool canHear = isLocalPlayer && isDoodleBuddy;
+        bool thisIsOrderTaker = playerIndex == 0;
+        bool localPlayerIsDoodle = localPlayerIndex == 1;
 
         if (recorder != null)
         {
@@ -60,8 +61,7 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
 
         if (speaker != null)
         {
-            speaker.enabled = canHear;
-            speaker.gameObject.SetActive(canHear);
+            speaker.enabled = thisIsOrderTaker && localPlayerIsDoodle && !photonView.IsMine;
         }
     }
 
@@ -70,10 +70,13 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
         if (recorder == null)
             return;
 
-        bool canSpeak = isLocalPlayer && isOrderTaker;
-        bool isPressingMicKey = Input.GetKey(pushToTalkKey);
+        bool thisIsLocalOrderTaker =
+            photonView.IsMine &&
+            playerIndex == 0;
 
-        bool micOn = canSpeak && isPressingMicKey;
+        bool micOn =
+            thisIsLocalOrderTaker &&
+            Input.GetKey(pushToTalkKey);
 
         recorder.RecordingEnabled = micOn;
         recorder.TransmitEnabled = micOn;

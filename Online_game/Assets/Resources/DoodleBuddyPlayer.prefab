@@ -2175,6 +2175,7 @@ GameObject:
   - component: {fileID: 153037789}
   - component: {fileID: 153037788}
   - component: {fileID: 153037787}
+  - component: {fileID: 6265339709458477794}
   m_Layer: 0
   m_Name: DoodleBuddyPlayer
   m_TagString: Untagged
@@ -2189,16 +2190,16 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7162782686724899874}
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -11.593008, y: -3.96, z: -6.421831}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6460438778218284087}
   - {fileID: 6460438779603513049}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!143 &7162782686724899932
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2436,6 +2437,24 @@ MonoBehaviour:
     Max: 1000
     SpeedUpPerc: 5
   restartOnDeviceChange: 1
+--- !u!114 &6265339709458477794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7162782686724899874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5a8b41e98fe54fe190e68a8313809de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerIndexPropertyKey: CharacterIndex
+  recorder: {fileID: 0}
+  speaker: {fileID: 153037787}
+  speakerAudioSource: {fileID: 153037788}
+  logEverySeconds: 1
+  instantLogKey: 289
 --- !u!1 &7166388598513136377
 GameObject:
   m_ObjectHideFlags: 0
