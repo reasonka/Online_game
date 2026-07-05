@@ -79,12 +79,7 @@ public class PlayerInventory : MonoBehaviourPun
                 handPoint.rotation
             );
 
-            PhotonView itemView = spawnedObject.GetComponent<PhotonView>();
-
-            if (itemView == null)
-            {
-                itemView = spawnedObject.GetComponentInChildren<PhotonView>();
-            }
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(spawnedObject);
 
             if (itemView == null)
             {
@@ -135,12 +130,7 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (usePhotonSync && PhotonNetwork.InRoom)
         {
-            PhotonView itemView = targetObject.GetComponent<PhotonView>();
-
-            if (itemView == null)
-            {
-                itemView = targetObject.GetComponentInChildren<PhotonView>();
-            }
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(targetObject);
 
             if (itemView == null)
             {
@@ -169,6 +159,11 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (HasHeldItem)
         {
+            if (heldItem.gameObject == targetObject)
+            {
+                return true;
+            }
+
             LogWarning("Cannot hold another object because hand is occupied.");
             return false;
         }
@@ -188,19 +183,13 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (holdable == null)
         {
-            holdable = targetObject.GetComponentInParent<HoldableItem>();
-        }
-
-        if (holdable == null)
-        {
             LogWarning("Object has no HoldableItem component: " + targetObject.name);
             return false;
         }
 
         heldItem = holdable;
 
-        Transform itemTransform = heldItem.transform;
-
+        Transform itemTransform = targetObject.transform;
         itemTransform.SetParent(handPoint, false);
         itemTransform.localPosition = Vector3.zero;
         itemTransform.localRotation = Quaternion.identity;
@@ -249,17 +238,7 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (usePhotonSync && PhotonNetwork.InRoom)
         {
-            PhotonView itemView = itemToPlace.GetComponent<PhotonView>();
-
-            if (itemView == null)
-            {
-                itemView = itemToPlace.GetComponentInParent<PhotonView>();
-            }
-
-            if (itemView == null)
-            {
-                itemView = itemToPlace.GetComponentInChildren<PhotonView>();
-            }
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(itemToPlace.gameObject);
 
             if (itemView != null)
             {
@@ -367,17 +346,7 @@ public class PlayerInventory : MonoBehaviourPun
 
         if (usePhotonSync && PhotonNetwork.InRoom)
         {
-            PhotonView itemView = itemToRelease.GetComponent<PhotonView>();
-
-            if (itemView == null)
-            {
-                itemView = itemToRelease.GetComponentInParent<PhotonView>();
-            }
-
-            if (itemView == null)
-            {
-                itemView = itemToRelease.GetComponentInChildren<PhotonView>();
-            }
+            PhotonView itemView = FindPhotonViewOnObjectOrChildren(itemToRelease.gameObject);
 
             if (itemView != null)
             {
@@ -488,19 +457,70 @@ public class PlayerInventory : MonoBehaviourPun
         GameObject objectToDestroy = heldItem.gameObject;
         string itemName = objectToDestroy.name;
 
-        heldItem = null;
+        PhotonView itemView = FindPhotonViewOnObjectOrChildren(objectToDestroy);
 
-        NotifyHeldItemChanged();
+        if (usePhotonSync &&
+            PhotonNetwork.InRoom &&
+            itemView != null)
+        {
+            photonView.RPC(
+                nameof(RPC_ClearHeldObject),
+                RpcTarget.All,
+                itemView.ViewID
+            );
+        }
+        else
+        {
+            ClearHeldObjectLocally();
+        }
 
         DestroyObject(objectToDestroy);
 
         Log("Consumed held item: " + itemName);
     }
 
-    public void ForceClearHeldReference()
+    [PunRPC]
+    private void RPC_ClearHeldObject(int itemViewId)
+    {
+        PhotonView itemView = PhotonView.Find(itemViewId);
+
+        if (itemView == null)
+        {
+            ClearHeldObjectLocally();
+            return;
+        }
+
+        if (heldItem == null)
+        {
+            NotifyHeldItemChanged();
+            return;
+        }
+
+        PhotonView heldView =
+            FindPhotonViewOnObjectOrChildren(heldItem.gameObject);
+
+        if (heldView != null &&
+            heldView.ViewID == itemViewId)
+        {
+            ClearHeldObjectLocally();
+            return;
+        }
+
+        if (heldItem.gameObject == itemView.gameObject)
+        {
+            ClearHeldObjectLocally();
+        }
+    }
+
+    private void ClearHeldObjectLocally()
     {
         heldItem = null;
         NotifyHeldItemChanged();
+    }
+
+    public void ForceClearHeldReference()
+    {
+        ClearHeldObjectLocally();
     }
 
     private void DestroyObject(GameObject targetObject)
@@ -510,25 +530,61 @@ public class PlayerInventory : MonoBehaviourPun
             return;
         }
 
-        PhotonView targetView = targetObject.GetComponent<PhotonView>();
+        PhotonView targetView =
+            FindPhotonViewOnObjectOrChildren(targetObject);
 
-        if (targetView == null)
-        {
-            targetView = targetObject.GetComponentInParent<PhotonView>();
-        }
-
-        if (targetView == null)
-        {
-            targetView = targetObject.GetComponentInChildren<PhotonView>();
-        }
-
-        if (usePhotonSync && PhotonNetwork.InRoom && targetView != null)
+        if (usePhotonSync &&
+            PhotonNetwork.InRoom &&
+            targetView != null)
         {
             PhotonNetwork.Destroy(targetView.gameObject);
             return;
         }
 
         Destroy(targetObject);
+    }
+
+    private PhotonView FindPhotonViewOnObjectOrChildren(GameObject targetObject)
+    {
+        if (targetObject == null)
+        {
+            return null;
+        }
+
+        PhotonView view = targetObject.GetComponent<PhotonView>();
+
+        if (view != null)
+        {
+            return view;
+        }
+
+        view = targetObject.GetComponentInChildren<PhotonView>();
+
+        if (view != null)
+        {
+            return view;
+        }
+
+        Transform current = targetObject.transform.parent;
+
+        while (current != null)
+        {
+            if (handPoint != null && current == handPoint)
+            {
+                break;
+            }
+
+            view = current.GetComponent<PhotonView>();
+
+            if (view != null)
+            {
+                return view;
+            }
+
+            current = current.parent;
+        }
+
+        return null;
     }
 
     private bool CanUseThisInventory()
@@ -560,14 +616,20 @@ public class PlayerInventory : MonoBehaviourPun
             return;
         }
 
-        animator.SetBool(isCarryingParameter, HasHeldItem);
+        animator.SetBool(
+            isCarryingParameter,
+            HasHeldItem
+        );
     }
 
     private void Log(string message)
     {
         if (showDebugLog)
         {
-            Debug.Log("[PlayerInventory] " + message, this);
+            Debug.Log(
+                "[PlayerInventory] " + message,
+                this
+            );
         }
     }
 
@@ -575,7 +637,10 @@ public class PlayerInventory : MonoBehaviourPun
     {
         if (showDebugLog)
         {
-            Debug.LogWarning("[PlayerInventory] " + message, this);
+            Debug.LogWarning(
+                "[PlayerInventory] " + message,
+                this
+            );
         }
     }
 }
