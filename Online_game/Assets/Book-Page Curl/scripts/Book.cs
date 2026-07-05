@@ -119,7 +119,8 @@ public class Book : MonoBehaviour {
         }
         else if (canvas.renderMode == RenderMode.WorldSpace)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Camera activeCamera = canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
+            Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
             Vector3 globalEBR = transform.TransformPoint(ebr);
             Vector3 globalEBL = transform.TransformPoint(ebl);
             Vector3 globalSt = transform.TransformPoint(st);
@@ -444,5 +445,31 @@ public class Book : MonoBehaviour {
         }
         if (onFinish != null)
             onFinish();
+    }
+
+    public void GoToPage(int pageIndex)
+    {
+        if (bookPages == null || bookPages.Length == 0)
+            return;
+
+        currentPage = Mathf.Clamp(pageIndex, 0, bookPages.Length - 1);
+
+        if (currentPage % 2 != 0)
+        {
+            currentPage--;
+        }
+
+        Left.gameObject.SetActive(false);
+        Right.gameObject.SetActive(false);
+
+        Shadow.gameObject.SetActive(false);
+        ShadowLTR.gameObject.SetActive(false);
+
+        UpdateSprites();
+
+        if (OnFlip != null)
+        {
+            OnFlip.Invoke();
+        }
     }
 }

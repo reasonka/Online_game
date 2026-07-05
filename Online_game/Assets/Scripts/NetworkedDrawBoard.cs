@@ -2,10 +2,15 @@ using UnityEngine;
 using Photon.Pun;
 
 /// <summary>
-/// Shared drawing canvas. One instance in the scene, with a PhotonView on the same GameObject.
-/// Any client can request a draw point; it gets RPC'd to ALL clients (including the sender)
-/// and painted identically onto a local Texture2D that both the inner and outer projector
-/// screens reference, so everyone always sees the same image at the same time.
+/// Networked version of the draw board. Every stroke is applied locally
+/// immediately (for zero-lag feedback to the person drawing) and then
+/// broadcast via RPC so everyone else's copy of the texture gets painted
+/// too - keeping the physical in-world screens in sync for all players.
+///
+/// IMPORTANT SETUP: this GameObject must be a fixed object already placed
+/// in the scene (not spawned via PhotonNetwork.Instantiate), so Photon can
+/// register it as a shared "scene object" that every client references by
+/// the same PhotonView. It needs a PhotonView component (auto-required).
 /// </summary>
 [RequireComponent(typeof(PhotonView))]
 public class NetworkedDrawBoard : MonoBehaviourPun
@@ -20,7 +25,6 @@ public class NetworkedDrawBoard : MonoBehaviourPun
     private Texture2D _canvasTexture;
     private Color[] _clearColors;
 
-    /// <summary>The live shared canvas texture, so UI scripts can display it (e.g. RawImage.texture).</summary>
     public Texture2D CanvasTexture => _canvasTexture;
 
     void Awake()
@@ -46,29 +50,38 @@ public class NetworkedDrawBoard : MonoBehaviourPun
         }
     }
 
-    /// <summary>Call this locally from the drawer's UI script (uv in 0..1 range).</summary>
+    /// <summary>
+    /// Call this when the LOCAL player draws a point. Paints immediately
+    /// on this client, then tells every other client to do the same.
+    /// </summary>
     public void RequestDrawPoint(Vector2 uv, Color color, int brushSize)
     {
-        photonView.RPC(nameof(RPC_DrawPoint), RpcTarget.All, uv, (Vector4)color, brushSize);
-    }
+        DrawPointLocal(uv, color, brushSize);
 
-    public void RequestClear()
-    {
-        photonView.RPC(nameof(RPC_Clear), RpcTarget.All);
+        // Sent as plain floats instead of a Color/Vector4 object - those
+        // aren't registered as serializable custom types in this Photon
+        // setup, which was throwing "Write failed. Custom type not found"
+        // on every single stroke. floats are always natively supported.
+        photonView.RPC(nameof(RPC_DrawPoint), RpcTarget.OthersBuffered,
+            uv, color.r, color.g, color.b, color.a, brushSize);
     }
 
     [PunRPC]
-    void RPC_DrawPoint(Vector2 uv, Vector4 colorV, int brushSize)
+    void RPC_DrawPoint(Vector2 uv, float r, float g, float b, float a, int brushSize)
     {
-        Color color = colorV;
+        DrawPointLocal(uv, new Color(r, g, b, a), brushSize);
+    }
+
+    void DrawPointLocal(Vector2 uv, Color color, int brushSize)
+    {
         int px = Mathf.RoundToInt(uv.x * textureSize);
         int py = Mathf.RoundToInt(uv.y * textureSize);
-        int r = Mathf.Max(1, brushSize);
+        int rad = Mathf.Max(1, brushSize);
 
-        int minX = Mathf.Max(0, px - r);
-        int maxX = Mathf.Min(textureSize - 1, px + r);
-        int minY = Mathf.Max(0, py - r);
-        int maxY = Mathf.Min(textureSize - 1, py + r);
+        int minX = Mathf.Max(0, px - rad);
+        int maxX = Mathf.Min(textureSize - 1, px + rad);
+        int minY = Mathf.Max(0, py - rad);
+        int maxY = Mathf.Min(textureSize - 1, py + rad);
 
         for (int x = minX; x <= maxX; x++)
         {
@@ -76,11 +89,26 @@ public class NetworkedDrawBoard : MonoBehaviourPun
             {
                 int dx = x - px;
                 int dy = y - py;
-                if (dx * dx + dy * dy > r * r) continue;
+                if (dx * dx + dy * dy > rad * rad) continue;
                 _canvasTexture.SetPixel(x, y, color);
             }
         }
         _canvasTexture.Apply(false);
+    }
+
+    /// <summary>
+    /// Call this when the LOCAL player clears the board.
+    /// </summary>
+    public void RequestClear()
+    {
+        ClearLocal();
+
+        // Remove previously buffered draw-point RPCs so they don't pile up
+        // forever, and so late-joining players don't replay strokes that
+        // have since been cleared.
+        PhotonNetwork.RemoveRPCs(photonView);
+
+        photonView.RPC(nameof(RPC_Clear), RpcTarget.OthersBuffered);
     }
 
     [PunRPC]
