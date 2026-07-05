@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
@@ -10,6 +11,12 @@ public enum HistoryPerformanceOutcome
     Happy,
     Angry,
     Dead
+}
+
+public enum LevelCompletionMode
+{
+    ServedCustomerCount,
+    Timer
 }
 
 public class LevelPerformanceSnapshot
@@ -29,8 +36,18 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
     [Header("Level Info")]
     public int levelNumber = 1;
 
-    [Header("Completion")]
+    [Header("Completion Mode")]
+    public LevelCompletionMode completionMode = LevelCompletionMode.ServedCustomerCount;
+
+    [Header("Served Count Completion")]
     public int requiredServedToComplete = 5;
+
+    [Header("Timer Completion")]
+    public float levelDurationSeconds = 300f; // 5 minutes
+    public TMP_Text timerText;
+    public bool startTimerAutomatically = true;
+
+    [Header("Completion UI")]
     public float delayBeforeShowingCompleteUI = 0.5f;
     public LevelCompleteUI levelCompleteUI;
 
@@ -44,6 +61,8 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
     public int DeathServed => deathServed;
 
     private bool levelCompleteTriggered = false;
+    private bool timerRunning = false;
+    private float timerRemaining;
 
     private void Awake()
     {
@@ -52,6 +71,17 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
         if (levelCompleteUI == null)
         {
             levelCompleteUI = FindObjectOfType<LevelCompleteUI>(true);
+        }
+
+        timerRemaining = levelDurationSeconds;
+        UpdateTimerUI();
+    }
+
+    private void Start()
+    {
+        if (completionMode == LevelCompletionMode.Timer && startTimerAutomatically)
+        {
+            StartLevelTimer();
         }
     }
 
@@ -68,6 +98,53 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
         {
             Instance = null;
         }
+    }
+
+    private void Update()
+    {
+        if (completionMode != LevelCompletionMode.Timer)
+        {
+            return;
+        }
+
+        if (!timerRunning)
+        {
+            return;
+        }
+
+        if (levelCompleteTriggered)
+        {
+            return;
+        }
+
+        timerRemaining -= Time.deltaTime;
+
+        if (timerRemaining < 0f)
+        {
+            timerRemaining = 0f;
+        }
+
+        UpdateTimerUI();
+
+        if (timerRemaining <= 0f)
+        {
+            timerRunning = false;
+            TriggerLevelComplete();
+        }
+    }
+
+    public void StartLevelTimer()
+    {
+        timerRemaining = levelDurationSeconds;
+        timerRunning = true;
+        UpdateTimerUI();
+
+        Debug.Log("Level " + levelNumber + " timer started: " + levelDurationSeconds + " seconds.");
+    }
+
+    public void StopLevelTimer()
+    {
+        timerRunning = false;
     }
 
     public void ReportCustomerReaction(CustomerReactionType reaction, float delay)
@@ -141,10 +218,13 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
 
         Debug.Log($"Level {levelNumber} stats: Total={totalServed}, Correct={correctServed}, Deaths={deathServed}");
 
-        CheckLevelCompletion();
+        if (completionMode == LevelCompletionMode.ServedCustomerCount)
+        {
+            CheckServedCountCompletion();
+        }
     }
 
-    private void CheckLevelCompletion()
+    private void CheckServedCountCompletion()
     {
         if (levelCompleteTriggered)
         {
@@ -157,12 +237,21 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
             return;
         }
 
-        if (totalServed < requiredServedToComplete)
+        if (totalServed >= requiredServedToComplete)
+        {
+            TriggerLevelComplete();
+        }
+    }
+
+    private void TriggerLevelComplete()
+    {
+        if (levelCompleteTriggered)
         {
             return;
         }
 
         levelCompleteTriggered = true;
+        timerRunning = false;
 
         StartCoroutine(TriggerLevelCompleteRoutine());
     }
@@ -211,6 +300,19 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
         {
             Debug.LogWarning("No LevelCompleteUI found in this scene.");
         }
+    }
+
+    private void UpdateTimerUI()
+    {
+        if (timerText == null)
+        {
+            return;
+        }
+
+        int minutes = Mathf.FloorToInt(timerRemaining / 60f);
+        int seconds = Mathf.FloorToInt(timerRemaining % 60f);
+
+        timerText.text = minutes.ToString("00") + ":" + seconds.ToString("00");
     }
 
     public LevelPerformanceSnapshot GetSnapshot()
