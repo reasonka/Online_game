@@ -24,7 +24,7 @@ public class MicToggleButtonUI : MonoBehaviour
         if (micButton != null)
             micButton.onClick.AddListener(ToggleMic);
 
-        FindLocalOrderTakerVoiceSetup();
+        FindLocalSpeakerVoiceSetup();
         SetMicVisual(false);
     }
 
@@ -34,7 +34,7 @@ public class MicToggleButtonUI : MonoBehaviour
         SetMicVisual(micOn);
 
         if (localVoiceSetup == null)
-            FindLocalOrderTakerVoiceSetup();
+            FindLocalSpeakerVoiceSetup();
 
         if (localVoiceSetup != null)
             localVoiceSetup.SetMicButton(micOn);
@@ -49,15 +49,27 @@ public class MicToggleButtonUI : MonoBehaviour
             micOnImage.SetActive(isOn);
     }
 
-    private void FindLocalOrderTakerVoiceSetup()
+    private void FindLocalSpeakerVoiceSetup()
     {
-        PlayerVoiceRoleSetup[] voiceSetups = FindObjectsOfType<PlayerVoiceRoleSetup>();
+        PlayerVoiceRoleSetup[] voiceSetups =
+            FindObjectsOfType<PlayerVoiceRoleSetup>();
 
         foreach (PlayerVoiceRoleSetup setup in voiceSetups)
         {
-            PhotonView view = setup.GetComponent<PhotonView>();
+            PhotonView view =
+                setup.GetComponent<PhotonView>();
 
-            if (view != null && view.IsMine && setup.playerIndex == 0)
+            if (view == null)
+                continue;
+
+            bool isLocalPlayer =
+                view.IsMine;
+
+            bool canSpeak =
+                setup.playerIndex == 0 ||
+                setup.playerIndex == 2;
+
+            if (isLocalPlayer && canSpeak)
             {
                 localVoiceSetup = setup;
                 return;
