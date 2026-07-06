@@ -9458,6 +9458,61 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1664259359}
   m_CullTransparentMesh: 1
+--- !u!1 &1665203632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1665203634}
+  - component: {fileID: 1665203633}
+  m_Layer: 0
+  m_Name: SFXManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1665203633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665203632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9511b00e642234d51a62d5ce104e96d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sfxAudioSource: {fileID: 0}
+  buttonClickSFX: {fileID: 8300000, guid: 895de61d27d88477097d70eb1bbec575, type: 3}
+  buttonHoverSFX: {fileID: 8300000, guid: 218198074c83a4b6a8624a56771fc1bc, type: 3}
+  openPanelSFX: {fileID: 8300000, guid: 1323a27e83a7b4865ab3d989843854ff, type: 3}
+  closePanelSFX: {fileID: 8300000, guid: 1323a27e83a7b4865ab3d989843854ff, type: 3}
+  pickupSFX: {fileID: 8300000, guid: 39d9813b85a4f4e9c9e1f71a2bc7da6d, type: 3}
+  dropSFX: {fileID: 0}
+  cookingSFX: {fileID: 0}
+  correctOrderSFX: {fileID: 8300000, guid: 23a97c07e04c64c41a52ff78c35ac98a, type: 3}
+  wrongOrderSFX: {fileID: 8300000, guid: 16b6f15e0dd81425a96848ed1bd9261e, type: 3}
+  volume: 0.8
+--- !u!4 &1665203634
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665203632}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 822.39496, y: 421.48328, z: 0.56484985}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1697240852
 GameObject:
   m_ObjectHideFlags: 0
