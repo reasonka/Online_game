@@ -15,6 +15,8 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
     public RectTransform micButtonArea;
     public RectTransform filterPanelArea;
 
+    public MicToggleButtonUI micToggleButtonUI;
+
     public string voiceFilterPropertyKey = "VoiceFilter";
 
     private bool filterPanelOpen = false;
@@ -24,6 +26,9 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
         if (micButtonArea == null)
             micButtonArea = GetComponent<RectTransform>();
 
+        if (micToggleButtonUI == null)
+            micToggleButtonUI = GetComponent<MicToggleButtonUI>();
+
         if (filterPanel != null)
         {
             filterPanelArea = filterPanel.GetComponent<RectTransform>();
@@ -31,13 +36,13 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
         }
 
         if (normalButton != null)
-            normalButton.onClick.AddListener(() => SetVoiceFilter(0));
+            normalButton.onClick.AddListener(() => SelectFilterAndTurnMicOn(0));
 
         if (cuteButton != null)
-            cuteButton.onClick.AddListener(() => SetVoiceFilter(1));
+            cuteButton.onClick.AddListener(() => SelectFilterAndTurnMicOn(1));
 
         if (robotButton != null)
-            robotButton.onClick.AddListener(() => SetVoiceFilter(2));
+            robotButton.onClick.AddListener(() => SelectFilterAndTurnMicOn(2));
     }
 
     private void Update()
@@ -72,6 +77,21 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
             filterPanel.SetActive(false);
     }
 
+    private void SelectFilterAndTurnMicOn(int filterIndex)
+    {
+        Hashtable properties = new Hashtable
+        {
+            { voiceFilterPropertyKey, filterIndex }
+        };
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
+
+        if (micToggleButtonUI != null)
+            micToggleButtonUI.TurnMicOn();
+
+        HideFilterPanel();
+    }
+
     private bool IsMouseOver(RectTransform rectTransform)
     {
         if (rectTransform == null)
@@ -82,17 +102,5 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
             Input.mousePosition,
             null
         );
-    }
-
-    private void SetVoiceFilter(int filterIndex)
-    {
-        Hashtable properties = new Hashtable
-        {
-            { voiceFilterPropertyKey, filterIndex }
-        };
-
-        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-
-        HideFilterPanel();
     }
 }
