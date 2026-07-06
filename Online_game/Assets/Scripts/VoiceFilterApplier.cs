@@ -11,6 +11,7 @@ public class VoiceFilterApplier : MonoBehaviourPunCallbacks
     private AudioHighPassFilter highPass;
     private AudioLowPassFilter lowPass;
     private AudioDistortionFilter distortion;
+    private AudioChorusFilter chorus;
 
     private void Awake()
     {
@@ -27,6 +28,10 @@ public class VoiceFilterApplier : MonoBehaviourPunCallbacks
         distortion = GetComponent<AudioDistortionFilter>();
         if (distortion == null)
             distortion = gameObject.AddComponent<AudioDistortionFilter>();
+
+        chorus = GetComponent<AudioChorusFilter>();
+        if (chorus == null)
+            chorus = gameObject.AddComponent<AudioChorusFilter>();
     }
 
     private void Start()
@@ -69,24 +74,41 @@ public class VoiceFilterApplier : MonoBehaviourPunCallbacks
 
         if (filterIndex == 0)
         {
+            // Normal
             audioSource.pitch = 1f;
         }
         else if (filterIndex == 1)
         {
-            audioSource.pitch = 1.25f;
+            // Cute voice
+            audioSource.pitch = 1.45f;
+
+            chorus.enabled = true;
+            chorus.depth = 0.25f;
+            chorus.rate = 1.5f;
+            chorus.wetMix1 = 0.35f;
+            chorus.wetMix2 = 0.2f;
+            chorus.wetMix3 = 0.1f;
         }
         else if (filterIndex == 2)
         {
-            audioSource.pitch = 0.95f;
+            // Strong robot / radio voice
+            audioSource.pitch = 0.85f;
 
             highPass.enabled = true;
-            highPass.cutoffFrequency = 600f;
+            highPass.cutoffFrequency = 900f;
 
             lowPass.enabled = true;
-            lowPass.cutoffFrequency = 3500f;
+            lowPass.cutoffFrequency = 2200f;
 
             distortion.enabled = true;
-            distortion.distortionLevel = 0.25f;
+            distortion.distortionLevel = 0.55f;
+
+            chorus.enabled = true;
+            chorus.depth = 0.7f;
+            chorus.rate = 8f;
+            chorus.wetMix1 = 0.5f;
+            chorus.wetMix2 = 0.35f;
+            chorus.wetMix3 = 0.25f;
         }
     }
 
@@ -103,5 +125,8 @@ public class VoiceFilterApplier : MonoBehaviourPunCallbacks
 
         if (distortion != null)
             distortion.enabled = false;
+
+        if (chorus != null)
+            chorus.enabled = false;
     }
 }

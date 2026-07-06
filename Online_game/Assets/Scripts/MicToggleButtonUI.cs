@@ -22,22 +22,42 @@ public class MicToggleButtonUI : MonoBehaviour
     private void Start()
     {
         if (micButton != null)
-            micButton.onClick.AddListener(ToggleMic);
+            micButton.onClick.AddListener(ClickMicButton);
 
         FindLocalSpeakerVoiceSetup();
-        SetMicVisual(false);
+        TurnMicOff();
     }
 
-    private void ToggleMic()
+    private void ClickMicButton()
     {
-        micOn = !micOn;
-        SetMicVisual(micOn);
+        // Mic button only turns OFF.
+        // It cannot turn ON directly anymore.
+        if (micOn)
+            TurnMicOff();
+    }
+
+    public void TurnMicOn()
+    {
+        micOn = true;
+        SetMicVisual(true);
 
         if (localVoiceSetup == null)
             FindLocalSpeakerVoiceSetup();
 
         if (localVoiceSetup != null)
-            localVoiceSetup.SetMicButton(micOn);
+            localVoiceSetup.SetMicButton(true);
+    }
+
+    public void TurnMicOff()
+    {
+        micOn = false;
+        SetMicVisual(false);
+
+        if (localVoiceSetup == null)
+            FindLocalSpeakerVoiceSetup();
+
+        if (localVoiceSetup != null)
+            localVoiceSetup.SetMicButton(false);
     }
 
     private void SetMicVisual(bool isOn)
@@ -56,14 +76,12 @@ public class MicToggleButtonUI : MonoBehaviour
 
         foreach (PlayerVoiceRoleSetup setup in voiceSetups)
         {
-            PhotonView view =
-                setup.GetComponent<PhotonView>();
+            PhotonView view = setup.GetComponent<PhotonView>();
 
             if (view == null)
                 continue;
 
-            bool isLocalPlayer =
-                view.IsMine;
+            bool isLocalPlayer = view.IsMine;
 
             bool canSpeak =
                 setup.playerIndex == 0 ||
