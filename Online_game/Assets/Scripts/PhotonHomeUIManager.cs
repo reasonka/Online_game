@@ -33,6 +33,7 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     public Button createRoomMenuButton;
     public Button joinRandomRoomButton;
     public Button showRoomListButton;
+    public TMP_Text mainMenuPromptText;
 
     [Header("Create Room UI")]
     public TMP_InputField roomNameInput;
@@ -138,6 +139,9 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     {
         CloseAllPanels();
         mainMenuPanel.SetActive(true);
+
+        if (mainMenuPromptText != null)
+            mainMenuPromptText.text = "";
     }
 
     private void OpenCreateRoomPanel()
@@ -165,12 +169,19 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
     private void JoinRandomRoom()
     {
+        if (mainMenuPromptText != null)
+            mainMenuPromptText.text = "Searching for room...";
+
         PhotonNetwork.JoinRandomRoom();
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         OpenMainMenuPanel();
+
+        if (mainMenuPromptText != null)
+            mainMenuPromptText.text = "No room available.";
+
         Debug.LogWarning("Join random failed: " + message);
     }
 

@@ -29,6 +29,9 @@ public class CharacterConfirmLoadingUI : MonoBehaviourPunCallbacks
     [Header("Scene")]
     public string gameSceneName = "GameScene";
 
+    [Header("Loading Text")]
+    public string loadingMessage = "Loading...";
+
     private int selectedCharacterIndex = -1;
 
     private const string CharacterPropertyKey = "CharacterIndex";
@@ -95,6 +98,9 @@ public class CharacterConfirmLoadingUI : MonoBehaviourPunCallbacks
         }
 
         ShowLoadingPanel(selectedCharacterIndex);
+
+        if (promptText != null)
+            promptText.text = loadingMessage;
 
         Hashtable properties = new Hashtable
         {
