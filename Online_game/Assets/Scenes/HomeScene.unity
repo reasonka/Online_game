@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028292, g: 0.22571306, b: 0.30692118, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2183,7 +2183,7 @@ MonoBehaviour:
     musicClip: {fileID: 8300000, guid: 00fbdfc9443adc548a022014f9b2b7e7, type: 3}
   - sceneName: Level2
     musicClip: {fileID: 8300000, guid: 047d197120492e34ea3d4d37b2b35f35, type: 3}
-  volume: 0.5
+  volume: 0.374
   loopMusic: 1
   fadeDuration: 1
 --- !u!4 &211107371
