@@ -1,3 +1,4 @@
+using System.Collections;
 using Photon.Pun;
 using Photon.Voice.Unity;
 using UnityEngine;
@@ -12,20 +13,31 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
     public Recorder recorder;
     public Speaker speaker;
 
+    [Header("Debug")]
+    public bool showDebugLog = true;
+
     private int localPlayerIndex = -1;
     private bool micButtonOn = false;
 
     private void Start()
     {
-        ReadThisPlayerIndex();
-        ReadLocalPlayerIndex();
-
         if (recorder == null)
             recorder = GetComponent<Recorder>();
 
         if (speaker == null)
             speaker = GetComponent<Speaker>();
 
+        StartCoroutine(SetupVoiceRoutine());
+    }
+
+    private IEnumerator SetupVoiceRoutine()
+    {
+        // Wait for Photon custom properties and remote player objects.
+        yield return null;
+        yield return new WaitForSeconds(0.3f);
+
+        ReadThisPlayerIndex();
+        ReadLocalPlayerIndex();
         SetupVoice();
     }
 
@@ -59,24 +71,43 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
             playerIndex == 0 ||
             playerIndex == 2;
 
-        bool localPlayerCanHear =
+        bool localPlayerIsDoodle =
             localPlayerIndex == 1;
 
         bool thisIsRemoteSpeaker =
             !photonView.IsMine &&
             thisPlayerCanSpeak;
 
+        // Only Order Taker and Chef can transmit.
         if (recorder != null)
         {
+            bool thisIsLocalSpeaker =
+                photonView.IsMine &&
+                thisPlayerCanSpeak;
+
             recorder.RecordingEnabled = false;
             recorder.TransmitEnabled = false;
+            recorder.enabled = thisIsLocalSpeaker;
         }
 
+        // Only Doodle can hear remote Order Taker and remote Chef.
         if (speaker != null)
         {
             speaker.enabled =
-                localPlayerCanHear &&
+                localPlayerIsDoodle &&
                 thisIsRemoteSpeaker;
+        }
+
+        if (showDebugLog)
+        {
+            Debug.Log(
+                "[VoiceRole] Object=" + gameObject.name +
+                " | IsMine=" + photonView.IsMine +
+                " | this playerIndex=" + playerIndex +
+                " | localPlayerIndex=" + localPlayerIndex +
+                " | recorder=" + (recorder != null && recorder.enabled) +
+                " | speaker=" + (speaker != null && speaker.enabled)
+            );
         }
     }
 
@@ -100,6 +131,7 @@ public class PlayerVoiceRoleSetup : MonoBehaviourPun
     public void SetMicButton(bool isOn)
     {
         micButtonOn = isOn;
+        UpdateMic();
     }
 
     public bool IsMicButtonOn()
