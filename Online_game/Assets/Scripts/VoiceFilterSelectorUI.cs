@@ -46,6 +46,24 @@ public class VoiceFilterSelectorUI : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SelectFilterAndTurnMicOn(0);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            SelectFilterAndTurnMicOn(1);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SelectFilterAndTurnMicOn(2);
+            return;
+        }
+
         bool mouseOverMic =
             IsMouseOver(micButtonArea);
 
