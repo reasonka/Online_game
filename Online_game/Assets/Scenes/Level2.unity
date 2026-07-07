@@ -3320,6 +3320,20 @@ MonoBehaviour:
   timerText: {fileID: 1852798556}
   chefTimerText: {fileID: 1133269743}
   startTimerAutomatically: 1
+  audioSource: {fileID: 0}
+  timerStartSound: {fileID: 8300000, guid: 1740884e6131cc84b92202d07ceae80a, type: 3}
+  minuteChangeSound: {fileID: 8300000, guid: 1740884e6131cc84b92202d07ceae80a, type: 3}
+  finalCountdownTickSound: {fileID: 8300000, guid: 5433fc377f6f9ac43be0a2db7ea5e7ac, type: 3}
+  timerEndSound: {fileID: 8300000, guid: 7b41c2287e4a8904eb48a1b28c167af9, type: 3}
+  playRegularSecondTick: 0
+  regularSecondTickSound: {fileID: 0}
+  finalCountdownStartSeconds: 5
+  animateTimer: 1
+  minutePulseScale: 1.2
+  finalCountdownPulseScale: 1.45
+  pulseDuration: 0.25
+  changeColorDuringFinalCountdown: 1
+  finalCountdownColor: {r: 1, g: 0, b: 0, a: 1}
   delayBeforeShowingCompleteUI: 0.5
   levelCompleteUI: {fileID: 612016813}
   totalServed: 0
@@ -4904,7 +4918,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -872, y: 452}
+  m_AnchoredPosition: {x: 0, y: 397}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &214142572
@@ -4927,9 +4941,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d0266a317e566f949966b61f122eeb97, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 518dfe7d92158d241a0de3d69c1c3d9c, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -7425,7 +7439,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 24, y: 4758.091}
+  m_AnchoredPosition: {x: 24, y: 4758.0923}
   m_SizeDelta: {x: -40.0389, y: 5286.5522}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &326125888
@@ -12191,7 +12205,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -872, y: 452}
+  m_AnchoredPosition: {x: 0, y: 397}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &574500825
@@ -12214,7 +12228,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d0266a317e566f949966b61f122eeb97, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 518dfe7d92158d241a0de3d69c1c3d9c, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -19489,8 +19503,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 958766042}
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
-  m_Value: 0.00000005131062
-  m_Size: 0.099956356
+  m_Value: -0.00000035917435
+  m_Size: 0.09884745
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
