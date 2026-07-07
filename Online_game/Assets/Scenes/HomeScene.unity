@@ -9792,7 +9792,9 @@ MonoBehaviour:
   correctOrderServedSound: {fileID: 8300000, guid: 00e1e2efe1b2340fa8afb28bf122186a, type: 3}
   wrongOrderServedSound: {fileID: 8300000, guid: 16b6f15e0dd81425a96848ed1bd9261e, type: 3}
   customerPraiseSound: {fileID: 8300000, guid: dbf9400556dd54142b79bc438c946673, type: 3}
-  customerDisappointedSound: {fileID: 8300000, guid: e43b52770aec64ebcb9ce1f78784916c, type: 3}
+  customerDisappointedSound: {fileID: 8300000, guid: 271153061cfb34603ab5d4f23ae5627a, type: 3}
+  customerDeathSound: {fileID: 8300000, guid: e43b52770aec64ebcb9ce1f78784916c, type: 3}
+  movementAudioSource: {fileID: 0}
   micOnSound: {fileID: 8300000, guid: 12e66541bc64047abb43fdc249b2a19d, type: 3}
   micOffSound: {fileID: 8300000, guid: 12e66541bc64047abb43fdc249b2a19d, type: 3}
   volume: 0.8

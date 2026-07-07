@@ -535,7 +535,7 @@ public class CustomerOrderUI : MonoBehaviour
                 break;
 
             case CustomerReactionType.Reaction2:
-                SFXManager.Instance?.PlayCustomerDisappointed();
+                SFXManager.Instance?.PlayCustomerDeath();
                 customer.PlayDeathReaction();
                 break;
 

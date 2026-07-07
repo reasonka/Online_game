@@ -41,6 +41,7 @@ public class SFXManager : MonoBehaviour
     public AudioClip wrongOrderServedSound;
     public AudioClip customerPraiseSound;
     public AudioClip customerDisappointedSound;
+    public AudioClip customerDeathSound;
 
     [Header("Movement Audio Source")]
     public AudioSource movementAudioSource;
@@ -193,6 +194,11 @@ public class SFXManager : MonoBehaviour
     public void PlayCustomerDisappointed()
     {
         PlaySound(customerDisappointedSound);
+    }
+
+    public void PlayCustomerDeath()
+    {
+        PlaySound(customerDeathSound);
     }
 
     public void PlayMicOn()
