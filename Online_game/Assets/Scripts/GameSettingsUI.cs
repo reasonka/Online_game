@@ -9,7 +9,7 @@ public class GameSettingsUI : MonoBehaviour
     public Button openSettingsButton;
     public Button closeSettingsButton;
 
-    [Header("Voice Volume")]
+    [Header("Audio Volume")]
     public Slider voiceVolumeSlider;
     public TMP_Text voiceVolumeValueText;
 
@@ -66,12 +66,18 @@ public class GameSettingsUI : MonoBehaviour
     {
         if (settingsPanel != null)
             settingsPanel.SetActive(true);
+
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.PlayPanelOpen();
     }
 
     public void CloseSettings()
     {
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.PlayPanelClose();
 
         PlayerPrefs.Save();
     }
@@ -90,6 +96,9 @@ public class GameSettingsUI : MonoBehaviour
             if (source.GetComponent<Photon.Voice.Unity.Speaker>() != null)
                 source.volume = value;
         }
+
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.SetVolume(value);
     }
 
     public void SetMouseSensitivity(float value)
@@ -109,6 +118,12 @@ public class GameSettingsUI : MonoBehaviour
             FindObjectsOfType<PlayerMovementController>();
 
         foreach (PlayerMovementController controller in movementControllers)
+            controller.mouseSensitivity = value;
+
+        PlayerOneController[] playerOneControllers =
+            FindObjectsOfType<PlayerOneController>();
+
+        foreach (PlayerOneController controller in playerOneControllers)
             controller.mouseSensitivity = value;
     }
 }

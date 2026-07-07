@@ -2054,6 +2054,8 @@ MonoBehaviour:
   usePhotonSync: 1
   lockCursorOnStart: 1
   unlockCursorKey: 306
+  walkStepInterval: 0.45
+  runStepInterval: 0.28
 --- !u!114 &5185699603921372520
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9783,8 +9783,8 @@ MonoBehaviour:
   dropFoodSound: {fileID: 8300000, guid: acc3cb72716ed4a9187abbd541fcfac5, type: 3}
   throwFoodSound: {fileID: 8300000, guid: c608d287fcace492a9089ae1dbc03e94, type: 3}
   waveFoodSound: {fileID: 8300000, guid: 3eb07414c580742648919336d349958e, type: 3}
-  walkSound: {fileID: 8300000, guid: e8ae46b54ed0b6242aeed0a258e786a3, type: 3}
-  runSound: {fileID: 8300000, guid: 2be4632a870cefb4d8a6ff179901fbb5, type: 3}
+  walkSound: {fileID: 8300000, guid: 36cc17dbb95294644a5bec9bbba4e2a0, type: 3}
+  runSound: {fileID: 8300000, guid: b36efdf3db32d4343b5b9f2d1a4d881d, type: 3}
   addIngredientSound: {fileID: 8300000, guid: aa0bcb1b0e32e4ca4b2a2735bdf87741, type: 3}
   foodCookedSuccessSound: {fileID: 8300000, guid: aff91a5de7f634e4ea919b50b1b5fb52, type: 3}
   foodCookedFailSound: {fileID: 8300000, guid: db8730ef12dfe4c6fa68f5e929b038fa, type: 3}

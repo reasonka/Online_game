@@ -224,6 +224,10 @@ public class PlayerOneController : MonoBehaviourPun
         if (!hasMovementInput || !controller.isGrounded)
         {
             footstepTimer = 0f;
+
+            if (SFXManager.Instance != null)
+                SFXManager.Instance.StopMovementSound();
+
             return;
         }
 

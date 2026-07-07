@@ -42,6 +42,9 @@ public class SFXManager : MonoBehaviour
     public AudioClip customerPraiseSound;
     public AudioClip customerDisappointedSound;
 
+    [Header("Movement Audio Source")]
+    public AudioSource movementAudioSource;
+
     [Header("Mic / Voice Filter Sounds")]
     public AudioClip micOnSound;
     public AudioClip micOffSound;
@@ -70,6 +73,13 @@ public class SFXManager : MonoBehaviour
         audioSource.playOnAwake = false;
         audioSource.loop = false;
         audioSource.volume = volume;
+
+        if (movementAudioSource == null)
+            movementAudioSource = gameObject.AddComponent<AudioSource>();
+
+        movementAudioSource.playOnAwake = false;
+        movementAudioSource.loop = false;
+        movementAudioSource.volume = volume;
     }
 
     private void PlaySound(AudioClip clip)
@@ -197,12 +207,27 @@ public class SFXManager : MonoBehaviour
 
     public void PlayWalk()
     {
-        PlaySound(walkSound);
+        PlayMovementSound(walkSound);
     }
 
     public void PlayRun()
     {
-        PlaySound(runSound);
+        PlayMovementSound(runSound);
+    }
+
+    private void PlayMovementSound(AudioClip clip)
+    {
+        if (clip == null || movementAudioSource == null)
+            return;
+
+        movementAudioSource.Stop();
+        movementAudioSource.PlayOneShot(clip, volume);
+    }
+
+    public void StopMovementSound()
+    {
+        if (movementAudioSource != null)
+            movementAudioSource.Stop();
     }
 
     public void SetVolume(float newVolume)
@@ -211,5 +236,8 @@ public class SFXManager : MonoBehaviour
 
         if (audioSource != null)
             audioSource.volume = volume;
+
+        if (movementAudioSource != null)
+            movementAudioSource.volume = volume;
     }
 }
