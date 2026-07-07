@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17924727, g: 0.22444528, b: 0.30617028, a: 1}
+  m_IndirectSpecularColor: {r: 0.17924783, g: 0.22444639, b: 0.30617207, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -7425,7 +7425,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 24, y: 4758.0947}
+  m_AnchoredPosition: {x: 24, y: 4758.091}
   m_SizeDelta: {x: -40.0389, y: 5286.5522}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &326125888
@@ -19489,8 +19489,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 958766042}
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
-  m_Value: -0.0000007696593
-  m_Size: 0.09949621
+  m_Value: 0.00000005131062
+  m_Size: 0.099956356
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -37008,7 +37008,7 @@ GameObject:
   - component: {fileID: 1815456185}
   - component: {fileID: 1815456184}
   m_Layer: 5
-  m_Name: NormalTimerCanvas
+  m_Name: TimerCanvas_Normal
   m_TagString: NormalTimerCanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37770,6 +37770,8 @@ MonoBehaviour:
   wrongOrderServedSound: {fileID: 8300000, guid: 16b6f15e0dd81425a96848ed1bd9261e, type: 3}
   customerPraiseSound: {fileID: 8300000, guid: dbf9400556dd54142b79bc438c946673, type: 3}
   customerDisappointedSound: {fileID: 8300000, guid: e43b52770aec64ebcb9ce1f78784916c, type: 3}
+  customerDeathSound: {fileID: 0}
+  movementAudioSource: {fileID: 0}
   micOnSound: {fileID: 8300000, guid: 12e66541bc64047abb43fdc249b2a19d, type: 3}
   micOffSound: {fileID: 8300000, guid: 12e66541bc64047abb43fdc249b2a19d, type: 3}
   volume: 0.8
