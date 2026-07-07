@@ -33,6 +33,7 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     public Button createRoomMenuButton;
     public Button joinRandomRoomButton;
     public Button showRoomListButton;
+    public TMP_Text mainMenuPromptText;
 
     [Header("Create Room UI")]
     public TMP_InputField roomNameInput;
@@ -112,6 +113,8 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         if (string.IsNullOrEmpty(playerName))
         {
             namePromptText.text = "Please enter a player name.";
+
+            SFXManager.Instance?.PlayError();
             return;
         }
 
@@ -138,6 +141,9 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
     {
         CloseAllPanels();
         mainMenuPanel.SetActive(true);
+
+        if (mainMenuPromptText != null)
+            mainMenuPromptText.text = "";
     }
 
     private void OpenCreateRoomPanel()
@@ -165,18 +171,29 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
     private void JoinRandomRoom()
     {
+        if (mainMenuPromptText != null)
+            mainMenuPromptText.text = "Searching for room...";
+
         PhotonNetwork.JoinRandomRoom();
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         OpenMainMenuPanel();
+
+        if (mainMenuPromptText != null)
+            mainMenuPromptText.text = "No room available.";
+
         Debug.LogWarning("Join random failed: " + message);
+
+        SFXManager.Instance?.PlayError();
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         Debug.LogWarning("Create room failed: " + message);
+
+        SFXManager.Instance?.PlayError();
     }
 
     public override void OnJoinedRoom()
@@ -318,6 +335,8 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount < maxPlayersPerRoom)
         {
             roomPromptText.text = "Need 3 players before starting.";
+
+            SFXManager.Instance?.PlayError();
             return;
         }
 
@@ -472,4 +491,5 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         selectedCharacterIndex = -1;
         UpdateCharacterPrompt("Choose your character.");
     }
+
 }

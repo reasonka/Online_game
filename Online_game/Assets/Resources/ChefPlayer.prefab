@@ -1405,6 +1405,7 @@ GameObject:
   - component: {fileID: 1347980701544761505}
   - component: {fileID: 64483488927774003}
   - component: {fileID: -5264381312273113241}
+  - component: {fileID: 3941439276514276852}
   m_Layer: 0
   m_Name: ChefPlayer
   m_TagString: Untagged
@@ -1514,6 +1515,8 @@ MonoBehaviour:
   canMove: 1
   lockCursorOnStart: 1
   unlockCursorKey: 306
+  walkStepInterval: 0.45
+  runStepInterval: 0.28
 --- !u!114 &2616776877306809346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1552,10 +1555,16 @@ MonoBehaviour:
   - {fileID: 3532879911916447148}
   - {fileID: 3532879911916447149}
   - {fileID: 3532879911916447150}
+  blackWhitePlayerIndex: 2
   blackWhiteCanvasTag: BlackWhiteCanvas
   blackWhiteCanvasName: BlackWhiteCanvas
   blackWhiteCanvasPlaneDistance: 0.6
   grayscaleVolumeObject: {fileID: 1606519753}
+  normalTimerCanvasTag: NormalTimerCanvas
+  normalTimerCanvasName: TimerCanvas_Normal
+  chefTimerCanvasTag: ChefTimerCanvas
+  chefTimerCanvasName: TimerCanvas_ChefBW
+  chefTimerCanvasPlaneDistance: 0.6
 --- !u!114 &-3346268692422133189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1772,7 +1781,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3532879911916447154}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de78dff9937ad7144bf6079607a81a89, type: 3}
   m_Name: 
@@ -1780,6 +1789,19 @@ MonoBehaviour:
   bookUIPrefab: {fileID: 8702126135276584534, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
   openBookKey: 101
   closeBookKey: 27
+--- !u!114 &3941439276514276852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3532879911916447154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6a56aefc49e74c1086cf7d3f2a04c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  voiceFilterPropertyKey: VoiceFilter
 --- !u!1 &3536521007800128361
 GameObject:
   m_ObjectHideFlags: 0

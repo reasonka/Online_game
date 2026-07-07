@@ -45,6 +45,7 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
     [Header("Timer Completion")]
     public float levelDurationSeconds = 300f; // 5 minutes
     public TMP_Text timerText;
+    public TMP_Text chefTimerText;
     public bool startTimerAutomatically = true;
 
     [Header("Completion UI")]
@@ -304,15 +305,20 @@ public class LevelPerformanceTracker : MonoBehaviourPunCallbacks, IOnEventCallba
 
     private void UpdateTimerUI()
     {
-        if (timerText == null)
-        {
-            return;
-        }
-
         int minutes = Mathf.FloorToInt(timerRemaining / 60f);
         int seconds = Mathf.FloorToInt(timerRemaining % 60f);
 
-        timerText.text = minutes.ToString("00") + ":" + seconds.ToString("00");
+        string timeText = minutes.ToString("00") + ":" + seconds.ToString("00");
+
+        if (timerText != null)
+        {
+            timerText.text = timeText;
+        }
+
+        if (chefTimerText != null)
+        {
+            chefTimerText.text = timeText;
+        }
     }
 
     public LevelPerformanceSnapshot GetSnapshot()

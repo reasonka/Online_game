@@ -1986,6 +1986,7 @@ GameObject:
   - component: {fileID: 2837764616899804233}
   - component: {fileID: 1321461364332440000}
   - component: {fileID: 6119541040492568983}
+  - component: {fileID: 4753864498949746629}
   m_Layer: 0
   m_Name: OrderTakerPlayer
   m_TagString: Untagged
@@ -2053,6 +2054,8 @@ MonoBehaviour:
   usePhotonSync: 1
   lockCursorOnStart: 1
   unlockCursorKey: 306
+  walkStepInterval: 0.45
+  runStepInterval: 0.28
 --- !u!114 &5185699603921372520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2089,10 +2092,16 @@ MonoBehaviour:
   audioListener: {fileID: 634941117862866995}
   localOnlyInputScripts:
   - {fileID: 0}
+  blackWhitePlayerIndex: 2
   blackWhiteCanvasTag: BlackWhiteCanvas
   blackWhiteCanvasName: BlackWhiteCanvas
   blackWhiteCanvasPlaneDistance: 0.6
   grayscaleVolumeObject: {fileID: 0}
+  normalTimerCanvasTag: NormalTimerCanvas
+  normalTimerCanvasName: TimerCanvas_Normal
+  chefTimerCanvasTag: ChefTimerCanvas
+  chefTimerCanvasName: TimerCanvas_ChefBW
+  chefTimerCanvasPlaneDistance: 1
 --- !u!114 &-8222913463522403758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2361,7 +2370,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7158508251473883405}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de78dff9937ad7144bf6079607a81a89, type: 3}
   m_Name: 
@@ -2369,6 +2378,19 @@ MonoBehaviour:
   bookUIPrefab: {fileID: 8702126135276584534, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
   openBookKey: 101
   closeBookKey: 27
+--- !u!114 &4753864498949746629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6a56aefc49e74c1086cf7d3f2a04c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  voiceFilterPropertyKey: VoiceFilter
 --- !u!1 &7442378397244450868
 GameObject:
   m_ObjectHideFlags: 0

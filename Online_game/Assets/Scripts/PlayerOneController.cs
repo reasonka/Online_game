@@ -39,6 +39,12 @@ public class PlayerOneController : MonoBehaviourPun
     public bool lockCursorOnStart = true;
     public KeyCode unlockCursorKey = KeyCode.LeftControl;
 
+    [Header("Footstep Sound")]
+    public float walkStepInterval = 0.45f;
+    public float runStepInterval = 0.28f;
+
+    private float footstepTimer;
+
     private CharacterController controller;
 
     private float verticalVelocity;
@@ -136,6 +142,8 @@ public class PlayerOneController : MonoBehaviourPun
         bool isRunning =
             hasMovementInput &&
             Input.GetKey(KeyCode.LeftShift);
+        
+        HandleFootstepSound(hasMovementInput, isRunning);
 
         float movementSpeed =
             isRunning ? runSpeed : walkSpeed;
@@ -209,5 +217,33 @@ public class PlayerOneController : MonoBehaviourPun
         Cursor.lockState = locked
             ? CursorLockMode.Locked
             : CursorLockMode.None;
+    }
+
+    private void HandleFootstepSound(bool hasMovementInput, bool isRunning)
+    {
+        if (!hasMovementInput || !controller.isGrounded)
+        {
+            footstepTimer = 0f;
+
+            if (SFXManager.Instance != null)
+                SFXManager.Instance.StopMovementSound();
+
+            return;
+        }
+
+        footstepTimer -= Time.deltaTime;
+
+        if (footstepTimer > 0f)
+            return;
+
+        if (SFXManager.Instance != null)
+        {
+            if (isRunning)
+                SFXManager.Instance.PlayRun();
+            else
+                SFXManager.Instance.PlayWalk();
+        }
+
+        footstepTimer = isRunning ? runStepInterval : walkStepInterval;
     }
 }
