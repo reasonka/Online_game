@@ -51,6 +51,8 @@ public class CharacterConfirmLoadingUI : MonoBehaviourPunCallbacks
     {
         if (IsCharacterTaken(characterIndex))
         {
+            SFXManager.Instance?.PlayError();
+
             if (promptText != null)
                 promptText.text = "This character is already chosen.";
 
@@ -68,6 +70,8 @@ public class CharacterConfirmLoadingUI : MonoBehaviourPunCallbacks
 
         if (promptText != null)
             promptText.text = "Character selected. Press Confirm.";
+
+        SFXManager.Instance?.PlayCharacterSelected();
     }
 
     private bool IsCharacterTaken(int characterIndex)
@@ -91,6 +95,8 @@ public class CharacterConfirmLoadingUI : MonoBehaviourPunCallbacks
     {
         if (selectedCharacterIndex < 0)
         {
+            SFXManager.Instance?.PlayError();
+
             if (promptText != null)
                 promptText.text = "Please choose a character first.";
 
@@ -98,6 +104,8 @@ public class CharacterConfirmLoadingUI : MonoBehaviourPunCallbacks
         }
 
         ShowLoadingPanel(selectedCharacterIndex);
+
+        SFXManager.Instance?.PlayLoadingStart();
 
         if (promptText != null)
             promptText.text = loadingMessage;

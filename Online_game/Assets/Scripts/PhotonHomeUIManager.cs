@@ -113,6 +113,8 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         if (string.IsNullOrEmpty(playerName))
         {
             namePromptText.text = "Please enter a player name.";
+
+            SFXManager.Instance?.PlayError();
             return;
         }
 
@@ -183,11 +185,15 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
             mainMenuPromptText.text = "No room available.";
 
         Debug.LogWarning("Join random failed: " + message);
+
+        SFXManager.Instance?.PlayError();
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         Debug.LogWarning("Create room failed: " + message);
+
+        SFXManager.Instance?.PlayError();
     }
 
     public override void OnJoinedRoom()
@@ -329,6 +335,8 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount < maxPlayersPerRoom)
         {
             roomPromptText.text = "Need 3 players before starting.";
+
+            SFXManager.Instance?.PlayError();
             return;
         }
 
@@ -483,4 +491,5 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         selectedCharacterIndex = -1;
         UpdateCharacterPrompt("Choose your character.");
     }
+
 }

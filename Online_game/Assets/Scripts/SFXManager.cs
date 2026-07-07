@@ -5,20 +5,46 @@ public class SFXManager : MonoBehaviour
     public static SFXManager Instance;
 
     [Header("Audio Source")]
-    public AudioSource sfxAudioSource;
+    public AudioSource audioSource;
 
-    [Header("UI SFX")]
-    public AudioClip buttonClickSFX;
-    public AudioClip buttonHoverSFX;
-    public AudioClip openPanelSFX;
-    public AudioClip closePanelSFX;
+    [Header("UI Sounds")]
+    public AudioClip buttonClickSound;
+    public AudioClip buttonHoverSound;
+    public AudioClip panelOpenSound;
+    public AudioClip panelCloseSound;
 
-    [Header("Gameplay SFX")]
-    public AudioClip pickupSFX;
-    public AudioClip dropSFX;
-    public AudioClip cookingSFX;
-    public AudioClip correctOrderSFX;
-    public AudioClip wrongOrderSFX;
+    [Header("Typing / Prompt Sounds")]
+    public AudioClip typingSound;
+    public AudioClip enterSound;
+    public AudioClip errorSound;
+    public AudioClip characterSelectedSound;
+    public AudioClip loadingStartSound;
+
+    [Header("Player Food Action Sounds")]
+    public AudioClip pickupFoodSound;
+    public AudioClip dropFoodSound;
+    public AudioClip throwFoodSound;
+    public AudioClip waveFoodSound;
+
+    [Header("Player Movement Sounds")]
+    public AudioClip walkSound;
+    public AudioClip runSound;
+
+    [Header("Cooking Sounds")]
+    public AudioClip addIngredientSound;
+    public AudioClip foodCookedSuccessSound;
+    public AudioClip foodCookedFailSound;
+
+    [Header("Customer / Order Sounds")]
+    public AudioClip newOrderSound;
+    public AudioClip correctOrderServedSound;
+    public AudioClip wrongOrderServedSound;
+    public AudioClip customerPraiseSound;
+    public AudioClip customerDisappointedSound;
+
+    [Header("Mic / Voice Filter Sounds")]
+    public AudioClip micOnSound;
+    public AudioClip micOffSound;
 
     [Header("Settings")]
     [Range(0f, 1f)]
@@ -35,75 +61,155 @@ public class SFXManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        if (sfxAudioSource == null)
-            sfxAudioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
 
-        if (sfxAudioSource == null)
-            sfxAudioSource = gameObject.AddComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
 
-        sfxAudioSource.playOnAwake = false;
-        sfxAudioSource.loop = false;
-        sfxAudioSource.volume = volume;
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        audioSource.volume = volume;
     }
 
-    public void PlaySFX(AudioClip clip)
+    private void PlaySound(AudioClip clip)
     {
-        if (clip == null || sfxAudioSource == null)
+        if (clip == null || audioSource == null)
             return;
 
-        sfxAudioSource.PlayOneShot(clip, volume);
+        audioSource.PlayOneShot(clip, volume);
     }
 
     public void PlayButtonClick()
     {
-        PlaySFX(buttonClickSFX);
+        PlaySound(buttonClickSound);
     }
 
     public void PlayButtonHover()
     {
-        PlaySFX(buttonHoverSFX);
+        PlaySound(buttonHoverSound);
     }
 
-    public void PlayOpenPanel()
+    public void PlayPanelOpen()
     {
-        PlaySFX(openPanelSFX);
+        PlaySound(panelOpenSound);
     }
 
-    public void PlayClosePanel()
+    public void PlayPanelClose()
     {
-        PlaySFX(closePanelSFX);
+        PlaySound(panelCloseSound);
     }
 
-    public void PlayPickup()
+    public void PlayTyping()
     {
-        PlaySFX(pickupSFX);
+        PlaySound(typingSound);
     }
 
-    public void PlayDrop()
+    public void PlayEnter()
     {
-        PlaySFX(dropSFX);
+        PlaySound(enterSound);
     }
 
-    public void PlayCooking()
+    public void PlayError()
     {
-        PlaySFX(cookingSFX);
+        PlaySound(errorSound);
     }
 
-    public void PlayCorrectOrder()
+    public void PlayCharacterSelected()
     {
-        PlaySFX(correctOrderSFX);
+        PlaySound(characterSelectedSound);
     }
 
-    public void PlayWrongOrder()
+    public void PlayLoadingStart()
     {
-        PlaySFX(wrongOrderSFX);
+        PlaySound(loadingStartSound);
+    }
+
+    public void PlayPickupFood()
+    {
+        PlaySound(pickupFoodSound);
+    }
+
+    public void PlayDropFood()
+    {
+        PlaySound(dropFoodSound);
+    }
+
+    public void PlayThrowFood()
+    {
+        PlaySound(throwFoodSound);
+    }
+
+    public void PlayWaveFood()
+    {
+        PlaySound(waveFoodSound);
+    }
+
+    public void PlayAddIngredient()
+    {
+        PlaySound(addIngredientSound);
+    }
+
+    public void PlayFoodCookedSuccess()
+    {
+        PlaySound(foodCookedSuccessSound);
+    }
+
+    public void PlayFoodCookedFail()
+    {
+        PlaySound(foodCookedFailSound);
+    }
+
+    public void PlayNewOrder()
+    {
+        PlaySound(newOrderSound);
+    }
+
+    public void PlayCorrectOrderServed()
+    {
+        PlaySound(correctOrderServedSound);
+    }
+
+    public void PlayWrongOrderServed()
+    {
+        PlaySound(wrongOrderServedSound);
+    }
+
+    public void PlayCustomerPraise()
+    {
+        PlaySound(customerPraiseSound);
+    }
+
+    public void PlayCustomerDisappointed()
+    {
+        PlaySound(customerDisappointedSound);
+    }
+
+    public void PlayMicOn()
+    {
+        PlaySound(micOnSound);
+    }
+
+    public void PlayMicOff()
+    {
+        PlaySound(micOffSound);
+    }
+
+    public void PlayWalk()
+    {
+        PlaySound(walkSound);
+    }
+
+    public void PlayRun()
+    {
+        PlaySound(runSound);
     }
 
     public void SetVolume(float newVolume)
     {
         volume = Mathf.Clamp01(newVolume);
 
-        if (sfxAudioSource != null)
-            sfxAudioSource.volume = volume;
+        if (audioSource != null)
+            audioSource.volume = volume;
     }
 }

@@ -202,6 +202,9 @@ public class CustomerOrderUI : MonoBehaviour
         completed = true;
 
         Debug.Log("Customer order shown: " + chosenOrderName);
+
+        SFXManager.Instance?.PlayNewOrder();
+
         Debug.Log("Order number this level: " + ordersGivenThisLevel);
         Debug.Log("Used unique orders this level: " + usedOrderKeys.Count);
     }
@@ -526,14 +529,19 @@ public class CustomerOrderUI : MonoBehaviour
         switch (reaction)
         {
             case CustomerReactionType.Reaction1:
+                SFXManager.Instance?.PlayCorrectOrderServed();
+                SFXManager.Instance?.PlayCustomerPraise();
                 customer.PlayHappyReaction();
                 break;
 
             case CustomerReactionType.Reaction2:
+                SFXManager.Instance?.PlayCustomerDisappointed();
                 customer.PlayDeathReaction();
                 break;
 
             case CustomerReactionType.Reaction3:
+                SFXManager.Instance?.PlayWrongOrderServed();
+                SFXManager.Instance?.PlayCustomerDisappointed();
                 customer.PlayAngryReaction();
                 break;
         }

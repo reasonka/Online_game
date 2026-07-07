@@ -25,7 +25,7 @@ public class MicToggleButtonUI : MonoBehaviour
             micButton.onClick.AddListener(ClickMicButton);
 
         FindLocalSpeakerVoiceSetup();
-        TurnMicOff();
+        TurnMicOff(false);
     }
 
     private void ClickMicButton()
@@ -46,9 +46,12 @@ public class MicToggleButtonUI : MonoBehaviour
 
         if (localVoiceSetup != null)
             localVoiceSetup.SetMicButton(true);
+
+        if (SFXManager.Instance != null)
+         SFXManager.Instance.PlayMicOn();
     }
 
-    public void TurnMicOff()
+    public void TurnMicOff(bool playSound = true)
     {
         micOn = false;
         SetMicVisual(false);
@@ -58,6 +61,9 @@ public class MicToggleButtonUI : MonoBehaviour
 
         if (localVoiceSetup != null)
             localVoiceSetup.SetMicButton(false);
+
+        if (playSound && SFXManager.Instance != null)
+            SFXManager.Instance.PlayMicOff();
     }
 
     private void SetMicVisual(bool isOn)
