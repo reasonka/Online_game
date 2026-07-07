@@ -1,3 +1,4 @@
+using System.Collections;
 using Photon.Pun;
 using UnityEngine;
 
@@ -18,23 +19,43 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
 
     [Header("Black White Player")]
     public int blackWhitePlayerIndex = 2;
-    public string blackWhiteCanvasTag = "BlackWhiteCanvas";
     public string blackWhiteCanvasName = "BlackWhiteCanvas";
     public float blackWhiteCanvasPlaneDistance = 1f;
     public GameObject grayscaleVolumeObject;
 
     [Header("Level 2 Timer")]
-    public string normalTimerCanvasTag = "NormalTimerCanvas";
     public string normalTimerCanvasName = "TimerCanvas_Normal";
-
-    public string chefTimerCanvasTag = "ChefTimerCanvas";
     public string chefTimerCanvasName = "TimerCanvas_ChefBW";
     public float chefTimerCanvasPlaneDistance = 1f;
+
+    [Header("Mic Button Canvas")]
+    public string normalMicCanvasName = "MicCanvas_Normal";
+    public string chefMicCanvasName = "MicCanvas_ChefBW";
+    public float chefMicCanvasPlaneDistance = 1f;
+
+    [Header("Settings / Info Canvas")]
+    public string normalSettingsInfoCanvasName = "SettingsInfoCanvas_Normal";
+    public string chefSettingsInfoCanvasName = "SettingsInfoCanvas_ChefBW";
+    public float chefSettingsInfoCanvasPlaneDistance = 1f;
+
+    private bool isLocalPlayer;
+    private bool isLocalBlackWhitePlayer;
 
     private void Start()
     {
         ReadPlayerIndex();
         SetupLocalPlayer();
+
+        if (isLocalPlayer)
+            StartCoroutine(ForceCorrectCanvasStateAfterDelay());
+    }
+
+    private IEnumerator ForceCorrectCanvasStateAfterDelay()
+    {
+        yield return null;
+        yield return new WaitForSeconds(0.2f);
+
+        SetupRoleCanvases();
     }
 
     private void ReadPlayerIndex()
@@ -45,20 +66,16 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
         if (PhotonNetwork.IsConnected && photonView != null && photonView.Owner != null)
         {
             if (photonView.Owner.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
-            {
                 playerIndex = (int)value;
-            }
         }
     }
 
     private void SetupLocalPlayer()
     {
-        bool isLocalPlayer =
+        isLocalPlayer =
             !usePhotonSync ||
             !PhotonNetwork.IsConnected ||
             photonView.IsMine;
-
-        Debug.Log(gameObject.name + " IsMine: " + photonView.IsMine + " Local: " + isLocalPlayer);
 
         if (playerCamera == null)
         {
@@ -81,66 +98,70 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
         if (!isLocalPlayer)
             return;
 
-        bool isLocalBlackWhitePlayer = playerIndex == blackWhitePlayerIndex;
+        isLocalBlackWhitePlayer =
+            playerIndex == blackWhitePlayerIndex;
 
         if (grayscaleVolumeObject != null)
             grayscaleVolumeObject.SetActive(isLocalBlackWhitePlayer);
 
+        SetupRoleCanvases();
+    }
+
+    private void SetupRoleCanvases()
+    {
         if (isLocalBlackWhitePlayer)
         {
-            BindBlackWhiteCanvas();
+            // Chef: close ALL normal UI.
+            SetCanvasActive(normalTimerCanvasName, false);
+            SetCanvasActive(normalMicCanvasName, false);
+            SetCanvasActive(normalSettingsInfoCanvasName, false);
 
-            SetCanvasActive(normalTimerCanvasTag, normalTimerCanvasName, false);
-            BindChefTimerCanvas();
+            // Chef: open only black-white UI.
+            BindCameraCanvas(blackWhiteCanvasName, blackWhiteCanvasPlaneDistance);
+            BindCameraCanvas(chefTimerCanvasName, chefTimerCanvasPlaneDistance);
+            BindCameraCanvas(chefMicCanvasName, chefMicCanvasPlaneDistance);
+            BindCameraCanvas(chefSettingsInfoCanvasName, chefSettingsInfoCanvasPlaneDistance);
         }
         else
         {
-            SetCanvasActive(normalTimerCanvasTag, normalTimerCanvasName, true);
-            SetCanvasActive(chefTimerCanvasTag, chefTimerCanvasName, false);
+            // Non-chef: open normal UI.
+            SetCanvasActive(normalTimerCanvasName, true);
+            SetCanvasActive(normalMicCanvasName, true);
+            SetCanvasActive(normalSettingsInfoCanvasName, true);
+
+            // Non-chef: close chef black-white UI.
+            SetCanvasActive(blackWhiteCanvasName, false);
+            SetCanvasActive(chefTimerCanvasName, false);
+            SetCanvasActive(chefMicCanvasName, false);
+            SetCanvasActive(chefSettingsInfoCanvasName, false);
         }
     }
 
-    private void BindBlackWhiteCanvas()
+    private void BindCameraCanvas(string objectName, float planeDistance)
     {
-        Canvas blackWhiteCanvas = FindCanvas(blackWhiteCanvasTag, blackWhiteCanvasName);
+        Canvas canvas = FindCanvas(objectName);
 
-        if (blackWhiteCanvas == null)
+        if (canvas == null)
         {
-            Debug.LogWarning("BlackWhiteCanvas not found. Check its name or tag.");
+            Debug.LogWarning("Canvas not found: " + objectName);
             return;
         }
 
-        blackWhiteCanvas.gameObject.SetActive(true);
-        blackWhiteCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-        blackWhiteCanvas.worldCamera = playerCamera;
-        blackWhiteCanvas.planeDistance = blackWhiteCanvasPlaneDistance;
+        canvas.gameObject.SetActive(true);
+        canvas.renderMode = RenderMode.ScreenSpaceCamera;
+        canvas.worldCamera = playerCamera;
+        canvas.planeDistance = planeDistance;
     }
 
-    private void BindChefTimerCanvas()
+    private void SetCanvasActive(string objectName, bool active)
     {
-        Canvas timerCanvas = FindCanvas(chefTimerCanvasTag, chefTimerCanvasName);
-
-        if (timerCanvas == null)
-        {
-            Debug.LogWarning("Chef timer canvas not found. Check its name or tag.");
-            return;
-        }
-
-        timerCanvas.gameObject.SetActive(true);
-        timerCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-        timerCanvas.worldCamera = playerCamera;
-        timerCanvas.planeDistance = chefTimerCanvasPlaneDistance;
-    }
-
-    private void SetCanvasActive(string tagName, string objectName, bool active)
-    {
-        Canvas canvas = FindCanvas(tagName, objectName);
+        Canvas canvas = FindCanvas(objectName);
 
         if (canvas != null)
             canvas.gameObject.SetActive(active);
     }
 
-    private Canvas FindCanvas(string tagName, string objectName)
+    private Canvas FindCanvas(string objectName)
     {
         Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
 
@@ -152,15 +173,7 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
             if (!canvas.gameObject.scene.IsValid())
                 continue;
 
-            bool tagMatches =
-                !string.IsNullOrEmpty(tagName) &&
-                canvas.gameObject.tag == tagName;
-
-            bool nameMatches =
-                !string.IsNullOrEmpty(objectName) &&
-                canvas.gameObject.name == objectName;
-
-            if (tagMatches || nameMatches)
+            if (canvas.gameObject.name == objectName)
                 return canvas;
         }
 
