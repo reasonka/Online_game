@@ -151,7 +151,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 634941117299412950}
   m_LocalRotation: {x: 0.14492533, y: -0, z: -0, w: 0.9894426}
-  m_LocalPosition: {x: 0, y: 2.55, z: -2.050003}
+  m_LocalPosition: {x: 0, y: 2.417, z: -2.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2144,6 +2144,7 @@ MonoBehaviour:
   playerIndexPropertyKey: CharacterIndex
   recorder: {fileID: 5215156347268506657}
   speaker: {fileID: 0}
+  showDebugLog: 1
 --- !u!114 &5215156347268506657
 MonoBehaviour:
   m_ObjectHideFlags: 0

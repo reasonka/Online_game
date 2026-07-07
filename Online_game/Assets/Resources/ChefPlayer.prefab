@@ -1776,6 +1776,7 @@ MonoBehaviour:
   playerIndexPropertyKey: CharacterIndex
   recorder: {fileID: 928944402045627587}
   speaker: {fileID: 0}
+  showDebugLog: 1
 --- !u!114 &3941439276514276852
 MonoBehaviour:
   m_ObjectHideFlags: 0

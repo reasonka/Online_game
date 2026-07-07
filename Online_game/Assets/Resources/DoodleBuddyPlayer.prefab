@@ -3131,6 +3131,7 @@ MonoBehaviour:
   playerIndexPropertyKey: CharacterIndex
   recorder: {fileID: 0}
   speaker: {fileID: 153037787}
+  showDebugLog: 1
 --- !u!82 &153037788
 AudioSource:
   m_ObjectHideFlags: 0
