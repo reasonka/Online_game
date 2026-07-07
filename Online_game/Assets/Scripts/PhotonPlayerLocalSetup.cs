@@ -109,14 +109,16 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
 
     private void SetupRoleCanvases()
     {
-        if (isLocalBlackWhitePlayer)
+        bool isOrderTaker = playerIndex == 0;
+        bool isDoodleBuddy = playerIndex == 1;
+        bool isChef = playerIndex == 2;
+
+        if (isChef)
         {
-            // Chef: close ALL normal UI.
             SetCanvasActive(normalTimerCanvasName, false);
             SetCanvasActive(normalMicCanvasName, false);
             SetCanvasActive(normalSettingsInfoCanvasName, false);
 
-            // Chef: open only black-white UI.
             BindCameraCanvas(blackWhiteCanvasName, blackWhiteCanvasPlaneDistance);
             BindCameraCanvas(chefTimerCanvasName, chefTimerCanvasPlaneDistance);
             BindCameraCanvas(chefMicCanvasName, chefMicCanvasPlaneDistance);
@@ -124,16 +126,16 @@ public class PhotonPlayerLocalSetup : MonoBehaviourPun
         }
         else
         {
-            // Non-chef: open normal UI.
-            SetCanvasActive(normalTimerCanvasName, true);
-            SetCanvasActive(normalMicCanvasName, true);
-            SetCanvasActive(normalSettingsInfoCanvasName, true);
-
-            // Non-chef: close chef black-white UI.
             SetCanvasActive(blackWhiteCanvasName, false);
             SetCanvasActive(chefTimerCanvasName, false);
             SetCanvasActive(chefMicCanvasName, false);
             SetCanvasActive(chefSettingsInfoCanvasName, false);
+
+            SetCanvasActive(normalTimerCanvasName, true);
+            SetCanvasActive(normalSettingsInfoCanvasName, true);
+
+            // Only Order Taker can use normal mic.
+            SetCanvasActive(normalMicCanvasName, isOrderTaker);
         }
     }
 
