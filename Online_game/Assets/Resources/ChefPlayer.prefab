@@ -1565,6 +1565,16 @@ MonoBehaviour:
   chefTimerCanvasTag: ChefTimerCanvas
   chefTimerCanvasName: TimerCanvas_ChefBW
   chefTimerCanvasPlaneDistance: 0.6
+  normalMicCanvasTag: 
+  normalMicCanvasName: MicCanvas_Normal
+  chefMicCanvasTag: 
+  chefMicCanvasName: MicCanvas_ChefBW
+  chefMicCanvasPlaneDistance: 0.6
+  normalSettingsInfoCanvasTag: 
+  normalSettingsInfoCanvasName: SettingsInfoCanvas_Normal
+  chefSettingsInfoCanvasTag: 
+  chefSettingsInfoCanvasName: SettingsInfoCanvas_ChefBW
+  chefSettingsInfoCanvasPlaneDistance: 0.6
 --- !u!114 &-3346268692422133189
 MonoBehaviour:
   m_ObjectHideFlags: 0
