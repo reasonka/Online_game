@@ -3080,15 +3080,18 @@ MonoBehaviour:
   localOnlyInputScripts:
   - {fileID: 7162782686724899933}
   blackWhitePlayerIndex: 2
-  blackWhiteCanvasTag: BlackWhiteCanvas
   blackWhiteCanvasName: BlackWhiteCanvas
   blackWhiteCanvasPlaneDistance: 0.6
   grayscaleVolumeObject: {fileID: 0}
-  normalTimerCanvasTag: NormalTimerCanvas
   normalTimerCanvasName: TimerCanvas_Normal
-  chefTimerCanvasTag: ChefTimerCanvas
   chefTimerCanvasName: TimerCanvas_ChefBW
   chefTimerCanvasPlaneDistance: 1
+  normalMicCanvasName: MicCanvas_Normal
+  chefMicCanvasName: MicCanvas_ChefBW
+  chefMicCanvasPlaneDistance: 1
+  normalSettingsInfoCanvasName: SettingsInfoCanvas_Normal
+  chefSettingsInfoCanvasName: SettingsInfoCanvas_ChefBW
+  chefSettingsInfoCanvasPlaneDistance: 1
 --- !u!114 &-1798923820444536137
 MonoBehaviour:
   m_ObjectHideFlags: 0

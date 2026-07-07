@@ -1,10 +1,9 @@
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
+public class VoiceFilterSelectorUI : MonoBehaviour
 {
     public GameObject filterPanel;
 
@@ -47,18 +46,23 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
 
     private void Update()
     {
-        if (!filterPanelOpen)
+        bool mouseOverMic =
+            IsMouseOver(micButtonArea);
+
+        bool mouseOverFilterPanel =
+            IsMouseOver(filterPanelArea);
+
+        if (mouseOverMic)
+        {
+            ShowFilterPanel();
+            return;
+        }
+
+        if (filterPanelOpen && mouseOverFilterPanel)
             return;
 
-        if (IsMouseOver(micButtonArea) || IsMouseOver(filterPanelArea))
-            return;
-
-        HideFilterPanel();
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        ShowFilterPanel();
+        if (filterPanelOpen)
+            HideFilterPanel();
     }
 
     public void ShowFilterPanel()
@@ -97,10 +101,20 @@ public class VoiceFilterSelectorUI : MonoBehaviour, IPointerEnterHandler
         if (rectTransform == null)
             return false;
 
+        Canvas canvas = rectTransform.GetComponentInParent<Canvas>();
+
+        Camera uiCamera = null;
+
+        if (canvas != null &&
+            canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            uiCamera = canvas.worldCamera;
+        }
+
         return RectTransformUtility.RectangleContainsScreenPoint(
             rectTransform,
             Input.mousePosition,
-            null
+            uiCamera
         );
     }
 }
