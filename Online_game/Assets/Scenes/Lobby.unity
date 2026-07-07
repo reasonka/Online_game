@@ -7575,11 +7575,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4463084031674631472, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 109.467834
+      value: 109.46774
       objectReference: {fileID: 0}
     - target: {fileID: 4463084032141547565, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 109.51819
+      value: 109.5181
       objectReference: {fileID: 0}
     - target: {fileID: 8702126135276584535, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
       propertyPath: playerCamera
