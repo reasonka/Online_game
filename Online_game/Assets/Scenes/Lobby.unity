@@ -19376,7 +19376,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: Level2
-  requiredCompletedLevel: 1
+  requiredCompletedLevel: 0
   playerTag: Player
   portalTrigger: {fileID: 1486085706}
   lightsWhenUnlocked:
@@ -19613,11 +19613,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4463084031674631472, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 109.46756
+      value: 109.4675
       objectReference: {fileID: 0}
     - target: {fileID: 4463084032141547565, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 109.517914
+      value: 109.51785
       objectReference: {fileID: 0}
     - target: {fileID: 8702126135276584535, guid: 911fc2bda61303545af71068fe4584e2, type: 3}
       propertyPath: playerCamera
