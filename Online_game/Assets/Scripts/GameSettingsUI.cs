@@ -9,6 +9,9 @@ public class GameSettingsUI : MonoBehaviour
     public Button openSettingsButton;
     public Button closeSettingsButton;
 
+    [Header("Exit")]
+    public Button exitGameButton;
+
     [Header("Voice / SFX Volume")]
     public Slider voiceVolumeSlider;
     public TMP_Text voiceVolumeValueText;
@@ -37,6 +40,9 @@ public class GameSettingsUI : MonoBehaviour
 
         if (closeSettingsButton != null)
             closeSettingsButton.onClick.AddListener(CloseSettings);
+
+        if (exitGameButton != null)
+            exitGameButton.onClick.AddListener(ExitGame);
 
         LoadSettings();
 
@@ -152,5 +158,19 @@ public class GameSettingsUI : MonoBehaviour
 
         foreach (PlayerOneController controller in playerOneControllers)
             controller.mouseSensitivity = value;
+    }
+
+    public void ExitGame()
+    {
+        PlayerPrefs.Save();
+
+        if (SFXManager.Instance != null)
+            SFXManager.Instance.PlayButtonClick();
+
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }
