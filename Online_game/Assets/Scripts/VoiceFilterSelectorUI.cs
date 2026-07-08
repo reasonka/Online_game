@@ -17,8 +17,11 @@ public class VoiceFilterSelectorUI : MonoBehaviour
     public MicToggleButtonUI micToggleButtonUI;
 
     public string voiceFilterPropertyKey = "VoiceFilter";
+    public string playerIndexPropertyKey = "CharacterIndex";
 
     private bool filterPanelOpen = false;
+    private int currentFilterIndex = -1;
+    private bool micIsOn = false;
 
     private void Start()
     {
@@ -35,40 +38,40 @@ public class VoiceFilterSelectorUI : MonoBehaviour
         }
 
         if (normalButton != null)
-            normalButton.onClick.AddListener(() => SelectFilterAndTurnMicOn(0));
+            normalButton.onClick.AddListener(() => SelectFilterToggleMic(0));
 
         if (cuteButton != null)
-            cuteButton.onClick.AddListener(() => SelectFilterAndTurnMicOn(1));
+            cuteButton.onClick.AddListener(() => SelectFilterToggleMic(1));
 
         if (robotButton != null)
-            robotButton.onClick.AddListener(() => SelectFilterAndTurnMicOn(2));
+            robotButton.onClick.AddListener(() => SelectFilterToggleMic(2));
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (CanLocalPlayerUseMicKeys())
         {
-            SelectFilterAndTurnMicOn(0);
-            return;
+            if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+            {
+                SelectFilterToggleMic(0);
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+            {
+                SelectFilterToggleMic(1);
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+            {
+                SelectFilterToggleMic(2);
+                return;
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            SelectFilterAndTurnMicOn(1);
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            SelectFilterAndTurnMicOn(2);
-            return;
-        }
-
-        bool mouseOverMic =
-            IsMouseOver(micButtonArea);
-
-        bool mouseOverFilterPanel =
-            IsMouseOver(filterPanelArea);
+        bool mouseOverMic = IsMouseOver(micButtonArea);
+        bool mouseOverFilterPanel = IsMouseOver(filterPanelArea);
 
         if (mouseOverMic)
         {
@@ -81,6 +84,61 @@ public class VoiceFilterSelectorUI : MonoBehaviour
 
         if (filterPanelOpen)
             HideFilterPanel();
+    }
+
+    private bool CanLocalPlayerUseMicKeys()
+    {
+        if (PhotonNetwork.LocalPlayer == null)
+            return false;
+
+        if (!PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(playerIndexPropertyKey, out object value))
+            return false;
+
+        int playerIndex = (int)value;
+
+        return playerIndex == 0 || playerIndex == 2;
+    }
+
+    private void SelectFilterToggleMic(int filterIndex)
+    {
+        bool pressingSameFilter =
+            micIsOn &&
+            currentFilterIndex == filterIndex;
+
+        if (pressingSameFilter)
+        {
+            TurnMicOff();
+            return;
+        }
+
+        currentFilterIndex = filterIndex;
+        micIsOn = true;
+
+        Hashtable properties = new Hashtable
+        {
+            { voiceFilterPropertyKey, filterIndex }
+        };
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
+
+        if (micToggleButtonUI != null)
+            micToggleButtonUI.TurnMicOn();
+
+        HideFilterPanel();
+
+        Debug.Log("Voice filter on: " + filterIndex);
+    }
+
+    private void TurnMicOff()
+    {
+        micIsOn = false;
+
+        if (micToggleButtonUI != null)
+            micToggleButtonUI.TurnMicOff();
+
+        HideFilterPanel();
+
+        Debug.Log("Voice mic off.");
     }
 
     public void ShowFilterPanel()
@@ -99,21 +157,6 @@ public class VoiceFilterSelectorUI : MonoBehaviour
             filterPanel.SetActive(false);
     }
 
-    private void SelectFilterAndTurnMicOn(int filterIndex)
-    {
-        Hashtable properties = new Hashtable
-        {
-            { voiceFilterPropertyKey, filterIndex }
-        };
-
-        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-
-        if (micToggleButtonUI != null)
-            micToggleButtonUI.TurnMicOn();
-
-        HideFilterPanel();
-    }
-
     private bool IsMouseOver(RectTransform rectTransform)
     {
         if (rectTransform == null)
@@ -123,11 +166,8 @@ public class VoiceFilterSelectorUI : MonoBehaviour
 
         Camera uiCamera = null;
 
-        if (canvas != null &&
-            canvas.renderMode != RenderMode.ScreenSpaceOverlay)
-        {
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
             uiCamera = canvas.worldCamera;
-        }
 
         return RectTransformUtility.RectangleContainsScreenPoint(
             rectTransform,
