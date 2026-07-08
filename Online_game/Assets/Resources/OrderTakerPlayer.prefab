@@ -870,6 +870,37 @@ Transform:
   m_Father: {fileID: 4877185465487260463}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1899341863260463878
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6744747309449252347}
+  m_Layer: 0
+  m_Name: FoodPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6744747309449252347
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1899341863260463878}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0.00054, y: 0.00393, z: -0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4646468813534779297}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &2027649296804592661
 GameObject:
   m_ObjectHideFlags: 0
@@ -903,7 +934,6 @@ Transform:
   - {fileID: 6001173906038134447}
   - {fileID: 6724468688596541340}
   - {fileID: 3636298120005352096}
-  - {fileID: 6778212466097444348}
   m_Father: {fileID: 357038677500822670}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1254,6 +1284,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8956789950166832185}
+  - {fileID: 6744747309449252347}
   m_Father: {fileID: 8960827190084002409}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1320,37 +1351,6 @@ Transform:
   - {fileID: 1271763418666120307}
   m_Father: {fileID: 1012402686880601524}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &4284150825019912505
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6778212466097444348}
-  m_Layer: 0
-  m_Name: FoodPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6778212466097444348
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4284150825019912505}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00034, y: -0.01452, z: 0.00074}
-  m_LocalScale: {x: 0.010000211, y: 0.009999848, z: 0.009999936}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5136187440590828386}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4356573695853893530
 GameObject:
@@ -1986,9 +1986,10 @@ GameObject:
   - component: {fileID: 2837764616899804233}
   - component: {fileID: 1321461364332440000}
   - component: {fileID: 4753864498949746629}
+  - component: {fileID: 1609708109214361775}
   m_Layer: 0
   m_Name: OrderTakerPlayer
-  m_TagString: Untagged
+  m_TagString: PlayerOther
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2350,7 +2351,7 @@ MonoBehaviour:
   interactMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  holdPoint: {fileID: 6778212466097444348}
+  holdPoint: {fileID: 6744747309449252347}
   holdLocalPosition: {x: 0, y: 1.2, z: 1}
   holdLocalRotation: {x: 0, y: 0, z: 0}
   dropForwardDistance: 1
@@ -2379,6 +2380,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   voiceFilterPropertyKey: VoiceFilter
+--- !u!54 &1609708109214361775
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1 &7442378397244450868
 GameObject:
   m_ObjectHideFlags: 0

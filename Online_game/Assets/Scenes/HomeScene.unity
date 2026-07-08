@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028292, g: 0.22571306, b: 0.30692118, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2183,7 +2183,7 @@ MonoBehaviour:
     musicClip: {fileID: 8300000, guid: 00fbdfc9443adc548a022014f9b2b7e7, type: 3}
   - sceneName: Level2
     musicClip: {fileID: 8300000, guid: 047d197120492e34ea3d4d37b2b35f35, type: 3}
-  volume: 0.5
+  volume: 0.374
   loopMusic: 1
   fadeDuration: 1
 --- !u!4 &211107371
@@ -6726,7 +6726,7 @@ MonoBehaviour:
   doodleBuddyCutsceneText: {fileID: 1726926184}
   chefCutsceneText: {fileID: 927510747}
   promptText: {fileID: 574454814}
-  gameSceneName: Level1
+  gameSceneName: Lobby
   loadingMessage: Loading...
 --- !u!4 &1068504560
 Transform:
@@ -7922,7 +7922,7 @@ MonoBehaviour:
 
 
     Listen to the Order
-    Taker, check the recipe, then draw or send hints to guide the Chef.'
+    Taker, then draw the recipe down and send hints to guide the Chef.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bc30ded835911481a87e7887516bd42d, type: 2}
   m_sharedMaterial: {fileID: -7522579697584184421, guid: bc30ded835911481a87e7887516bd42d, type: 2}
@@ -7949,7 +7949,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 48.2
+  m_fontSize: 47.85
   m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -8549,7 +8549,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 233, y: -212}
+  m_AnchoredPosition: {x: -7, y: -375}
   m_SizeDelta: {x: 400, y: 260}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1458594606
@@ -8680,7 +8680,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -209, y: -212}
+  m_AnchoredPosition: {x: -8, y: -133}
   m_SizeDelta: {x: 400, y: 260}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1476602565
@@ -10008,7 +10008,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 8c729c155295845e1932d931ab343172, type: 3}
+  m_Texture: {fileID: 2800000, guid: 85a1f77f59dfe4ba7a04e6965b83711c, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0

@@ -9,9 +9,13 @@ public class GameSettingsUI : MonoBehaviour
     public Button openSettingsButton;
     public Button closeSettingsButton;
 
-    [Header("Audio Volume")]
+    [Header("Voice / SFX Volume")]
     public Slider voiceVolumeSlider;
     public TMP_Text voiceVolumeValueText;
+
+    [Header("Background Music Volume")]
+    public Slider bgmVolumeSlider;
+    public TMP_Text bgmVolumeValueText;
 
     [Header("Mouse Sensitivity")]
     public Slider mouseSensitivitySlider;
@@ -19,9 +23,11 @@ public class GameSettingsUI : MonoBehaviour
 
     [Header("Default Values")]
     public float defaultVoiceVolume = 1f;
+    public float defaultBGMVolume = 0.5f;
     public float defaultMouseSensitivity = 2f;
 
     public const string VoiceVolumeKey = "VoiceVolume";
+    public const string BGMVolumeKey = "BGMVolume";
     public const string MouseSensitivityKey = "MouseSensitivity";
 
     private void Start()
@@ -37,6 +43,9 @@ public class GameSettingsUI : MonoBehaviour
         if (voiceVolumeSlider != null)
             voiceVolumeSlider.onValueChanged.AddListener(SetVoiceVolume);
 
+        if (bgmVolumeSlider != null)
+            bgmVolumeSlider.onValueChanged.AddListener(SetBGMVolume);
+
         if (mouseSensitivitySlider != null)
             mouseSensitivitySlider.onValueChanged.AddListener(SetMouseSensitivity);
 
@@ -49,16 +58,23 @@ public class GameSettingsUI : MonoBehaviour
         float voiceVolume =
             PlayerPrefs.GetFloat(VoiceVolumeKey, defaultVoiceVolume);
 
+        float bgmVolume =
+            PlayerPrefs.GetFloat(BGMVolumeKey, defaultBGMVolume);
+
         float mouseSensitivity =
             PlayerPrefs.GetFloat(MouseSensitivityKey, defaultMouseSensitivity);
 
         if (voiceVolumeSlider != null)
             voiceVolumeSlider.value = voiceVolume;
 
+        if (bgmVolumeSlider != null)
+            bgmVolumeSlider.value = bgmVolume;
+
         if (mouseSensitivitySlider != null)
             mouseSensitivitySlider.value = mouseSensitivity;
 
         SetVoiceVolume(voiceVolume);
+        SetBGMVolume(bgmVolume);
         SetMouseSensitivity(mouseSensitivity);
     }
 
@@ -99,6 +115,17 @@ public class GameSettingsUI : MonoBehaviour
 
         if (SFXManager.Instance != null)
             SFXManager.Instance.SetVolume(value);
+    }
+
+    public void SetBGMVolume(float value)
+    {
+        PlayerPrefs.SetFloat(BGMVolumeKey, value);
+
+        if (bgmVolumeValueText != null)
+            bgmVolumeValueText.text = Mathf.RoundToInt(value * 100f) + "%";
+
+        if (BGMManager.Instance != null)
+            BGMManager.Instance.SetVolume(value);
     }
 
     public void SetMouseSensitivity(float value)

@@ -8,22 +8,26 @@ public class PortalLevelLoader : MonoBehaviour, IOnEventCallback
 {
     [Header("Scene To Load")]
     public string sceneToLoad = "Level1";
-    // For your second portal, change this to "Level2" in the Inspector.
 
     [Header("Player Detection")]
     public string playerTag = "Player";
+    public string playerOtherTag = "PlayerOther";
+
+    [Header("Debug")]
+    public bool showDebugLogs = true;
 
     private const byte PortalLoadEventCode = 44;
     private static bool isLoading = false;
 
     private void Start()
     {
-        // Important: makes all players follow the Master Client's scene load
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     private void OnEnable()
     {
+        // Reset when this scene loads again, otherwise static bool can stay true.
+        isLoading = false;
         PhotonNetwork.AddCallbackTarget(this);
     }
 
@@ -34,16 +38,30 @@ public class PortalLevelLoader : MonoBehaviour, IOnEventCallback
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isLoading) return;
+        if (isLoading)
+            return;
 
-        if (!other.CompareTag(playerTag)) return;
+        if (!IsPlayerTag(other))
+            return;
 
         PhotonView playerPhotonView = other.GetComponentInParent<PhotonView>();
 
-        if (playerPhotonView == null) return;
+        if (playerPhotonView == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("Portal touched by player-tagged object, but no PhotonView was found.");
 
-        // Only the player who actually owns this character should trigger the portal
-        if (!playerPhotonView.IsMine) return;
+            return;
+        }
+
+        // Important:
+        // Each client sees all players, including remote clones.
+        // Only the owner of the player who entered should request the level load.
+        if (PhotonNetwork.InRoom && !playerPhotonView.IsMine)
+            return;
+
+        if (showDebugLogs)
+            Debug.Log("Portal triggered by local player. Requesting load: " + sceneToLoad);
 
         if (PhotonNetwork.InRoom)
         {
@@ -51,13 +69,41 @@ public class PortalLevelLoader : MonoBehaviour, IOnEventCallback
         }
         else
         {
-            // For testing outside Photon
+            isLoading = true;
             SceneManager.LoadScene(sceneToLoad);
         }
     }
 
+    private bool IsPlayerTag(Collider other)
+    {
+        if (other.CompareTag(playerTag) || other.CompareTag(playerOtherTag))
+            return true;
+
+        PhotonView view = other.GetComponentInParent<PhotonView>();
+
+        if (view != null)
+        {
+            GameObject rootObject = view.gameObject;
+
+            if (rootObject.CompareTag(playerTag) || rootObject.CompareTag(playerOtherTag))
+                return true;
+        }
+
+        return false;
+    }
+
     private void RequestLevelLoad(string levelName)
     {
+        isLoading = true;
+
+        // If the host is the one who entered, load immediately.
+        if (PhotonNetwork.IsMasterClient)
+        {
+            LoadLevelAsMaster(levelName);
+            return;
+        }
+
+        // If a non-host entered, ask the host to load the level.
         RaiseEventOptions eventOptions = new RaiseEventOptions
         {
             Receivers = ReceiverGroup.MasterClient
@@ -78,19 +124,33 @@ public class PortalLevelLoader : MonoBehaviour, IOnEventCallback
 
     public void OnEvent(EventData photonEvent)
     {
-        if (photonEvent.Code != PortalLoadEventCode) return;
+        if (photonEvent.Code != PortalLoadEventCode)
+            return;
 
-        if (!PhotonNetwork.IsMasterClient) return;
+        if (!PhotonNetwork.IsMasterClient)
+            return;
 
-        if (isLoading) return;
+        if (isLoading)
+            return;
 
         string levelName = photonEvent.CustomData as string;
 
-        if (string.IsNullOrEmpty(levelName)) return;
+        if (string.IsNullOrEmpty(levelName))
+            return;
+
+        LoadLevelAsMaster(levelName);
+    }
+
+    private void LoadLevelAsMaster(string levelName)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
 
         isLoading = true;
 
-        // Optional: prevent new players from joining while loading
+        if (showDebugLogs)
+            Debug.Log("Master Client loading level for everyone: " + levelName);
+
         if (PhotonNetwork.CurrentRoom != null)
         {
             PhotonNetwork.CurrentRoom.IsOpen = false;
