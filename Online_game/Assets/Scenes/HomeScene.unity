@@ -6726,7 +6726,7 @@ MonoBehaviour:
   doodleBuddyCutsceneText: {fileID: 1726926184}
   chefCutsceneText: {fileID: 927510747}
   promptText: {fileID: 574454814}
-  gameSceneName: Level1
+  gameSceneName: Lobby
   loadingMessage: Loading...
 --- !u!4 &1068504560
 Transform:
