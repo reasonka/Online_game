@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
 public enum BookOverlayEntryType
 {
@@ -100,6 +101,17 @@ public class HistoricalBookUI : MonoBehaviour
     [Header("Performance Sprite Sets")]
     public List<LevelPerformanceSpriteSet> performanceSpriteSets = new List<LevelPerformanceSpriteSet>();
 
+    [Header("Debug Complete Book Cheat")]
+    public bool allowDebugCompleteBookKey = true;
+    public KeyCode debugCompleteBookKey = KeyCode.Alpha9;
+    public bool alsoAllowKeypad9 = true;
+
+    [Tooltip("When true, pressing 9 makes Level 1 show Dead and Level 2 show Happy.")]
+    public bool debugForceBookComplete = false;
+
+    [Tooltip("Used if Photon player names are not available.")]
+    public string debugFallbackPlayerNames = "Player 1 & Player 2";
+
     [Header("Debug")]
     public bool debugPageIndexes = false;
 
@@ -119,6 +131,24 @@ public class HistoricalBookUI : MonoBehaviour
 
         HideSide(leftOverlay);
         HideSide(rightOverlay);
+    }
+
+    private void Update()
+    {
+        if (!allowDebugCompleteBookKey)
+            return;
+
+        bool pressedDebugKey = Input.GetKeyDown(debugCompleteBookKey);
+
+        if (alsoAllowKeypad9)
+        {
+            pressedDebugKey = pressedDebugKey || Input.GetKeyDown(KeyCode.Keypad9);
+        }
+
+        if (pressedDebugKey)
+        {
+            DebugCompleteBook();
+        }
     }
 
     private void OnEnable()
@@ -172,6 +202,24 @@ public class HistoricalBookUI : MonoBehaviour
         {
             RefreshVisiblePageOverlays(true);
         }
+    }
+
+    public void DebugCompleteBook()
+    {
+        debugForceBookComplete = true;
+
+        Debug.Log("DEBUG BOOK COMPLETE: Level 1 = Dead, Level 2 = Happy.");
+
+        RefreshVisiblePageOverlays(true);
+    }
+
+    public void DebugResetBookToRealData()
+    {
+        debugForceBookComplete = false;
+
+        Debug.Log("DEBUG BOOK RESET: Book is using real OurGameManager data again.");
+
+        RefreshVisiblePageOverlays(true);
     }
 
     public void Open()
@@ -321,12 +369,7 @@ public class HistoricalBookUI : MonoBehaviour
             side.performanceImage.enabled = false;
         }
 
-        LevelHistoryData historyData = null;
-
-        if (OurGameManager.Instance != null)
-        {
-            historyData = OurGameManager.Instance.GetLevelHistoryData(entry.changedAfterLevel);
-        }
+        LevelHistoryData historyData = GetHistoryDataForBook(entry.changedAfterLevel);
 
         bool levelCompleted = historyData != null && historyData.completed;
 
@@ -373,13 +416,7 @@ public class HistoricalBookUI : MonoBehaviour
             side.performanceImageGroup.SetActive(true);
         }
 
-        if (OurGameManager.Instance == null)
-        {
-            HideSide(side);
-            return;
-        }
-
-        LevelHistoryData historyData = OurGameManager.Instance.GetLevelHistoryData(entry.performanceLevelNumber);
+        LevelHistoryData historyData = GetHistoryDataForBook(entry.performanceLevelNumber);
 
         if (historyData == null || !historyData.completed)
         {
@@ -420,6 +457,92 @@ public class HistoricalBookUI : MonoBehaviour
         }
 
         side.performanceImage.enabled = side.performanceImage.sprite != null;
+    }
+
+    private LevelHistoryData GetHistoryDataForBook(int levelNumber)
+    {
+        if (debugForceBookComplete)
+        {
+            return CreateDebugCompletedHistoryData(levelNumber);
+        }
+
+        if (OurGameManager.Instance != null)
+        {
+            return OurGameManager.Instance.GetLevelHistoryData(levelNumber);
+        }
+
+        return null;
+    }
+
+    private LevelHistoryData CreateDebugCompletedHistoryData(int levelNumber)
+    {
+        string playerNames = GetDebugPlayerNames();
+
+        if (levelNumber == 1)
+        {
+            return new LevelHistoryData
+            {
+                completed = true,
+                totalServed = 5,
+                correctServed = 0,
+                deathServed = 5,
+                playerNames = playerNames,
+                outcome = HistoryPerformanceOutcome.Dead
+            };
+        }
+
+        if (levelNumber == 2)
+        {
+            return new LevelHistoryData
+            {
+                completed = true,
+                totalServed = 10,
+                correctServed = 10,
+                deathServed = 0,
+                playerNames = playerNames,
+                outcome = HistoryPerformanceOutcome.Happy
+            };
+        }
+
+        return new LevelHistoryData
+        {
+            completed = false,
+            totalServed = 0,
+            correctServed = 0,
+            deathServed = 0,
+            playerNames = playerNames,
+            outcome = HistoryPerformanceOutcome.None
+        };
+    }
+
+    private string GetDebugPlayerNames()
+    {
+        if (PhotonNetwork.InRoom && PhotonNetwork.PlayerList != null && PhotonNetwork.PlayerList.Length > 0)
+        {
+            List<string> names = new List<string>();
+
+            foreach (var player in PhotonNetwork.PlayerList)
+            {
+                if (player == null)
+                    continue;
+
+                if (!string.IsNullOrEmpty(player.NickName))
+                {
+                    names.Add(player.NickName);
+                }
+                else
+                {
+                    names.Add("Player " + player.ActorNumber);
+                }
+            }
+
+            if (names.Count > 0)
+            {
+                return string.Join(" & ", names);
+            }
+        }
+
+        return debugFallbackPlayerNames;
     }
 
     private void AnimateVisibleSide(BookOverlaySide side)
