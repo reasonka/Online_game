@@ -247,7 +247,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1149080676971503325}
-  - component: {fileID: 1149080676971503326}
+  - component: {fileID: 935820617}
+  - component: {fileID: 935820618}
   m_Layer: 0
   m_Name: DrawBoard
   m_TagString: Untagged
@@ -270,7 +271,7 @@ Transform:
   m_Father: {fileID: 2162515437573638741}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1149080676971503326
+--- !u!114 &935820617
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -279,7 +280,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1149080676971503327}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adc458707c81340df891dc587a76ed03, type: 3}
+  m_Script: {fileID: 11500000, guid: 7827a9e1b8b6a44ffb41ead25f19da3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   textureSize: 512
@@ -287,6 +288,28 @@ MonoBehaviour:
   targetRenderers:
   - {fileID: 0}
   - {fileID: 0}
+--- !u!114 &935820618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149080676971503327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1149080677338580747
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,7 +321,7 @@ GameObject:
   - component: {fileID: 1149080677338580751}
   - component: {fileID: 1149080677338580744}
   - component: {fileID: 1149080677338580745}
-  - component: {fileID: 1149080677338580746}
+  - component: {fileID: 1079446474}
   m_Layer: 5
   m_Name: DrawSurface
   m_TagString: Untagged
@@ -361,7 +384,7 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &1149080677338580746
+--- !u!114 &1079446474
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -370,13 +393,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1149080677338580747}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eff8ef35ef9b2456ca6cdddeb6ae40df, type: 3}
+  m_Script: {fileID: 11500000, guid: f81ba3adc5feb494088dd8f23fb9850e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   panelRoot: {fileID: 1149080676958035459}
   drawSurface: {fileID: 1149080677338580745}
-  drawBoard: {fileID: 1149080676971503326}
-  triggerZone: {fileID: 1149080677935623009}
+  drawBoard: {fileID: 935820617}
+  triggerZone: {fileID: 1079446473}
   brushColor: {r: 0, g: 0, b: 0, a: 1}
   brushSize: 3
   eraserSize: 14
@@ -502,8 +525,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1149080677338580746}
-        m_TargetAssemblyTypeName: DrawCanvasUILocal, Assembly-CSharp
+      - m_Target: {fileID: 1079446474}
+        m_TargetAssemblyTypeName: DrawCanvasUI, Assembly-CSharp
         m_MethodName: OnExitButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -526,7 +549,7 @@ GameObject:
   - component: {fileID: 1149080677935623014}
   - component: {fileID: 1149080677935623015}
   - component: {fileID: 1149080677935623008}
-  - component: {fileID: 1149080677935623009}
+  - component: {fileID: 1079446473}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -541,14 +564,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1149080677935623010}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.324831, y: -1.9721136, z: -1.1102121}
-  m_LocalScale: {x: 1.36, y: 0.38381, z: 7.588935}
+  m_LocalRotation: {x: -0, y: 0.7017137, z: -0, w: 0.71245915}
+  m_LocalPosition: {x: 25.29, y: -1.92, z: 30.38}
+  m_LocalScale: {x: 2.415334, y: 0.38381, z: 6.487847}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2162515437573638741}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 89.129, z: 0}
 --- !u!33 &1149080677935623014
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -564,7 +587,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1149080677935623010}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -612,7 +635,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1149080677935623009
+--- !u!114 &1079446473
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -621,13 +644,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1149080677935623010}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7961bd3142d6f4f9aad9aad37f4e3ae0, type: 3}
+  m_Script: {fileID: 11500000, guid: 6f405d0a2c3044f34a3fe8ecb72ec864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawUI: {fileID: 1149080677338580746}
+  drawUI: {fileID: 1079446474}
   drawCamera: {fileID: 0}
   scriptsToDisableWhileDrawing: []
   playerTag: Player
+  requiredCharacterIndex: 1
+  characterIndexPropertyKey: CharacterIndex
 --- !u!1 &1298046785926828637
 GameObject:
   m_ObjectHideFlags: 0
@@ -660,5 +685,5 @@ Transform:
   - {fileID: 1149080676958035458}
   - {fileID: 1149080677935623013}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

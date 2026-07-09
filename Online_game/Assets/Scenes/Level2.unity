@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17924727, g: 0.22444528, b: 0.30617028, a: 1}
+  m_IndirectSpecularColor: {r: 0.17924765, g: 0.22444597, b: 0.30617136, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -8860,7 +8860,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 24, y: 4758.0957}
+  m_AnchoredPosition: {x: 24, y: 4758.091}
   m_SizeDelta: {x: -40.0389, y: 5286.5522}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &326125888
@@ -24482,8 +24482,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 958766042}
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
-  m_Value: -0.0000009749018
-  m_Size: 0.09996333
+  m_Value: 0.00000005131062
+  m_Size: 0.099962085
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -32440,17 +32440,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 8a8bcb84af71ab148aa96d032c24d47e, type: 3}
   m_PrefabInstance: {fileID: 1306585932}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1306824453 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1149080677338580746, guid: 70c9c7b14a34041fe85e421b5a7577c4, type: 3}
-  m_PrefabInstance: {fileID: 1371505638}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eff8ef35ef9b2456ca6cdddeb6ae40df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1309268196
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33933,6 +33922,10 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 935820618, guid: 70c9c7b14a34041fe85e421b5a7577c4, type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1149080676971503326, guid: 70c9c7b14a34041fe85e421b5a7577c4, type: 3}
       propertyPath: targetRenderers.Array.data[0]
       value: 
@@ -47258,7 +47251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a7404bcc45bc4e7cbb46adb283b3d8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawUI: {fileID: 1306824453}
+  drawUI: {fileID: 0}
   playerController: {fileID: 0}
   playerTag: Player
 --- !u!1 &1867405578
