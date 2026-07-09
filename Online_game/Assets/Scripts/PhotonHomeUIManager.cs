@@ -69,6 +69,7 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        PhotonNetwork.GameVersion = "1.0";
         PhotonNetwork.AutomaticallySyncScene = true;
 
         startButton.onClick.AddListener(OpenNamePanel);
