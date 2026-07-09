@@ -704,7 +704,7 @@ GameObject:
   - component: {fileID: 38254913}
   - component: {fileID: 38254912}
   m_Layer: 5
-  m_Name: 'Settings Panel_BlackWhite '
+  m_Name: 'SettingsPanel_BlackWhite '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8860,7 +8860,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 24, y: 4758.091}
+  m_AnchoredPosition: {x: 24, y: 4758.0957}
   m_SizeDelta: {x: -40.0389, y: 5286.5522}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &326125888
@@ -20233,7 +20233,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settingsPanel: {fileID: 38254911}
   openSettingsButton: {fileID: 1721234034}
-  closeSettingsButton: {fileID: 1721234034}
+  closeSettingsButton: {fileID: 257178473}
   exitGameButton: {fileID: 1536841053}
   voiceVolumeSlider: {fileID: 1326745706}
   voiceVolumeValueText: {fileID: 2002706817}
@@ -24482,8 +24482,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 958766042}
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
-  m_Value: 0.00000005131062
-  m_Size: 0.09996135
+  m_Value: -0.0000009749018
+  m_Size: 0.09996333
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -42624,7 +42624,7 @@ Canvas:
   m_GameObject: {fileID: 1717033332}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
