@@ -98,6 +98,21 @@ public class CustomerAI : MonoBehaviour
 
     public float ghostFloatUpAmount = 0.6f;
 
+    [Header("Ghost Collision")]
+    public bool disableCollidersWhenGhost = true;
+
+    [Tooltip("If true, colliders turn off as soon as the ghost transformation starts.")]
+    public bool disableCollidersAtStartOfGhostTransform = true;
+
+    [Tooltip("Optional. If empty, the script will automatically find all colliders on this customer.")]
+    public Collider[] collidersToDisableWhenGhost;
+
+    public bool includeChildColliders = true;
+    public bool alsoDisableTriggerColliders = true;
+
+    [Tooltip("This stops NavMeshAgent avoidance from trying to physically crowd the player.")]
+    public bool reduceAgentAvoidanceWhenGhost = true;
+
     private Transform ghostTarget;
     private float ghostDestinationTimer = 0f;
 
@@ -178,7 +193,8 @@ public class CustomerAI : MonoBehaviour
 
     private void ApplyCustomerColor(Material mat)
     {
-        if (mat == null) return;
+        if (mat == null)
+            return;
 
         Material[] mats = customerColorRenderer.materials;
 
@@ -476,6 +492,11 @@ public class CustomerAI : MonoBehaviour
             agent.ResetPath();
         }
 
+        if (disableCollidersAtStartOfGhostTransform)
+        {
+            DisableGhostCollision();
+        }
+
         if (animator != null)
         {
             animator.SetBool("IsSitting", false);
@@ -595,6 +616,11 @@ public class CustomerAI : MonoBehaviour
     private void BeginGhostHaunting()
     {
         Debug.Log("Customer became a ghost and is haunting the Order Taker.");
+
+        if (!disableCollidersAtStartOfGhostTransform)
+        {
+            DisableGhostCollision();
+        }
 
         isGhostHaunting = true;
 
@@ -725,6 +751,44 @@ public class CustomerAI : MonoBehaviour
 
         Debug.LogWarning("Ghost could not find Order Taker player with index " + ghostTargetPlayerIndex);
         return null;
+    }
+
+    private void DisableGhostCollision()
+    {
+        if (!disableCollidersWhenGhost)
+            return;
+
+        Collider[] colliders;
+
+        if (collidersToDisableWhenGhost != null && collidersToDisableWhenGhost.Length > 0)
+        {
+            colliders = collidersToDisableWhenGhost;
+        }
+        else
+        {
+            colliders = includeChildColliders
+                ? GetComponentsInChildren<Collider>(true)
+                : GetComponents<Collider>();
+        }
+
+        foreach (Collider col in colliders)
+        {
+            if (col == null)
+                continue;
+
+            if (!alsoDisableTriggerColliders && col.isTrigger)
+                continue;
+
+            col.enabled = false;
+        }
+
+        if (agent != null && reduceAgentAvoidanceWhenGhost)
+        {
+            agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+            agent.avoidancePriority = 99;
+        }
+
+        Debug.Log("Ghost collision disabled.");
     }
 
     private void SetFaceMaterial(Material mat)

@@ -895,7 +895,7 @@ Transform:
   m_GameObject: {fileID: 1899341863260463878}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0.00054, y: 0.00393, z: -0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4646468813534779297}
@@ -1987,6 +1987,7 @@ GameObject:
   - component: {fileID: 1321461364332440000}
   - component: {fileID: 4753864498949746629}
   - component: {fileID: 1609708109214361775}
+  - component: {fileID: 8066142403118682420}
   m_Layer: 0
   m_Name: OrderTakerPlayer
   m_TagString: PlayerOther
@@ -2352,7 +2353,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   holdPoint: {fileID: 6744747309449252347}
-  holdLocalPosition: {x: 0, y: 1.2, z: 1}
+  holdLocalPosition: {x: 0, y: 0, z: 0}
   holdLocalRotation: {x: 0, y: 0, z: 0}
   dropForwardDistance: 1
   dropUpOffset: 0.5
@@ -2395,7 +2396,21 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 2
+  m_CollisionDetection: 0
+--- !u!136 &8066142403118682420
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158508251473883405}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &7442378397244450868
 GameObject:
   m_ObjectHideFlags: 0
