@@ -12012,7 +12012,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: a2f80e80e0ad4964583de896ecb8f533, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.62924194
+      value: -0.06
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: a2f80e80e0ad4964583de896ecb8f533, type: 3}
       propertyPath: m_LocalPosition.z
@@ -19648,7 +19648,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
   m_Value: 0.00000005131062
-  m_Size: 0.099685736
+  m_Size: 0.09996024
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -42173,6 +42173,20 @@ PlayableDirector:
   - key: {fileID: 2340560285488374879, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
     value: {fileID: 440422718}
   - key: {fileID: -1917124044459978339, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: -7152986667360579121, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: 6263394201851751762, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: -4875686885807617455, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: -5655018016645762895, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: -3967641590336118605, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: -2974685514664201034, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
+    value: {fileID: 440422718}
+  - key: {fileID: 881915157862537420, guid: c9ce13ac506ba41f2bd2a0be300c4186, type: 2}
     value: {fileID: 440422718}
   m_ExposedReferences:
     m_References: []
