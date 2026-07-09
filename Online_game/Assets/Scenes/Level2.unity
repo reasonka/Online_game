@@ -22852,7 +22852,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
   m_Value: 0.00000005131062
-  m_Size: 0.09996005
+  m_Size: 0.09994509
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -26516,8 +26516,11 @@ MonoBehaviour:
   titleText: {fileID: 0}
   instructionText: {fileID: 0}
   backToLobbyButton: {fileID: 133168520}
+  lobbySceneName: Lobby
   hostProceedKey: 13
   alsoAllowNumpadEnter: 1
+  autoReturnToLobby: 1
+  autoReturnDelay: 5
 --- !u!1001 &1149735863
 PrefabInstance:
   m_ObjectHideFlags: 0

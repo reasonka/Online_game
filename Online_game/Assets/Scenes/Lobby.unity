@@ -1907,7 +1907,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &154805644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17375,7 +17375,7 @@ MonoBehaviour:
   rotateCenter: {fileID: 892889931}
   radius: 8
   height: 3
-  duration: 6
+  duration: 4
   startAngle: 0
   totalRotation: 360
   playerSpawner: {fileID: 1680465588}
