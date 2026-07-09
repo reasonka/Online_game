@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 9374013}
   - component: {fileID: 9374012}
   m_Layer: 5
-  m_Name: 'Settings Panel_BlackWhite '
+  m_Name: 'SettingsPanel_BlackWhite '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2889,7 +2889,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -4831,7 +4831,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -6508,7 +6508,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -7759,7 +7759,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -8614,7 +8614,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 24, y: 4758.091}
+  m_AnchoredPosition: {x: 24, y: 4758.0923}
   m_SizeDelta: {x: -40.0389, y: 5286.5522}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &326125888
@@ -9880,7 +9880,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -10532,18 +10532,18 @@ MonoBehaviour:
     - {fileID: 2800000, guid: 4036f007c5a95436480a74b09c64126a, type: 3}
     - {fileID: 2800000, guid: c883884db396544dba5090718ef8906d, type: 3}
     finalFoodTexture: {fileID: 2800000, guid: bde96ce761c41467fa5b8c8c7e3f11b1, type: 3}
-  foodNameText: {fileID: 0}
+  foodNameText: {fileID: 1960069991}
   ingredientSlots:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  finalFoodSlot: {fileID: 0}
-  hotdogButton1: {fileID: 0}
-  hotdogButton2: {fileID: 0}
-  hotdogButton3: {fileID: 0}
-  closeButton: {fileID: 0}
-  recipePanel: {fileID: 0}
+  - {fileID: 938725922}
+  - {fileID: 2099358093}
+  - {fileID: 849850258}
+  - {fileID: 809397074}
+  finalFoodSlot: {fileID: 297497701}
+  hotdogButton1: {fileID: 1611004297}
+  hotdogButton2: {fileID: 1336791360}
+  hotdogButton3: {fileID: 385690267}
+  closeButton: {fileID: 288355030}
+  recipePanel: {fileID: 2063638848}
 --- !u!4 &434765527
 Transform:
   m_ObjectHideFlags: 0
@@ -11284,10 +11284,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1904021e4960e4939b3fa8d65885517e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentLevel: 1
-  level1RecipeUI: {fileID: 0}
-  level2RecipeUI: {fileID: 0}
-  recipeButton: {fileID: 0}
+  currentLevel: 2
+  level1RecipeUI: {fileID: 1254544257}
+  level2RecipeUI: {fileID: 648214193}
+  recipeButton: {fileID: 201015494}
 --- !u!4 &485855951
 Transform:
   m_ObjectHideFlags: 0
@@ -12940,7 +12940,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -14717,7 +14717,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -17037,21 +17037,21 @@ MonoBehaviour:
     - {fileID: 2800000, guid: a3e08c0e8ad3f41a6a150b88fa1a0db6, type: 3}
     - {fileID: 2800000, guid: cda1ebe375a1d483f81736ab2748f958, type: 3}
     finalFoodTexture: {fileID: 2800000, guid: 45c8c4f9902014e9594a521fdcaba52b, type: 3}
-  foodNameText: {fileID: 0}
+  foodNameText: {fileID: 583500185}
   ingredientSlots:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  finalFoodSlot: {fileID: 0}
-  pizzaButton1: {fileID: 0}
-  pizzaButton2: {fileID: 0}
-  pizzaButton3: {fileID: 0}
-  closeButton: {fileID: 0}
-  recipePanel: {fileID: 0}
+  - {fileID: 563366647}
+  - {fileID: 1996966515}
+  - {fileID: 866585788}
+  - {fileID: 1357539153}
+  - {fileID: 324580273}
+  - {fileID: 1191210125}
+  - {fileID: 2081679289}
+  finalFoodSlot: {fileID: 625792958}
+  pizzaButton1: {fileID: 1905570578}
+  pizzaButton2: {fileID: 1746285075}
+  pizzaButton3: {fileID: 1955560330}
+  closeButton: {fileID: 186458717}
+  recipePanel: {fileID: 691692767}
 --- !u!4 &691692769
 Transform:
   m_ObjectHideFlags: 0
@@ -18664,7 +18664,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -19050,21 +19050,21 @@ MonoBehaviour:
     - {fileID: 2800000, guid: 343612c40ad9d46a087394c4c9033f0b, type: 3}
     - {fileID: 2800000, guid: d27dc9dd2671b449888ad796c10d7a9b, type: 3}
     finalFoodTexture: {fileID: 2800000, guid: 8b47836f48bff44ce9a7b56a5563951c, type: 3}
-  foodNameText: {fileID: 0}
+  foodNameText: {fileID: 268371949}
   ingredientSlots:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  finalFoodSlot: {fileID: 0}
-  burgerButton1: {fileID: 0}
-  burgerButton2: {fileID: 0}
-  burgerButton3: {fileID: 0}
-  burgerButton4: {fileID: 0}
-  closeButton: {fileID: 0}
-  recipePanel: {fileID: 0}
+  - {fileID: 405044742}
+  - {fileID: 1701346508}
+  - {fileID: 1277548898}
+  - {fileID: 1102765791}
+  - {fileID: 63950798}
+  - {fileID: 304576616}
+  finalFoodSlot: {fileID: 1555703065}
+  burgerButton1: {fileID: 1216431841}
+  burgerButton2: {fileID: 246943094}
+  burgerButton3: {fileID: 550764076}
+  burgerButton4: {fileID: 876016081}
+  closeButton: {fileID: 1599177739}
+  recipePanel: {fileID: 1836261805}
 --- !u!4 &799159638
 Transform:
   m_ObjectHideFlags: 0
@@ -20446,7 +20446,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -23259,8 +23259,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 958766042}
   m_HandleRect: {fileID: 958766041}
   m_Direction: 2
-  m_Value: 0.00000005131062
-  m_Size: 0.099934004
+  m_Value: -0.00000035917435
+  m_Size: 0.09996333
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -26756,7 +26756,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -27904,7 +27904,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -28119,7 +28119,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -28622,30 +28622,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bc7b8409bc454e72bc41b9b98939694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pizzaButton: {fileID: 0}
-  hotdogButton: {fileID: 0}
-  beerButton: {fileID: 0}
-  burgerButton: {fileID: 0}
-  pancakeButton: {fileID: 0}
-  cocktailButton: {fileID: 0}
+  pizzaButton: {fileID: 954186765}
+  hotdogButton: {fileID: 1957134881}
+  beerButton: {fileID: 1157751668}
+  burgerButton: {fileID: 2038619133}
+  pancakeButton: {fileID: 1742157233}
+  cocktailButton: {fileID: 1687623726}
   pizzaRecipeUI: {fileID: 691692768}
   hotdogRecipeUI: {fileID: 434765526}
   burgerRecipeUI: {fileID: 799159637}
   pancakeRecipeUI: {fileID: 1839207024}
-  level1MainRecipeUI: {fileID: 0}
-  level2MainRecipeUI: {fileID: 0}
-  pizzaPanel: {fileID: 0}
-  hotdogPanel: {fileID: 0}
-  beerPanel: {fileID: 0}
-  burgerPanel: {fileID: 0}
-  pancakePanel: {fileID: 0}
-  cocktailPanel: {fileID: 0}
-  pizzaCloseButton: {fileID: 0}
-  hotdogCloseButton: {fileID: 0}
-  beerCloseButton: {fileID: 0}
-  burgerCloseButton: {fileID: 0}
-  pancakeCloseButton: {fileID: 0}
-  cocktailCloseButton: {fileID: 0}
+  level1MainRecipeUI: {fileID: 1254544257}
+  level2MainRecipeUI: {fileID: 648214193}
+  pizzaPanel: {fileID: 697207721}
+  hotdogPanel: {fileID: 2063638848}
+  beerPanel: {fileID: 801312370}
+  burgerPanel: {fileID: 1836261805}
+  pancakePanel: {fileID: 1582508657}
+  cocktailPanel: {fileID: 1463038785}
+  pizzaCloseButton: {fileID: 186458717}
+  hotdogCloseButton: {fileID: 288355030}
+  beerCloseButton: {fileID: 1264295657}
+  burgerCloseButton: {fileID: 1599177739}
+  pancakeCloseButton: {fileID: 1581877900}
+  cocktailCloseButton: {fileID: 782414756}
 --- !u!4 &1229581048
 Transform:
   m_ObjectHideFlags: 0
@@ -30818,7 +30818,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -38273,7 +38273,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -39027,7 +39027,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -39677,7 +39677,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -41551,7 +41551,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1687623725}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1850302747}
+        m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
+        m_MethodName: PlayButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!222 &1687623727
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -42736,7 +42748,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -43019,7 +43031,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -46228,21 +46240,21 @@ MonoBehaviour:
     - {fileID: 2800000, guid: 30ce8dd10adb04ee495bc31eb4d95033, type: 3}
     finalFoodTexture: {fileID: 2800000, guid: 989b88179d88a4091a375954a86a8357, type: 3}
     pancakeSliceAmount: 3
-  foodNameText: {fileID: 0}
+  foodNameText: {fileID: 1181886283}
   ingredientSlots:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  finalFoodSlot: {fileID: 0}
-  x3Image: {fileID: 0}
-  x4Image: {fileID: 0}
-  pancakeButton1: {fileID: 0}
-  pancakeButton2: {fileID: 0}
-  pancakeButton3: {fileID: 0}
-  pancakeButton4: {fileID: 0}
-  closeButton: {fileID: 0}
-  recipePanel: {fileID: 0}
+  - {fileID: 1674306032}
+  - {fileID: 1039634071}
+  - {fileID: 1667198156}
+  - {fileID: 1697126026}
+  finalFoodSlot: {fileID: 2113172177}
+  x3Image: {fileID: 1209669068}
+  x4Image: {fileID: 1674251982}
+  pancakeButton1: {fileID: 1160997055}
+  pancakeButton2: {fileID: 1211764681}
+  pancakeButton3: {fileID: 607546145}
+  pancakeButton4: {fileID: 127687225}
+  closeButton: {fileID: 1581877900}
+  recipePanel: {fileID: 1582508657}
 --- !u!4 &1839207025
 Transform:
   m_ObjectHideFlags: 0
@@ -46476,6 +46488,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1850302748}
   - component: {fileID: 1850302747}
+  - component: {fileID: 1850302749}
   m_Layer: 0
   m_Name: SFXManager
   m_TagString: Untagged
@@ -46495,7 +46508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9511b00e642234d51a62d5ce104e96d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 1850302749}
   buttonClickSound: {fileID: 8300000, guid: 895de61d27d88477097d70eb1bbec575, type: 3}
   buttonHoverSound: {fileID: 8300000, guid: 380d1f9a7179f4f42b76c4f41161b72b, type: 3}
   panelOpenSound: {fileID: 8300000, guid: 1323a27e83a7b4865ab3d989843854ff, type: 3}
@@ -46539,6 +46552,102 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 32
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1850302749
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850302746}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1851838176
 GameObject:
   m_ObjectHideFlags: 0
@@ -47724,7 +47833,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -48647,7 +48756,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
@@ -50402,7 +50511,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1850302747}
         m_TargetAssemblyTypeName: SFXManager, Assembly-CSharp
         m_MethodName: PlayButtonClick
         m_Mode: 1
