@@ -172,6 +172,15 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
 
     private void JoinRandomRoom()
     {
+        if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            if (mainMenuPromptText != null)
+                mainMenuPromptText.text = "Connecting...";
+
+            SFXManager.Instance?.PlayError();
+            return;
+        }
+
         if (mainMenuPromptText != null)
             mainMenuPromptText.text = "Searching for room...";
 
@@ -493,4 +502,9 @@ public class PhotonHomeUIManager : MonoBehaviourPunCallbacks
         UpdateCharacterPrompt("Choose your character.");
     }
 
+    public override void OnJoinedLobby()
+    {
+        if (!PhotonNetwork.InRoom)
+            OpenMainMenuPanel();
+    }
 }
