@@ -1984,7 +1984,6 @@ GameObject:
   - component: {fileID: 2529144136459627300}
   - component: {fileID: 8914198863210917187}
   - component: {fileID: 2837764616899804233}
-  - component: {fileID: 1321461364332440000}
   - component: {fileID: 4753864498949746629}
   - component: {fileID: 1609708109214361775}
   - component: {fileID: 8066142403118682420}
@@ -2359,15 +2358,6 @@ MonoBehaviour:
   dropUpOffset: 0.5
   dropPushForce: 1.5
   requireCustomerWithOrderToPlace: 1
---- !u!170 &1321461364332440000
-AudioDistortionFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7158508251473883405}
-  m_Enabled: 1
-  m_DistortionLevel: 0.2
 --- !u!114 &4753864498949746629
 MonoBehaviour:
   m_ObjectHideFlags: 0
