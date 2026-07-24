@@ -4945,7 +4945,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 6e018f8ea53f9c444a184c043946588d, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6e018f8ea53f9c444a184c043946588d, type: 3}
       propertyPath: m_LocalScale.x
@@ -11428,7 +11428,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: 90, z: 0}
 --- !u!114 &1220632436
 MonoBehaviour:
@@ -19954,7 +19954,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: Level2
-  requiredCompletedLevel: 0
+  requiredCompletedLevel: 1
   playerTag: Player
   portalTrigger: {fileID: 1486085706}
   lightsWhenUnlocked:
